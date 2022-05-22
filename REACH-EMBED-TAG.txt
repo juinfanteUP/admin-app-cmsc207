@@ -1,0 +1,12 @@
+<!-- ========= Start of Reach Community App ========= -->
+    <script type="text/javascript">
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0]
+ 	  
+            // This should be dynamic from API
+            s1.src='http://127.0.0.1:8000/widget/widget.js';
+            s1.charset='UTF-8';
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
+<!-- ========= End of Reach Community App ========= -->
