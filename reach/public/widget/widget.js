@@ -7,7 +7,11 @@ const ipKey = '0191456905f9443caea05a9ca832da47';
 
 const iurl = 'https://ipgeolocation.abstractapi.com/v1/?api_key=' + ipKey;
 const lurl = sourceDomain + 'widget/style.css';
-const jurl =sourceDomain + 'widget/vendor.js';
+const jurl = sourceDomain + 'widget/vendor.js';
+
+const socketioUrl = "https://socketio.erickdelrey.rocks";
+//const socketioLib = "http://localhost:5000";
+const socketioLib = socketioUrl + "/socket.io/socket.io.js";
 
 const sendMessageApi = sourceDomain + "api/sendMessage";
 const getAllMessageApi = sourceDomain + "api/getMessages";
@@ -19,7 +23,7 @@ const validateClientApi = sourceDomain + "api/validateClientAndGetWidget";
 
 // Emit message
 var sendMessage = (message, cid) => {
-    var dataParam = { 
+    var dataParam = {
         clientId: cid,
         body: message
     };
@@ -57,7 +61,7 @@ var getAllMessage = (cid) => {
 
 // Checks the website and client id to proceed
 var validateClientAndGetWidget = (cid, clientInfo=null) => {
-    var dataParam = { 
+    var dataParam = {
         ipaddress: clientInfo?.ip,
         hostname: clientInfo?.hostname,
         city: clientInfo?.city,
@@ -84,10 +88,10 @@ var validateClientAndGetWidget = (cid, clientInfo=null) => {
 }
 
 
-// Get client id from stored cookies. Geenerate a new one if non existent
+// Get client id from stored cookies. Generate a new one if non-existent
 var getLocalClientData = () => {
-    let cid = localStorage.getItem(localStorageName) ?? 0;    
-    if(cid == 0) {        
+    let cid = localStorage.getItem(localStorageName) ?? 0;
+    if(cid == 0) {
         setLocalClientData();
     }
 
@@ -97,7 +101,7 @@ var getLocalClientData = () => {
 // Save client id generated from the server
 var setLocalClientData = (cid=null) => {
     if(!cid){
-        cid = Date.now().toString(36) + Math.random().toString(36).substr(2); 
+        cid = Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
     localStorage.setItem(localStorageName, cid);
@@ -105,7 +109,7 @@ var setLocalClientData = (cid=null) => {
 
 
 // Get client info by IP
-var getUserInfoByIP = () => {    
+var getUserInfoByIP = () => {
     return $.getJSON(iurl, (data) => {
         return JSON.stringify(data, null, 2);
     })
@@ -117,30 +121,53 @@ var getUserInfoByIP = () => {
 
 
 var generateComponent = (widget) => {
-    var INDEX = 0; 
+    var INDEX = 0;
     document.body.innerHTML += widget;
-    
+
+    const socket = io(socketioUrl);
+    const room = getLocalClientData();
+    const username = "client-name"; //update to client name
+
+    socket.emit('join-room', {"room":room, "username" : username});
+
+    // Message from server
+    socket.on('message', (message) => {
+        generateMessage(message.text, true);
+    });
+
+    // Trigger click when user pressed enter
+    $('#chat-input').keydown(function(e){
+        if (e.keyCode === 13) {
+            $("#chat-submit").trigger('click');
+        }
+    });
+
     // Send message
     $("#chat-submit").click((e) => {
+
         e.preventDefault();
-        var msg = $("#chat-input").val(); 
+
+        var msg = $("#chat-input").val();
         if(msg.trim() == ''){
             return false;
         }
-      
+
         generateMessage(msg);
-        setTimeout(() => {}, 1000)  
+
+        socket.emit('send-message', msg);
+
+        setTimeout(() => {}, 1000)
     });
-  
+
     // User opened the widget
-    $("#chat-circle").click(() => {    
+    $("#chat-circle").click(() => {
 
         // Emit an online trigger?
 
         $("#chat-circle").toggle('scale');
         $(".chat-box").toggle('scale');
     });
-    
+
     // User closed the widget
     $(".chat-box-toggle").click(() => {
         $("#chat-circle").toggle('scale');
@@ -160,11 +187,11 @@ var generateComponent = (widget) => {
         $("#cm-msg-"+INDEX).hide().fadeIn(300);
 
         if(isSelf){
-            $("#chat-input").val(''); 
-        }    
-           
-        $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);    
-    }  
+            $("#chat-input").val('');
+        }
+
+        $(".chat-logs").stop().animate({ scrollTop: $(".chat-logs")[0].scrollHeight}, 1000);
+    }
 };
 
 
@@ -180,16 +207,21 @@ var generateComponent = (widget) => {
     c.media = 'all';
     document.head.appendChild(c);
 
+    // Add socket.io js dependency
+    var socketio = document.createElement("script");
+    socketio.src = socketioLib;
+    document.head.appendChild(socketio);
+
     // Load jquery and other dependencies
-    if (!window.jQuery) {  
+    if (!window.jQuery) {
         var s = document.createElement("script");
         s.src = jurl;
-        document.head.appendChild(s);       
+        document.head.appendChild(s);
     }
-   
-    setTimeout(() => { 
-        // Send client id from local storage. 
-        let cid = getLocalClientData() 
+
+    setTimeout(() => {
+        // Send client id from local storage.
+        let cid = getLocalClientData();
 
         // not possible in local environment for client ip inspection (need laravel to do this)
         var ipData = getUserInfoByIP(cid)?.data;
@@ -197,9 +229,9 @@ var generateComponent = (widget) => {
 
             // If widget is empty, widget may be unavailable or the client is banned
             if(widget) {
-                generateComponent(widget); 
+                generateComponent(widget);
             }
-            
+
         });
     }, 1000)
 })();
