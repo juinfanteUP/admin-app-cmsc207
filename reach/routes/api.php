@@ -6,7 +6,7 @@ use App\Http\Controllers\WidgetController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ClientController;
-
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,3 +37,8 @@ Route::get('/agentClients/{agentId}', [AgentController::class, 'getClientsByAgen
 Route::resource('client', ClientController::class)->only(['destroy', 'show', 'store', 'update']);
 // Route::get('/agentClients', [ClientController::class, 'getClientsByAgentId']);
 
+
+// User API
+Route::post('/register', [UserController::class, 'registerUser']);
+Route::post('/login', [UserController::class, 'loginUser']);
+//Route::resource('user', UserController::class)->only(['registerUser', 'loginUser']);
