@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Controller;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +15,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Home page
+Route::view('/', 'home'); //->middleware('redirectIfAnonymous'); //Commented this to allow user access without Auth
+
+// Authentication page
+Route::view('/login', 'auth.login')->middleware('redirectIfAuthenticated');
+Route::view('/register', 'auth.register')->middleware('redirectIfAuthenticated');
+
+
+
+
+
+
+
