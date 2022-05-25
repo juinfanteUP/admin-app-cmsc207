@@ -6,14 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
+use App\Models\User;
 use App\Models\Client;
 use Session;
 use Hash;
+use Auth;
 
 
 // TODO: PLEASE REFINE AND TEST...
 class AgentController extends Controller
 {
+    
     // Login a User
     public function login(Request $req) 
     {
@@ -22,14 +25,18 @@ class AgentController extends Controller
             'password'=>'required|max:100'
         ]);
 
-        $agent = Agent::where('agentId', $req->email)->first();
+        $agent = Agent::where('email', '=', $req->email)->first();
 
         if($agent)
         {
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                $req->session()->put('user', $agent);
+                if($req->hasSession()) {
+                    $req->old();
+                    $req->session()->put('user', $agent->email);
+                }
+                //Session::put('user', $agent->email);
                 return redirect('/');
             }
         }   
@@ -49,7 +56,7 @@ class AgentController extends Controller
             'nickname'=>'required|max:50'
         ]);
 
-        $agent = Agent::where('email',$req->email)->first();
+        $agent = Agent::where('email', '=', $req->email)->first();
 
         if(!is_null($agent)) {
             return back()->with('failed', 'Email already exists');
