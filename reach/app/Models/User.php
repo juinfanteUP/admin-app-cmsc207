@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jenssegers\Mongodb\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Jenssegers\Mongodb\Auth\User as Authenticatable;
 
-class User extends Model
+class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
+    protected $connection = 'mongodb';
+    protected $collection = 'users';
     protected $fillable = [
-        'name',
         'email',
         'password',
-        'role',     // agent or admin
-    ];
+        'firstname',
+        'lastname',
+        'nickname'
+    ]; 
+
+    protected $dates = ['created_at', 'updated_at', 'datetime'];
 }
