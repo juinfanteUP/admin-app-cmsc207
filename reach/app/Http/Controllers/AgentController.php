@@ -8,6 +8,7 @@ use App\Services\PayUService\Exception;
 use App\Models\Agent;
 use App\Models\Client;
 use Session;
+use Hash;
 
 
 // TODO: PLEASE REFINE AND TEST...
