@@ -25,17 +25,18 @@ class AgentController extends Controller
             'password'=>'required|max:100'
         ]);
 
-        $agent = Agent::where('email', '=', $req->email)->first();
+        $agent = Agent::where('email', $req->email)->first();
 
         if($agent)
         {
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                if($req->hasSession()) {
-                    $req->old();
-                    $req->session()->put('user', $agent->email);
-                }
+                // if($req->hasSession()) {
+                //     $req->old();
+                $req->session()->put('loginId', $agent->_id);
+                $req->session()->put('user', $agent->email);
+                // }
                 //Session::put('user', $agent->email);
                 return redirect('/');
             }

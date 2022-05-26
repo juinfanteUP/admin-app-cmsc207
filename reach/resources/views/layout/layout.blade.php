@@ -21,7 +21,7 @@
     <script src="{{ asset('assets/libs/fg-emoji-picker/fgEmojiPicker.js') }}"></script>
     <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
     <script src="{{ asset('assets/libs/utility.js') }}"></script>
-
+    <script src="{{ asset('assets/libs/copyToClipBoard.js') }}"></script>
 
 </html>
 

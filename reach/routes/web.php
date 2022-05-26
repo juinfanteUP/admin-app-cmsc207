@@ -17,7 +17,7 @@ use App\Http\Controllers\ViewController;
 
 // Home page
 // Route::view('/', 'home')->middleware('redirectIfAnonymous'); //Commented this to allow user access without Auth
-Route::get('/', [ViewController::class, 'showHome'])->middleware('redirectIfAnonymous');
+Route::get('/', [ViewController::class, 'showHome']); //->middleware('redirectIfAnonymous');
 
 // Authentication page
 // Route::view('/login', 'auth.login')->middleware('redirectIfAuthenticated');
