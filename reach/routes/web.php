@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
-
+use App\Http\Controllers\ViewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,15 +16,9 @@ use App\Http\Controllers\Controller;
 */
 
 // Home page
-Route::view('/', 'home'); //->middleware('redirectIfAnonymous'); //Commented this to allow user access without Auth
+Route::view('/', 'home')->middleware('redirectIfAnonymous'); //Commented this to allow user access without Auth
+
 
 // Authentication page
 Route::view('/login', 'auth.login')->middleware('redirectIfAuthenticated');
 Route::view('/register', 'auth.register')->middleware('redirectIfAuthenticated');
-
-
-
-
-
-
-
