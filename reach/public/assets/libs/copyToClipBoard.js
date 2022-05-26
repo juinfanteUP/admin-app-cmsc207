@@ -8,25 +8,13 @@ btn.addEventListener('click', function onClick(event) {
     window.getSelection().removeAllRanges(); 
     window.getSelection().addRange(range); 
     document.execCommand("copy");
-    document.getElementById('widgetScript').style.backgroundColor="#06d6a0";
+    document.getElementById('widgetScript').style.backgroundColor="#5eb37a";
     window.getSelection().removeAllRanges();
     var delayInMilliseconds = 1000; //1 second
     setTimeout(function() {
     //your code to be executed after 1 second
     document.getElementById('widgetScript').style.backgroundColor="#f9f9f9";
     }, delayInMilliseconds);
-    //alert("text copied");
-
 });
-
-// function copyData(containerid) {#f9f9f9
-//     var range = document.createRange();
-//     range.selectNode(containerid); //changed here
-//     window.getSelection().removeAllRanges(); 
-//     window.getSelection().addRange(range); 
-//     document.execCommand("copy");
-//     document.body.style.backgroundColor = 'green';
-//     window.getSelection().removeAllRanges();
-//   }
 
 

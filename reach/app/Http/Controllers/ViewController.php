@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
 use App\Models\Client;
-use Session;
+use Illuminate\Support\Facades\Session;
 use Hash;
 use Auth;
 
@@ -28,7 +28,6 @@ class ViewController extends Controller
      public function showHome()
     {
         $user = Agent::where('email', '=', Session::get('user'))->first();
-        //$rooms = DB::select('select * from view_room_members where user_id='.$user->id.' GROUP BY room_id');
         return view('home', ['user' => $user]);
     }
 }

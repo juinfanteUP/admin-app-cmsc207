@@ -8,7 +8,7 @@ use App\Services\PayUService\Exception;
 use App\Models\Agent;
 use App\Models\User;
 use App\Models\Client;
-use Session;
+use Illuminate\Support\Facades\Session;
 use Hash;
 use Auth;
 
@@ -32,12 +32,8 @@ class AgentController extends Controller
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                // if($req->hasSession()) {
-                //     $req->old();
                 $req->session()->put('loginId', $agent->_id);
-                $req->session()->put('user', $agent->email);
-                // }
-                //Session::put('user', $agent->email);
+                $req->session()->put('user', $agent->email);        
                 return redirect('/');
             }
         }   
@@ -83,8 +79,9 @@ class AgentController extends Controller
     // Clear session and redirect to login page
     public function logout(Request $req)
     {
-        $req->session()->forget('user');
+        $req->session()->forget('loginId');
         $req->session()->flush();
+   
         return redirect('login');
     }
 
