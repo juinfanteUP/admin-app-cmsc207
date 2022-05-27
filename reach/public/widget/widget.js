@@ -9,17 +9,16 @@ var socketioUrl = "https://socketio.erickdelrey.rocks";
 var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
-var lurl = sourceDomain + 'widget/style.css';
-var jurl = sourceDomain + 'widget/vendor.js';
-var sendMessageApi = sourceDomain + "api/message/message";
-var validateClientApi = sourceDomain + "api/client/validate"; // ***************** Services ***************** //
+var lurl = sourceDomain + '/widget/style.css';
+var jurl = sourceDomain + '/widget/vendor.js';
+var sendMessageApi = sourceDomain + "/api/message/send";
+var validateClientApi = sourceDomain + "/api/client/validate"; // ***************** Services ***************** //
 // Emit message
 
-var sendMessage = function sendMessage(msg) {
+function sendMessage(msg) {
   $.ajax({
     type: "POST",
     url: sendMessageApi,
-    contentType: "application/json",
     dataType: 'json',
     data: msg,
     success: function success(result) {
@@ -27,17 +26,15 @@ var sendMessage = function sendMessage(msg) {
       console.log(result);
     }
   });
-}; // Checks the website and client id to proceed
+} // Checks the website and client id to proceed
 
 
-var validateClientAndGetWidget = function validateClientAndGetWidget(cid) {
+function validateClientAndGetWidget(cid) {
   return $.ajax({
     type: "POST",
     url: validateClientApi,
     dataType: 'json',
-    data: {
-      clientId: cid
-    },
+    data: cid,
     success: function success(data) {
       return data.data;
     },
@@ -46,7 +43,7 @@ var validateClientAndGetWidget = function validateClientAndGetWidget(cid) {
       return null;
     }
   });
-}; // Get client id from stored cookies. Geenerate a new one if non existent
+} // Get client id from stored cookies. Geenerate a new one if non existent
 
 
 var getLocalClientData = function getLocalClientData() {
@@ -62,14 +59,16 @@ var setLocalClientData = function setLocalClientData() {
 }; // ***************** Chat Widget ***************** //
 
 
-var generateComponent = function generateComponent(widget, clientName, messages) {
+var generateComponent = function generateComponent(widget, client, messages) {
   var INDEX = 0;
   document.body.innerHTML += widget;
+  var clientName = "".concat(client.domain, " - ").concat(client.ipAddress);
   var socket = io(socketioUrl);
-  var room = getLocalClientData();
+  var room = getLocalClientData(); // If new user, jump in and join the 
+
   socket.emit('join-room', {
     "room": room,
-    "username": clientName
+    "client": client
   }); // Message from server. If messaged is whispered, do not generate the line (2nd validation)
 
   socket.on('message', function (msg) {
@@ -98,7 +97,7 @@ var generateComponent = function generateComponent(widget, clientName, messages)
 
     var message = {
       'body': msg,
-      'isWhispher': false,
+      'isWhisper': false,
       'isAgent': false,
       'senderId': room,
       'clientId': room,
@@ -145,8 +144,6 @@ var generateComponent = function generateComponent(widget, clientName, messages)
 
 
 (function () {
-  var _document$title, _document;
-
   // Add css style dependency
   var c = document.createElement('link');
   c.rel = 'stylesheet';
@@ -163,25 +160,25 @@ var generateComponent = function generateComponent(widget, clientName, messages)
     var s = document.createElement("script");
     s.src = jurl;
     document.head.appendChild(s);
+    console.log(jurl);
   } // Send client id from local storage.
 
 
-  var domainName = (_document$title = (_document = document) === null || _document === void 0 ? void 0 : _document.title) !== null && _document$title !== void 0 ? _document$title : "Unknown Site";
-  ;
   setTimeout(function () {
+    var domain = window.location.hostname;
     var params = {
-      "clientId": getLocalClientData(),
-      "domain": domainName
+      clientId: getLocalClientData(),
+      domain: domain !== null && domain !== void 0 ? domain : "Unknown Site"
     };
     validateClientAndGetWidget(params).then(function (result) {
       // If widget is empty, widget may be unavailable or the client is banned
       if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.clientId) != 0) {
         if (result.isNew) {
-          setLocalClientData(result.clientId);
+          setLocalClientData(result.client.clientId);
         }
 
-        var clientName = "".concat(domainName, " - ").concat(result.ipAddress);
-        generateComponent(result.widget, clientName, result.messages);
+        console.log(result);
+        generateComponent(result.widget, result.client, result.messages);
       }
     });
   }, 1000);

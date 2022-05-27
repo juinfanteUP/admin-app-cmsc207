@@ -13,9 +13,9 @@ class Message extends Model
         'clientId',
         'senderId', 
         'body',
-        'byAgent',
+        'isAgent',
         'isWhisper',
-        'attachment'
+        'created_at'
     ]; 
 
     protected $dates = ['created_at', 'updated_at', 'datetime'];

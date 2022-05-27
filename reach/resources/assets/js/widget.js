@@ -7,22 +7,21 @@ const socketioLib = process.env.SOCKET_LIB_URL;
 // *********************************************************** //
 
 const localStorageName = 'reachapp_clientid';
-const lurl = sourceDomain + 'widget/style.css';
-const jurl = sourceDomain + 'widget/vendor.js';
+const lurl = sourceDomain + '/widget/style.css';
+const jurl = sourceDomain + '/widget/vendor.js';
 
-const sendMessageApi = sourceDomain + "api/message/message";
-const validateClientApi = sourceDomain + "api/client/validate";
+const sendMessageApi = sourceDomain + "/api/message/send";
+const validateClientApi = sourceDomain + "/api/client/validate";
 
 
 // ***************** Services ***************** //
 
 
 // Emit message
-var sendMessage = (msg) => {
+function sendMessage (msg) {
 	$.ajax({
 		type: "POST",
 		url: sendMessageApi,
-		contentType: "application/json",
 		dataType: 'json',
 		data: msg,
 		success: function(result) {
@@ -35,12 +34,12 @@ var sendMessage = (msg) => {
 
 
 // Checks the website and client id to proceed
-var validateClientAndGetWidget = (cid) => {
+function validateClientAndGetWidget (cid) {
 	return $.ajax({
 		type: "POST",
 		url: validateClientApi,
 		dataType: 'json',
-		data: { clientId: cid },
+		data: cid,
 		success: function(data) {
 			return data.data;
 		},
@@ -66,17 +65,21 @@ var setLocalClientData = (cid = null) => {
 // ***************** Chat Widget ***************** //
 
 
-var generateComponent = (widget, clientName, messages) => {
+var generateComponent = (widget, client, messages) => {
 	var INDEX = 0;
 	document.body.innerHTML += widget;
 
+    let clientName = `${client.domain} - ${client.ipAddress}`
 	const socket = io(socketioUrl);
 	const room = getLocalClientData();
 
-	socket.emit('join-room', {
-		"room": room,
-		"username": clientName
-	});
+
+    // If new user, jump in and join the 
+    socket.emit('join-room', {
+        "room": room,
+        "client": client
+    });
+
 
 	// Message from server. If messaged is whispered, do not generate the line (2nd validation)
 	socket.on('message', (msg) => {
@@ -111,7 +114,7 @@ var generateComponent = (widget, clientName, messages) => {
 
         var message = {
             'body': msg,
-            'isWhispher': false,
+            'isWhisper': false,
             'isAgent': false,
             'senderId': room,
             'clientId': room,
@@ -186,29 +189,27 @@ var generateComponent = (widget, clientName, messages) => {
 		var s = document.createElement("script");
 		s.src = jurl;
 		document.head.appendChild(s);
+        console.log(jurl);
 	}
 
     // Send client id from local storage.
-
-    let domainName = document?.title ?? "Unknown Site";
-    ;
-
 	setTimeout(() => {	 
+        let domain = window.location.hostname;
         let params = {
-            "clientId": getLocalClientData(),
-            "domain": domainName
+            clientId: getLocalClientData(),
+            domain: domain ?? "Unknown Site"
         }
-
+  
 		validateClientAndGetWidget(params).then((result) => {
 
-			// If widget is empty, widget may be unavailable or the client is banned
+            // If widget is empty, widget may be unavailable or the client is banned
 			if (result && result?.widget && result?.clientId != 0) {
                 if(result.isNew) {
-                    setLocalClientData(result.clientId);
+                    setLocalClientData(result.client.clientId);
                 }
-
-                let clientName = `${domainName} - ${result.ipAddress}`
-                generateComponent(result.widget, clientName, result.messages);
+    
+                console.log(result);
+                generateComponent(result.widget, result.client, result.messages);
 			}
 		});
 	}, 1000)

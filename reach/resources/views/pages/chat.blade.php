@@ -51,7 +51,7 @@
 
                                         <!-- Message with Attachment -->
                                         {{-- <div class="ctext-wrap-content" v-show ="message.attachment_id != 0">
-                                            <p class="ctext-content" v-show ="message.message != ''">@{{ message.body }}</p>
+                                            <p class="ctext-content" v-show ="message.body != ''">@{{ message.body }}</p>
                                             <div class="p-1 rounded-1">
                                                 <div class="d-flex align-items-center attached-file">
                                                 <div class="flex-shrink-0 avatar-sm me-3 ms-0 attached-file-avatar">
@@ -93,7 +93,7 @@
 
 
                         <!-- Empty Message Indicator -->
-                        <li class="text-center" v-show="messages.length == 0">
+                        <li class="text-center" v-show="messages.length == 0 && clients.length > 0">
                             <span class="w-100 text-muted">--- Enter a message to start a conversation now! ---</span>
                         </li>
 
@@ -103,83 +103,98 @@
             </div>
 
 
-            <!-- Attachment -->
-            <div class="attachment-tab row" v-show ="file.name != ''">
-                <div class="col-sm-10 text-left">
-                    <b>@{{ isSubmitting ? 'Uploading File:' : 'Attachment Name:' }}</b> <span class="mx-1"> @{{ file.name }} </span>
-                </div>
-                <div class="col-sm-2 attachment-tab-close">
-                    <a href="javascript:" class="text-white " @click="cancelUpload()" v-show ="!isSubmitting" title="Remove attachment">
-                        <i class="bx bx-x align-middle"></i>
-                    </a>
-                </div>
+            <div id="empty-chat" class="text-center" v-show="selectedClient.clientId == 0">
+                <img src="assets/images/brand/reach-128.png" width="128">
+                <p>
+                    Please select a client to begin the chat
+                </p>
             </div>
 
 
-            <!-- start chat input section -->
-            <div class="position-relative">
-                <div class="chat-input-section p-4 border-top">
-                    <div class="row g-0 align-items-center">
-                        
-                        <div class="col-auto text-center px-4">
-                            <div class="chat-input-links me-md-2 mb-2">
-                                
-                                <!-- Attachments -->
-                                <input type="file" id="file-uploader" ref="file" v-on:change="handleFileUpload()" hidden/>
-                                <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Attachments">
-                                    <button type="button" onclick="document.getElementById('file-uploader').click()"
-                                        class="btn btn-link text-decoration-none btn-lg waves-effect">
-                                        <i class="bx bx-paperclip align-middle"></i>
-                                    </button>
+            <!-- Chat Input components -->
+            <div v-show="selectedClient.clientId != 0 && clients.length > 0">
+
+                <!-- Attachment -->
+                <div class="attachment-tab row" v-show ="file.name != ''">
+                    <div class="col-sm-10 text-left">
+                        <b>@{{ isSubmitting ? 'Uploading File:' : 'Attachment Name:' }}</b> <span class="mx-1"> @{{ file.name }} </span>
+                    </div>
+                    <div class="col-sm-2 attachment-tab-close">
+                        <a href="javascript:" class="text-white " @click="cancelUpload()" v-show ="!isSubmitting" title="Remove attachment">
+                            <i class="bx bx-x align-middle"></i>
+                        </a>
+                    </div>
+                </div>
+
+
+                <!-- start chat input section -->
+                <div class="position-relative">
+                    <div class="chat-input-section p-4 border-top">
+                        <div class="row g-0 align-items-center">
+                            
+                            <div class="col-auto text-center px-4">
+                                <div class="chat-input-links me-md-2 mb-2">
+                                    
+                                    <!-- Attachments -->
+                                    <input type="file" id="file-uploader" ref="file" v-on:change="handleFileUpload()" hidden/>
+                                    <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Attachments">
+                                        <button type="button" onclick="document.getElementById('file-uploader').click()"
+                                            class="btn btn-link text-decoration-none btn-lg waves-effect">
+                                            <i class="bx bx-paperclip align-middle"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Emojis -->
+                                    <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                        data-bs-placement="top" title="Emoji">
+                                        <button type="button"
+                                            class="btn btn-link text-decoration-none btn-lg waves-effect emoji-btn"
+                                            id="emoji-btn">
+                                            <i class="bx bx-smile align-middle"></i>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <!-- Emojis -->
-                                <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover"
-                                    data-bs-placement="top" title="Emoji">
-                                    <button type="button"
-                                        class="btn btn-link text-decoration-none btn-lg waves-effect emoji-btn"
-                                        id="emoji-btn">
-                                        <i class="bx bx-smile align-middle"></i>
-                                    </button>
+                                <!-- Agent Whisper -->
+                                <div>
+                                    <input id="isWhisperChecked" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
+                                    data-onstyle="success" data-offstyle="secondary" data-size="sm">  
+                                </div>
+                                <p class="text-muted small mt-2">Agent Whisper</p>      
+                            </div>
+
+
+                            <!-- Chat Text Input -->
+                            <div class="col">
+                                <div class="position-relative">
+                                    <div class="chat-input-feedback">
+                                        Please Enter a Message
+                                    </div>
+
+                                    <textarea v-model="chatbox" type="text" placeholder="Type your message" id="chat-input" rows="3" style="resize: none"
+                                    class="form-control form-control-lg bg-light border-0 chat-input" autofocus></textarea>
                                 </div>
                             </div>
 
-                            <!-- Agent Whisper -->
-                            <div>
-                                <input id="isWhisperChecked" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
-                                 data-onstyle="success" data-offstyle="secondary" data-size="sm">  
-                            </div>
-                            <p class="text-muted small mt-2">Agent Whisper</p>      
-                        </div>
 
-
-                        <!-- Chat Text Input -->
-                        <div class="col">
-                            <div class="position-relative">
-                                <div class="chat-input-feedback">
-                                    Please Enter a Message
-                                </div>
-
-                                <textarea v-model="chatbox" type="text" placeholder="Type your message" id="chat-input" rows="3" style="resize: none"
-                                class="form-control form-control-lg bg-light border-0 chat-input" autofocus></textarea>
-                            </div>
-                        </div>
-
-
-                        <!-- Submit Chat Button -->
-                        <div class="col-auto">
-                            <div class="chat-input-links ms-2 gap-md-1">
-                                <div class="links-list-item">
-                                    <button type="button" @click="postMessage()" :disabled="disableSend"
-                                        class="btn btn-primary btn-lg chat-send waves-effect waves-light">
-                                        <i class="bx bxs-send align-middle" id="submit-btn"></i>
-                                    </button>
+                            <!-- Submit Chat Button -->
+                            <div class="col-auto">
+                                <div class="chat-input-links ms-2 gap-md-1">
+                                    <div class="links-list-item">
+                                        <button type="button" @click="postMessage()" 
+                                            class="btn btn-primary btn-lg chat-send waves-effect waves-light">
+                                            <i class="bx bxs-send align-middle" id="submit-btn"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+            </div> 
         </div>
     </div>
 </div>
+
+

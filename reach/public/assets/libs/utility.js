@@ -117,8 +117,6 @@
         });
     }
 
-    
-
 
     console.log('App has been initiated...');
   

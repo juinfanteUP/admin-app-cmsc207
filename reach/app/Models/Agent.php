@@ -15,7 +15,6 @@ class Agent extends Model
         'firstname',
         'lastname',
         'nickname',
-        'createddate'
     ]; 
 
     protected $dates = ['created_at', 'updated_at', 'datetime'];

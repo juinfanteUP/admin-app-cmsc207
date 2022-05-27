@@ -4,10 +4,7 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-const { trimEnd } = require('lodash');
-
 require('./bootstrap');
-
 window.Vue = require('vue').default;
 
 
@@ -65,7 +62,7 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
         // Clients
         clients: [],
 		searchClient: '',
-        selectedClient: {},
+        selectedClient: { clientId : 0 },
         viewClient: {}
 	},
 
@@ -107,19 +104,21 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 		
         // ************************ Subscribe to Socket Server ************************ //
 		
-        registerSocketServer: function registerSocketServer(cid) {
+        registerSocketServer: function registerSocketServer() {
 			var _this = this;
-
             const socket = io(socketioUrl);
-            const room = cid;
 
-            socket.emit('join-room', {
-                "room": room,
-                "username": _this.agent.nickname
+            // New clients from server
+            socket.on('join-room', (client) => { 
+                _this.reports.clientCount++;
+                if (!_.find(_this.clients, { clientId: client?.clientId })) {
+                    _this.clients.push(client);
+                }
             });
         
             // Message from server
             socket.on('message', (msg) => {
+                _this.reports.messageVolumeCount++;
                 _this.messages.push(msg);
                 scrollToBottom();
             });
@@ -130,29 +129,30 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 
 
 		getProfile: function getProfile() {		
-            var api = $`/api/agent/profile`;
+            var api = `/api/agent/profile`;
             var _this = this;
 
 			axios.get(api).then(function(response) {
-				_this.agents = response.data;
-			})["catch"](function(error) {
-				handleError(error);
-			});
-		},
-
-		getAgents: function getAgents() {		
-            var api = $`/api/agent/list`;
-            var _this = this;
-
-			axios.get(api).then(function(response) {
+                console.log(response.data)
 				_this.agent = response.data;
 			})["catch"](function(error) {
 				handleError(error);
 			});
 		},
 
+		getAgents: function getAgents() {		
+            var api = `/api/agent/list`;
+            var _this = this;
+
+			axios.get(api).then(function(response) {			
+                _this.agents = response.data;
+			})["catch"](function(error) {
+				handleError(error);
+			});
+		},
+
         getReports: function getAgents() {		
-            var api = $`/api/message/report`;
+            var api = `/api/message/report`;
             var _this = this;
 
             // Manipulate Data
@@ -169,38 +169,30 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 
 
 		getClients: function getClients() {		
-            var api = $`/api/client/list`;
+            var api = `/api/client/list`;
             var _this = this;
         
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
-
-				if (_this.clients.length > 0) {
-                    _this.selectClient(_this.clients[0]);
-					_this.$forceUpdate();
-				}
-
-
-                // Hide/Disable chat box if no client exists
-
-
 			})["catch"](function(error) {
 				handleError(error);
 			});
 		},
 
         selectClient: function selectClient(client) {
-            this.selectedClient = client;
+            this.selectedClient = _.clone(client);
 		},
 
 		viewClientInfo: function viewClientInfo(client) {
 			this.viewClient = {
-				ipaddress: client.ipaddress,
-				domain: client.domain,
-                country: client.country,
-                region: client.region,
-				city: client.city
+				ipaddress: client?.ipaddress,
+				domain: client?.domain,
+                country: client?.country,
+                clientId: client?.clientId,
+				city: client?.city,
+                createddtm: client?.createddtm
 			};
+
 			$('#view-client-modal').modal('show');
 		},
 
@@ -214,39 +206,87 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 
 			axios.get(api).then(function(response) {
                 _this.widget = response.data.widget;
-                _this.widget.script = _this.widget.script;
+                _this.widget.script = response.data.script;
+                _this.widget.domainBanList?.forEach(ban => _this.banList.push({ type: 'domain', value: ban })) ?? [];
+                _this.widget.ipBanList?.forEach(ban => _this.banList.push({ type: 'ipaddress', value: ban })) ?? [];
+                _this.widget.countryBanList?.forEach(ban => _this.banList.push({ type: 'country', value: ban })) ?? [];
+                _this.widget.cityBanList?.forEach(ban => _this.banList.push({ type: 'city', value: ban })) ?? [];
 			})["catch"](function(error) {
 				handleError(error);
 			});
 		},
 
 
-		updateSettings: function updateSettings(is) {
+		updateSettings: function updateSettings(action='', removeByIndex=-1) {
             var api = `/api/widget/update`;
 			var _this = this;
+            
+            if(action == 'addBan'){         
+                if(_this.banInput == null || _this.banInput == ''){
+                    alert('Please provide a value that needs to be banned');
+                    return;
+                }
+
+                switch(_this.selectedBanKey){
+                    case 'domain':
+                        if(!validateDomain(_this.banInput)){
+                            alert('Please provide a valid domain name');
+                            return;
+                        }
+                        break;
+                    case 'ipaddress':
+                        if(!validateIP(_this.banInput)){
+                            alert('Please provide a valid IP Address');
+                            return;
+                        }
+                        break;
+                }
+            }
 
 			if (confirm('Are you sure you want to update the widget settings?')) {
-				showLoader();
-				axios.put(api, {
+                showLoader();
+                switch(action){
+                    case 'addBan':
+                        _this.banList.push({ type: _this.selectedBanKey, value: _this.banInput });
+                        break;
+                    case 'removeBan':
+                        _this.banList.splice(removeByIndex, 1);
+                        break;
+                }
 
-					widgetId: 1,
-					name: _this.widget.widgetName,
+                var dataParams = {
+					name: _this.widget.name,
 					isActive: _this.widget.isActive,
-					color: _this.widget.widgetColor,
+					color: _this.widget.color,
 					starttime: _this.widget.startTime, 
 					endtime: _this.widget.endTime,
                     // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-					
-                    // Supply data to these properties
                     domainBanList: [],
                     cityBanList: [],
                     ipBanList: [],
                     countryBanList: []
-
-				}).then(function(response) {
+				};
+          
+                _this.banList.forEach(ban => {
+                    switch(ban.type){
+                        case 'domain':
+                            dataParams.domainBanList.push(ban.value);
+                            break;
+                        case 'ipaddress':
+                            dataParams.ipBanList.push(ban.value);
+                            break;
+                        case 'country':
+                            dataParams.countryBanList.push(ban.value);
+                            break;
+                        case 'city':
+                            dataParams.cityBanList.push(ban.value);
+                            break;
+                    }
+                });
+				
+                _this.selectedBanKey = '';        
+				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
-					var res = response.data;
-
 					alert('Settings has been updated successfully.');
 				})["catch"](function(error) {
 					handleError(error);
@@ -254,21 +294,14 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 			}
 		},
 
-        addBanList: function addBanList() {
-            console.log(this.banInput);
-            console.log(this.selectedBanKey);
-
-            // TODO: Manipulate this and push it to API
-
-            this.updateSettings();
-        },
-
-        removeBanItem: function removeBanItem(item) {
-            console.log(item);
-
-            // TODO: manipulate this and push it to API
-
-            this.updateSettings();
+        copyWidgetScript: function copyWidgetScript() {  
+            var dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = this.widget.script;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+            alert('Copied successfully!');
         },
 
 
@@ -298,17 +331,19 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
             var sendApi = `/api/message/send`;
             var _this = this;      
 
+            console.log('1');
 			if (this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "")) {
-				return;
+				console.log('declined');
+                return;
 			}
 
+            console.log('2');
 			var msg = {
                 "clientId": this.clientId,
 				"body": this.chatbox,
 				"senderId": 0,
 				"isWhisper": isWhisperChecked,
 				"isAgent": true,
-				"createddtm": Date.now().toISOString().slice(0, 19).replace('T', ' '),
 				"attachment": {
                     "referenceId": 0,
                     "size": "",
@@ -317,6 +352,7 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
                 }
 			}; 
 
+            console.log('sent');
 
             // Handle plain message
             if (!(this.file && this.file?.name != "")) {
@@ -434,3 +470,11 @@ function formatBytes(bytes) {
     var i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
 }
+
+function validateIP(str) {
+    return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
+}  
+
+function validateDomain(str) {
+    return /\S+\.\S+/.test(str);
+  }

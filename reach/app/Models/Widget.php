@@ -10,12 +10,12 @@ class Widget extends Model
     protected $connection = 'mongodb';
     protected $collection = 'widgets';
     protected $fillable = [
-        'widgetId',
         'name',
         'isActive',
         'color',
         'timezone',
         'starttime',
+        'endtime',
         'domainBanList',
         'ipBanList',
         'countryBanList'

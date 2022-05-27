@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
 use App\Models\User;
 use App\Models\Client;
-use Illuminate\Support\Facades\Session;
 use Hash;
 use Auth;
 
@@ -53,13 +53,14 @@ class AgentController extends Controller
             'nickname'=>'required|max:50'
         ]);
 
-        $agent = Agent::where('email', '=', $req->email)->first();
+        $agent = Agent::where('email', $req->email)->first();
 
         if(!is_null($agent)) {
             return back()->with('failed', 'Email already exists');
         }
 
         $agent = new Agent;
+        $agent->agentId = substr(md5(uniqid(rand(), true)), 16);
         $agent->email = $req->email;
         $agent->firstname = $req->firstname;
         $agent->lastname = $req->lastname;
@@ -90,7 +91,7 @@ class AgentController extends Controller
     public function getAgents()
     {
         $agents = Agent::get();
-        return response()->json(['agents' =>  $agents], 200);
+        return response()->json($agents, 200);
     }
 
 
@@ -98,9 +99,11 @@ class AgentController extends Controller
     public function getProfile(Request $req)
     {
         $email = Session::get('user');
-        $agent = Agent::where('email',$email)->first();
+        $agent = Agent::where('email', $email)->first();
 
-        if($agent>isEmpty())
+        return response()->json($agent, 200);
+
+        if(is_null($agent))
         {
             return response()->json(null, 401);
         }
