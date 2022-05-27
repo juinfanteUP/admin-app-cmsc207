@@ -1271,8 +1271,8 @@ body[data-layout-mode="dark"] .dark-mode {
 
 @media (min-width: 992px) {
     .chat-leftsidebar {
-        min-width: 600px;
-        max-width: 600px;
+        min-width: 500px;
+        max-width: 500px;
         height: 100vh;
     }
 }
@@ -2638,4 +2638,41 @@ body[data-layout-mode="dark"] .signin-other-title::after {
 
 #chat-pane {
     height: 100% !important;
+}
+
+.attachment-tab {
+    padding: 1rem;
+    background: #181818b0;
+    width: 100%;
+    color: #fff;
+    position: absolute;
+    z-index: 100;
+    bottom: 175px;
+}
+
+.attachment-tab-close {
+    text-align: right;
+}
+
+#widget-pane, #home-pane {
+    overflow-y: auto !important;
+    padding-bottom: 6rem;
+}
+
+@media (max-width: 991.98px) {
+    .nav-item-logo {
+        padding-top: 8px !important;
+    }
+
+    .chat-leftsidebar {
+        max-width: none;
+    }
+
+    .chat-input-section {
+        bottom: 60px !important;
+    }
+
+    #return-contacts {
+        margin-left: 1rem !important;
+    }
 }

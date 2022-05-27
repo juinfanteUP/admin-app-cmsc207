@@ -30,7 +30,7 @@
             <!-- Widget -->
             <li class="nav-item" title="Go to chat widget">
                 <a class="nav-link" id="nav-item-widget" data-bs-toggle="pill" href="javascript:" role="tab">
-                    <i class="ri-mail-settings-line"></i>
+                    <i class="ri-settings-5-line"></i>
                 </a>
             </li>
 

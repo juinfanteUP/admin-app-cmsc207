@@ -2156,41 +2156,6 @@ module.exports = {
 
 /***/ }),
 
-/***/ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js&":
-/*!******************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js& ***!
-  \******************************************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  mounted: function mounted() {
-    console.log('Component mounted.');
-  }
-});
-
-/***/ }),
-
 /***/ "./resources/assets/js/bootstrap.js":
 /*!******************************************!*\
   !*** ./resources/assets/js/bootstrap.js ***!
@@ -19628,239 +19593,6 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
-/***/ "./resources/assets/js/components/ExampleComponent.vue":
-/*!*************************************************************!*\
-  !*** ./resources/assets/js/components/ExampleComponent.vue ***!
-  \*************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ExampleComponent.vue?vue&type=template&id=7168fb6a& */ "./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a&");
-/* harmony import */ var _ExampleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ExampleComponent.vue?vue&type=script&lang=js& */ "./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js&");
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! !../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-/* normalize component */
-;
-var component = (0,_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _ExampleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__.render,
-  _ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns,
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/assets/js/components/ExampleComponent.vue"
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js&":
-/*!**************************************************************************************!*\
-  !*** ./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js& ***!
-  \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ExampleComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js??clonedRuleSet-5[0].rules[0].use[0]!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=script&lang=js&");
- /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (_node_modules_babel_loader_lib_index_js_clonedRuleSet_5_0_rules_0_use_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a&":
-/*!********************************************************************************************!*\
-  !*** ./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a& ***!
-  \********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "render": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__.render),
-/* harmony export */   "staticRenderFns": () => (/* reexport safe */ _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__.staticRenderFns)
-/* harmony export */ });
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ExampleComponent_vue_vue_type_template_id_7168fb6a___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../node_modules/vue-loader/lib/index.js??vue-loader-options!./ExampleComponent.vue?vue&type=template&id=7168fb6a& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a&");
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a&":
-/*!***********************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib/index.js??vue-loader-options!./resources/assets/js/components/ExampleComponent.vue?vue&type=template&id=7168fb6a& ***!
-  \***********************************************************************************************************************************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "render": () => (/* binding */ render),
-/* harmony export */   "staticRenderFns": () => (/* binding */ staticRenderFns)
-/* harmony export */ });
-var render = function () {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _vm._m(0)
-}
-var staticRenderFns = [
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "container" }, [
-      _c("div", { staticClass: "row justify-content-center" }, [
-        _c("div", { staticClass: "col-md-8" }, [
-          _c("div", { staticClass: "card" }, [
-            _c("div", { staticClass: "card-header" }, [
-              _vm._v("Example Component"),
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "card-body" }, [
-              _vm._v(
-                "\n                    I'm an example component.\n                "
-              ),
-            ]),
-          ]),
-        ]),
-      ]),
-    ])
-  },
-]
-render._withStripped = true
-
-
-
-/***/ }),
-
-/***/ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js":
-/*!********************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/runtime/componentNormalizer.js ***!
-  \********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ normalizeComponent)
-/* harmony export */ });
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file (except for modules).
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-function normalizeComponent (
-  scriptExports,
-  render,
-  staticRenderFns,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier, /* server only */
-  shadowMode /* vue-cli only */
-) {
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (render) {
-    options.render = render
-    options.staticRenderFns = staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = 'data-v-' + scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = shadowMode
-      ? function () {
-        injectStyles.call(
-          this,
-          (options.functional ? this.parent : this).$root.$options.shadowRoot
-        )
-      }
-      : injectStyles
-  }
-
-  if (hook) {
-    if (options.functional) {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functional component in vue file
-      var originalRender = options.render
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return originalRender(h, context)
-      }
-    } else {
-      // inject component registration as beforeCreate hook
-      var existing = options.beforeCreate
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    }
-  }
-
-  return {
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
-
 /***/ "./node_modules/vue/dist/vue.esm.js":
 /*!******************************************!*\
   !*** ./node_modules/vue/dist/vue.esm.js ***!
@@ -31991,7 +31723,7 @@ var __webpack_exports__ = {};
 /*!************************************!*\
   !*** ./resources/assets/js/app.js ***!
   \************************************/
-var _templateObject, _templateObject2, _templateObject3;
+var _templateObject, _templateObject2, _templateObject3, _templateObject4;
 
 function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
@@ -32000,45 +31732,56 @@ function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
+var _require = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"),
+    trimEnd = _require.trimEnd;
+
 __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
-window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]);
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-Vue.component('example-component', (__webpack_require__(/*! ./components/ExampleComponent.vue */ "./resources/assets/js/components/ExampleComponent.vue")["default"]));
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+var socketioUrl = "https://socketio.erickdelrey.rocks"; // ***************** Update these Properties ***************** //
 
 var app = new Vue({
   el: '#app',
   data: {
     // Agent
     agent: {
-      _id: '',
       firstname: '',
       lastname: '',
       nickname: '',
       email: ''
     },
     // Message/ widgets	
-    widget: {},
-    widgetScript: '',
+    widget: {
+      name: 'Reach App',
+      color: '#4eac6d',
+      isActive: true,
+      startTime: '',
+      endTime: '',
+      script: ''
+    },
     reports: {
       clientCount: 0,
       messageVolumeCount: 0,
       historyList: []
     },
+    // Ban components
+    banList: [],
+    banSelectionList: [{
+      id: 'domain',
+      labels: 'Domain'
+    }, {
+      id: 'ipaddress',
+      labels: 'IP Address'
+    }, {
+      id: 'country',
+      labels: 'Country'
+    }, {
+      id: 'city',
+      labels: 'City'
+    }],
+    banInput: '',
+    selectedBanKey: 'domain',
     // Message Inputs
     chatbox: '',
     file: {
@@ -32053,9 +31796,10 @@ var app = new Vue({
     viewClient: {}
   },
   mounted: function mounted() {
-    // this.getClients();
-    // this.getAgents();
+    this.getProfile();
+    this.getClients(); // this.getAgents();
     // this.getReports();
+
     this.getUserInput();
     this.getWidgetSettings();
     this.registerSocketServer();
@@ -32074,6 +31818,9 @@ var app = new Vue({
 
       return this.clients;
     },
+    selectedBan: function selectedBan() {
+      return this.selectedBanKey;
+    },
     disableSend: function disableSend() {
       var _this$file;
 
@@ -32083,12 +31830,24 @@ var app = new Vue({
   methods: {
     // ************************ Subscribe to Socket Server ************************ //
     registerSocketServer: function registerSocketServer(cid) {
-      var _this = this; // Register SOCKET IO
+      var _this = this;
 
+      var socket = io(socketioUrl);
+      var room = cid;
+      socket.emit('join-room', {
+        "room": room,
+        "username": _this.agent.nickname
+      }); // Message from server
+
+      socket.on('message', function (msg) {
+        _this.messages.push(msg);
+
+        scrollToBottom();
+      });
     },
     // ************************ Agent and Reports Helper ************************ //
-    getAgents: function getAgents() {
-      var api = $(_templateObject || (_templateObject = _taggedTemplateLiteral(["/api/agent/getAgents"])));
+    getProfile: function getProfile() {
+      var api = $(_templateObject || (_templateObject = _taggedTemplateLiteral(["/api/agent/profile"])));
 
       var _this = this;
 
@@ -32098,10 +31857,22 @@ var app = new Vue({
         handleError(error);
       });
     },
-    getReports: function getAgents() {
-      var api = $(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["/api/message/getReport"])));
+    getAgents: function getAgents() {
+      var api = $(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["/api/agent/list"])));
 
       var _this = this;
+
+      axios.get(api).then(function (response) {
+        _this.agent = response.data;
+      })["catch"](function (error) {
+        handleError(error);
+      });
+    },
+    getReports: function getAgents() {
+      var api = $(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["/api/message/report"])));
+
+      var _this = this; // Manipulate Data
+
 
       axios.get(api).then(function (response) {
         _this.reports = response.data;
@@ -32111,7 +31882,7 @@ var app = new Vue({
     },
     // ************************ Client Helper ************************ //
     getClients: function getClients() {
-      var api = $(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["/api/client/getClients"])));
+      var api = $(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral(["/api/client/list"])));
 
       var _this = this;
 
@@ -32143,18 +31914,18 @@ var app = new Vue({
     },
     // ************************ Widget Helper ************************ //
     getWidgetSettings: function getWidgetSettings() {
-      var api = "/api/widget/getSettings";
+      var api = "/api/widget/settings";
 
       var _this = this;
 
       axios.get(api).then(function (response) {
         _this.widget = response.data.widget;
-        _this.widgetScript = response.data.script;
+        _this.widget.script = _this.widget.script;
       })["catch"](function (error) {
         handleError(error);
       });
     },
-    updateWidget: function updateWidget(submitEvent) {
+    updateSettings: function updateSettings(is) {
       var api = "/api/widget/update";
 
       var _this = this;
@@ -32162,10 +31933,18 @@ var app = new Vue({
       if (confirm('Are you sure you want to update the widget settings?')) {
         showLoader();
         axios.put(api, {
-          name: submitEvent.target.elements.name.value,
-          email: submitEvent.target.elements.email.value,
-          contact_no: submitEvent.target.elements.contact_no.value // Change all of these
-
+          widgetId: 1,
+          name: _this.widget.widgetName,
+          isActive: _this.widget.isActive,
+          color: _this.widget.widgetColor,
+          starttime: _this.widget.startTime,
+          endtime: _this.widget.endTime,
+          // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          // Supply data to these properties
+          domainBanList: [],
+          cityBanList: [],
+          ipBanList: [],
+          countryBanList: []
         }).then(function (response) {
           showLoader(false);
           var res = response.data;
@@ -32175,11 +31954,22 @@ var app = new Vue({
         });
       }
     },
+    addBanList: function addBanList() {
+      console.log(this.banInput);
+      console.log(this.selectedBanKey); // TODO: Manipulate this and push it to API
+
+      this.updateSettings();
+    },
+    removeBanItem: function removeBanItem(item) {
+      console.log(item); // TODO: manipulate this and push it to API
+
+      this.updateSettings();
+    },
     // ************************ Message Helper ************************ //
     getMessages: function getMessages() {
       var _this = this;
 
-      var api = "/api/message?channel_id=".concat(this.selectedClient.clientId);
+      var api = "/api/message/getByClientId?clientId=".concat(this.selectedClient.clientId);
       showLoader();
       axios.get(api).then(function (response) {
         _this.messages = response.data;
@@ -32193,12 +31983,15 @@ var app = new Vue({
       });
     },
     postMessage: function postMessage() {
+      var _document$getElementB, _document$getElementB2, _this$file2, _this$file3;
+
       //var uploadApi = `/api/message/upload?channel_id=${this.selectedChannel.id}`;
+      var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
       var sendApi = "/api/message/send";
 
       var _this = this;
 
-      if (!(this.chatbox && this.chatbox != "" || this.isSubmitting)) {
+      if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
         return;
       }
 
@@ -32206,17 +31999,34 @@ var app = new Vue({
         "clientId": this.clientId,
         "body": this.chatbox,
         "senderId": 0,
-        "isWhisper": false,
-        "isClient": false,
-        "createddtm": new Date().toISOString().slice(0, 19).replace('T', ' '),
+        "isWhisper": isWhisperChecked,
+        "isAgent": true,
+        "createddtm": Date.now().toISOString().slice(0, 19).replace('T', ' '),
         "attachment": {
           "referenceId": 0,
           "size": "",
           "type": "",
           "filename": ""
         }
-      }; // Handle message with attachment
-      // if (this.file && this.file?.name != "") {
+      }; // Handle plain message
+
+      if (!(this.file && ((_this$file3 = this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
+        this.chatbox = "";
+        socket.emit('send-message', msg);
+        this.messages.push(msg);
+        scrollToBottom();
+        return axios.post(sendApi, {
+          clientId: msg.clientId,
+          body: msg.body,
+          senderId: msg.senderId,
+          isWhisper: msg.isWhisper,
+          isAgent: msg.isAgent
+        }).then(function (response) {
+          _this.$forceUpdate();
+        })["catch"](function (error) {
+          handleError(error);
+        });
+      } // Handle message with attachment
       // 	var formData = new FormData();
       // 	formData.append('file', this.file);
       // 	formData.append('document', JSON.stringify(msg));
@@ -32235,24 +32045,7 @@ var app = new Vue({
       // 	})["catch"](function(error) {
       // 		handleError(error);
       // 	});
-      //     return;
-      // } 
-      // Handle plain message
 
-      this.chatbox = "";
-      this.messages.push(msg);
-      scrollToBottom();
-      axios.post(sendApi, {
-        clientId: msg.clientId,
-        body: msg.body,
-        senderId: msg.senderId,
-        isWhisper: msg.isWhisper,
-        isClient: msg.isClient
-      }).then(function (response) {
-        _this.$forceUpdate();
-      })["catch"](function (error) {
-        handleError(error);
-      });
     },
     // ************************ File Helper ************************ //
     handleFileUpload: function handleFileUpload() {
@@ -32300,9 +32093,9 @@ function handleError(e) {
 
 function scrollToBottom() {
   setTimeout(function () {
-    var _document$getElementB;
+    var _document$getElementB3;
 
-    var parentContainer = (_document$getElementB = document.getElementById("users-conversation")) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.parentNode;
+    var parentContainer = (_document$getElementB3 = document.getElementById("users-conversation")) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.parentNode;
 
     if (parentContainer) {
       parentContainer.style.overflowX = 'hidden';

@@ -12,7 +12,7 @@
             <form>
                 <div class="input-group search-panel mb-3">
                     <input type="text" class="form-control bg-light border-0" id="searchChatUser" v-model="searchClient"
-                        title="Enter something to search a channel" placeholder="Search client" autocomplete="off">
+                        title="Enter something to search a client" placeholder="Search client" autocomplete="off">
                     <button class="btn btn-light p-0" type="button" id="searchbtn-addon"><i
                             class='bx bx-search align-middle'></i></button>
                 </div>
@@ -33,7 +33,7 @@
                     <li class="chat-message-item pb-3"  @click="selectClient(client)"
                         v-bind:id="client.clientId" v-for="client in resultClientSearch" :class="[client.clientId == selectedClient.clientId ? 'bg-gray' : '']">                
                         <a href="javascript: void(0);" >                     
-                            @{{ client.ipAddress }} @{{ client.regionName }}            
+                            @{{ client.domain }} - @{{ client.ipAddress }}          
                         </a>  
                         
                         <span>
@@ -44,7 +44,7 @@
                     </li>
 
                     <li class="text-center" v-show="resultClientSearch.length == 0">
-                        --- Client result list is empty ---
+                        --- Client result is empty ---
                     </li>
 
                 </ul>

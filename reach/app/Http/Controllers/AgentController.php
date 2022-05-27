@@ -32,8 +32,7 @@ class AgentController extends Controller
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                $req->session()->put('loginId', $agent->_id);
-                $req->session()->put('user', $agent->email);        
+                $req->session()->put('user', $agent->email);
                 return redirect('/');
             }
         }   
@@ -55,7 +54,7 @@ class AgentController extends Controller
 
         $agent = Agent::where('email', '=', $req->email)->first();
 
-        if(!is_null($agent)) {
+        if($agent>isEmpty()) {
             return back()->with('failed', 'Email already exists');
         }
 
@@ -91,5 +90,20 @@ class AgentController extends Controller
     {
         $agents = Agent::get();
         return response()->json(['agents' =>  $agents], 200);
+    }
+
+
+    // Get all existing agents
+    public function getProfile(Request $req)
+    {
+        $email = Session::get('user');
+        $agent = Agent::where('email',$email)->first();
+
+        if($agent>isEmpty())
+        {
+            return response()->json(null, 401);
+        }
+
+        return response()->json($agent, 200);
     }
 }

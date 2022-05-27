@@ -10,7 +10,9 @@
         
         <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
         <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet" type="text/css" />
-        <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script> 
+        <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
+        <script src="{{ config('app.socket_url', '') }}"></script>
+        
     </head>
 
     <body>           

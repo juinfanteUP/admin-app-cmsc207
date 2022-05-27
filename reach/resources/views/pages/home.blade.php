@@ -6,7 +6,7 @@
                 <div class="row">     
 
                     <!-- Reach Welcome -->
-                    <div class="col-sm-12 col-md-4">      
+                    <div class="col-sm-12 col-md-5">      
                         <div class="card mt-3">
                             <div class="card-body">
 
@@ -56,7 +56,7 @@
 
 
                     <!-- Client Online -->
-                    <div class="col-sm-12 col-md-7 offset-md-1">        
+                    <div class="col-sm-12 col-md-7">        
                        
                         <div class="row">
 
