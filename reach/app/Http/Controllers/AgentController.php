@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
+use App\Models\User;
 use App\Models\Client;
 use Hash;
 use Auth;
@@ -15,6 +16,7 @@ use Auth;
 // TODO: PLEASE REFINE AND TEST...
 class AgentController extends Controller
 {
+    
     // Login a User
     public function login(Request $req) 
     {
@@ -77,8 +79,9 @@ class AgentController extends Controller
     // Clear session and redirect to login page
     public function logout(Request $req)
     {
-        $req->session()->forget('user');
+        $req->session()->forget('loginId');
         $req->session()->flush();
+   
         return redirect('login');
     }
 

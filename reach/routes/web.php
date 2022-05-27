@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
-
+use App\Http\Controllers\ViewController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +21,3 @@ Route::view('/', 'home')->middleware('redirectIfAnonymous'); //Commented this to
 // Authentication page
 Route::view('/login', 'auth.login')->middleware('redirectIfAuthenticated');
 Route::view('/register', 'auth.register')->middleware('redirectIfAuthenticated');
-
-
-
-
-
-
-

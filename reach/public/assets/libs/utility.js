@@ -112,7 +112,7 @@
 
         nav_logout.addEventListener("click", function() {
           if(confirm('Are you sure you want to logout?')){
-              window.location.href = "/login";
+              window.location.href = "/api/agent/logout";
           }
         });
     }
