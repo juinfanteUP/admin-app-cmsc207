@@ -31732,7 +31732,8 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "https://socketio.erickdelrey.rocks"; // ***************** Update these Properties ***************** //
+var socketioUrl = "https://socketio.erickdelrey.rocks";
+var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
   el: '#app',
@@ -31825,11 +31826,11 @@ var app = new Vue({
   methods: {
     // ************************ Subscribe to Socket Server ************************ //
     registerSocketServer: function registerSocketServer() {
-      var _this = this;
+      var _this = this; // New clients from server
 
-      var socket = io(socketioUrl); // New clients from server
 
       socket.on('join-room', function (client) {
+        console.log(client);
         _this.reports.clientCount++;
 
         if (!_.find(_this.clients, {
@@ -31840,12 +31841,18 @@ var app = new Vue({
       }); // Message from server
 
       socket.on('message', function (msg) {
+        console.log(msg);
         _this.reports.messageVolumeCount++;
 
         _this.messages.push(msg);
 
         scrollToBottom();
-      });
+      }); // Event for users that deactivates
+      // socket.on('disconnect', (msg) => {
+      //     _this.reports.messageVolumeCount++;
+      //     _this.messages.push(msg);
+      //     scrollToBottom();
+      // });
     },
     // ************************ Agent and Reports Helper ************************ //
     getProfile: function getProfile() {
@@ -32002,8 +32009,8 @@ var app = new Vue({
           name: _this.widget.name,
           isActive: _this.widget.isActive,
           color: _this.widget.color,
-          starttime: _this.widget.startTime,
-          endtime: _this.widget.endTime,
+          starttime: _this.widget.starttime,
+          endtime: _this.widget.endtime,
           // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           domainBanList: [],
           cityBanList: [],
@@ -32054,6 +32061,7 @@ var app = new Vue({
       var _this = this;
 
       var api = "/api/message/getByClientId?clientId=".concat(this.selectedClient.clientId);
+      _this.reports.messageVolumeCount++;
       showLoader();
       axios.get(api).then(function (response) {
         _this.messages = response.data;
@@ -32075,34 +32083,31 @@ var app = new Vue({
 
       var _this = this;
 
-      console.log('1');
-
       if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
         console.log('declined');
         return;
       }
 
-      console.log('2');
       var msg = {
         "clientId": this.clientId,
         "body": this.chatbox,
-        "senderId": 0,
+        "senderId": this.agent.agentId,
         "isWhisper": isWhisperChecked,
         "isAgent": true,
-        "attachment": {
-          "referenceId": 0,
-          "size": "",
-          "type": "",
-          "filename": ""
-        }
-      };
-      console.log('sent'); // Handle plain message
+        "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ') // "attachment": {
+        //     "referenceId": 0,
+        //     "size": "",
+        //     "type": "",
+        //     "filename": ""
+        // }
+
+      }; // Handle plain message
 
       if (!(this.file && ((_this$file3 = this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
         this.chatbox = "";
-        socket.emit('send-message', msg);
         this.messages.push(msg);
         scrollToBottom();
+        socket.emit('send-message', msg);
         return axios.post(sendApi, {
           clientId: msg.clientId,
           body: msg.body,
@@ -32110,6 +32115,8 @@ var app = new Vue({
           isWhisper: msg.isWhisper,
           isAgent: msg.isAgent
         }).then(function (response) {
+          console.log(response);
+
           _this.$forceUpdate();
         })["catch"](function (error) {
           handleError(error);

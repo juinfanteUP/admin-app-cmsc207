@@ -4,7 +4,7 @@ var __webpack_exports__ = {};
   !*** ./resources/assets/js/widget.js ***!
   \***************************************/
 // ***************** Update these Properties ***************** //
-var sourceDomain = "http://localhost:8000";
+var sourceDomain = "http://127.0.0.1:5000";
 var socketioUrl = "https://socketio.erickdelrey.rocks";
 var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
@@ -13,7 +13,7 @@ var lurl = sourceDomain + '/widget/style.css';
 var jurl = sourceDomain + '/widget/vendor.js';
 var sendMessageApi = sourceDomain + "/api/message/send";
 var validateClientApi = sourceDomain + "/api/client/validate"; // ***************** Services ***************** //
-// Emit message
+// Send message 
 
 function sendMessage(msg) {
   $.ajax({
@@ -68,13 +68,15 @@ var generateComponent = function generateComponent(widget, client, messages) {
 
   socket.emit('join-room', {
     "room": room,
-    "client": client
+    "client": client.clientId
   }); // Message from server. If messaged is whispered, do not generate the line (2nd validation)
 
   socket.on('message', function (msg) {
     if (!msg.isWhispher) {
       generateMessage(msg.body, !msg.isAgent, msg.created_at);
     }
+
+    console.log(msg);
   }); // Generate message history
 
   messages.forEach(function (msg) {
@@ -177,7 +179,7 @@ var generateComponent = function generateComponent(widget, client, messages) {
           setLocalClientData(result.client.clientId);
         }
 
-        console.log(result);
+        console.log(result.client.clientId);
         generateComponent(result.widget, result.client, result.messages);
       }
     });
