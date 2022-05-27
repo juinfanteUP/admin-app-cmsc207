@@ -13,10 +13,8 @@ class Client extends Model
         'clientId',
         'ipaddress', 
         'country',
-        'region',
         'timezone',
-        'domain',
-        'message'
+        'domain'
     ]; 
 
     protected $dates = ['created_at', 'updated_at', 'datetime'];

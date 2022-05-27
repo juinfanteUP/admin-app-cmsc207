@@ -27,8 +27,8 @@ class MessageController extends Controller
         $message->clientId =  $req->clientId;
         $message->senderId = $req->senderId;
         $message->body = $req->body;
-        $message->isAgent = $req->isAgent;
-        $message->isWhisper = $req->isWhisper;
+        $message->isAgent = (boolean)$req->isAgent;
+        $message->isWhisper = (boolean)$req->isWhisper;
         // $message->attachment->refId = $req->attach_refId;
         // $message->attachment->size = $req->attach_size;
         // $message->attachment->type = $req->attach_type;
@@ -38,7 +38,7 @@ class MessageController extends Controller
 
         if($res)
         {
-            return response()->json(["result" => "ok"], 201);
+            return response()->json($req, 201);
         } 
 
         return response()->json("An error has occurred during saving", 400);
@@ -51,7 +51,7 @@ class MessageController extends Controller
         if($req)
         {
             $messages = Message::where('clientId', $req->query('clientId'))
-                        ->get(['clientId','senderId','body','isAgent','isWhispher','createddtm']);
+                        ->get(['clientId','senderId','body','isAgent','isWhisper','createddtm']);
 
             return response()->json(['messages' => $messages], 200);
         }

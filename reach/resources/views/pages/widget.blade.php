@@ -49,14 +49,14 @@
                                     <!-- Start time -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Availability Start Time</label>
-                                        <input v-model="widget.startTime" type="text" name="starttime" class="form-control time-picker" value="">
+                                        <input v-model="widget.starttime" type="text" name="starttime" class="form-control time-picker" value="">
                                     </div>
 
 
                                      <!-- End time -->
                                      <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Availability End Time</label>
-                                        <input v-model="widget.endTime" type="text" name="schedule" class="form-control time-picker" value="">
+                                        <input v-model="widget.endtime" type="text" name="endtime" class="form-control time-picker" value="">
                                     </div>
 
 
@@ -83,10 +83,16 @@
 
                                
                                 <div class="py-4">
-                                    <textarea class="w-100" rows="14" style="resize: none;" v-model="widget.script" disabled ></textarea>
+                                    <textarea id="widgetScriptText" class="w-100" rows="14" style="resize: none;" disabled >@{{ widget.script }}</textarea>
                                 </div>
 
-                                <p class="m-0 small text-muted">
+                                <div class="text-center pb-3">
+                                    <button class="btn btn-success" type="button" @click="copyWidgetScript()">
+                                        Copy Widget Script
+                                    </button>
+                                </div>
+
+                                <p class="m-0 mt-1 small text-muted">
                                     <b>Note:</b> Click the script body to copy it. Once copied, paste it to the <b>header tag</b> 
                                     to a designated website you want the chat widget to appear.
                                 </p>
@@ -118,7 +124,7 @@
                                                     <option v-for="ban in banSelectionList" v-bind:value="ban.id" >@{{ ban.labels }}</option>
                                                 </select>  
 
-                                                <button class="btn btn-danger" type="button"  @click="addBanList()">
+                                                <button class="btn btn-danger" type="button"  @click="updateSettings('addBan')">
                                                     Add to Ban
                                                 </button>
                                             </div>
@@ -141,11 +147,11 @@
                                                             --- Ban list is empty ---
                                                         </td>
                                                     </tr>
-                                                    <tr v-for="banItem in banList">
+                                                    <tr v-for="(banItem, index) in banList">
                                                         <td>@{{ banItem.value }}</td>
                                                         <td>@{{ banItem.type }}</td>
                                                         <td class="ban-remove-button">
-                                                            <button class="btn btn-sm btn-danger" type="button" @click="removeBanItem(banItem)">
+                                                            <button class="btn btn-sm btn-danger" type="button" @click="updateSettings('removeBan', index)">
                                                                 Remove
                                                             </button>
                                                         </td>
@@ -156,7 +162,6 @@
                                     </div>
                                 </div>
                              
-        
                             </div>
                         </div>
                     </div>

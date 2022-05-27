@@ -1342,12 +1342,13 @@ body[data-layout-mode="dark"] .dark-mode {
 }
 .chat-list li a {
     display: block;
-    padding: 5px 24px;
+    padding: 5px 0px;
     color: #5a636c;
     -webkit-transition: all 0.4s;
     transition: all 0.4s;
     font-size: 14px;
 }
+
 .chat-list li .chat-user-message {
     font-size: 14px;
 }
@@ -2582,6 +2583,31 @@ body[data-layout-mode="dark"] .signin-other-title::after {
     background-color: #2e2e2e;
 }
 
+.loader-line {
+    height: 28px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+    gap: 4px; }
+    .loader-line .line:nth-last-child(1) {
+      -webkit-animation: loadingLine 1.25s 1s infinite;
+              animation: loadingLine 1.25s 1s infinite; }
+    .loader-line .line:nth-last-child(2) {
+      -webkit-animation: loadingLine 1.25s 0.75s infinite;
+              animation: loadingLine 1.25s 0.75s infinite; }
+    .loader-line .line:nth-last-child(3) {
+      -webkit-animation: loadingLine 1.25s 0.5s infinite;
+              animation: loadingLine 1.25s 0.5s infinite; }
+    .loader-line .line:nth-last-child(4) {
+      -webkit-animation: loadingLine 1.25s 0.25s infinite;
+              animation: loadingLine 1.25s 0.25s infinite; }
+    .loader-line .line:nth-last-child(5) {
+      -webkit-animation: loadingLine 1.25s 0s infinite;
+              animation: loadingLine 1.25s 0s infinite; }
+
 #searchbtn-addon {
     position: relative;
     right: 30px;
@@ -2652,6 +2678,36 @@ body[data-layout-mode="dark"] .signin-other-title::after {
 
 .attachment-tab-close {
     text-align: right;
+}
+
+.chat-message-item {
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
+}
+
+.selected-client {
+    background:rgba(202, 202, 202, 0.46); 
+}
+
+.client-info>i {
+    font-size: 1.5rem;
+    color: rgb(139, 139, 139);
+}
+
+a.client-info:hover {
+    color: #111111 !important;
+}
+
+#empty-chat {
+    position: relative;
+    bottom: 45%;
+}
+
+#empty-chat>p {
+    font-size: 1.5rem;
+    color: gray;
+    margin-top: 1rem;
 }
 
 #widget-pane, #home-pane {
@@ -9101,7 +9157,7 @@ fieldset:disabled .btn {
 .btn-close:hover {
     color: #000;
     text-decoration: none;
-    opacity: 0.75;
+    opacity: 0.75 !important;
 }
 .btn-close:focus {
     outline: 0;
@@ -9296,6 +9352,11 @@ fieldset:disabled .btn {
 .modal-header .btn-close {
     padding: 0.5rem 0.5rem;
     margin: -0.5rem -0.5rem -0.5rem auto;
+    margin-right: -0.5rem;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-right: 3px;
+    opacity: 1;
 }
 
 .modal-title {

@@ -9,9 +9,9 @@ class RedirectIfAnonymous
 {
     public function handle(Request $req, Closure $next)
     {
-        if(!Session()->has('user'))
+        if(!($req->session()->has('user')))
         {
-            return redirect('login');
+            //return redirect('login');
         }
 
         return $next($req);

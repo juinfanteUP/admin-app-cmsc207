@@ -20,7 +20,7 @@
                 %NAME%
             </span>
             <span class="chat-box-toggle" title="Click to collapse chat box">
-                <i class="material-icons">close</i>
+                x
             </span>
         </div>
 

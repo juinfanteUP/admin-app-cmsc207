@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Client;
 use App\Models\Widget;
+use App\Models\Message;
 use Session;
 
 
@@ -29,13 +30,14 @@ class ClientController extends Controller
             $data = \Location::get($ip.':8000'); 
         }
 
+        // return response()->json($req->clientId, 200);
 
-        $widget = Widget::where('widgetId', 1)->first();
-        $client = Client::where('clientId', $req->clientId)->first();
-        $bannedClient = Client::where('domain', '=', $req->domain)
-                            ->orWhere('ipaddress', '=', $data->ipaddress)
-                            ->orWhere('city', '=', $data->city)
-                            ->orWhere('country', '=', $data->country);
+        $widget = Widget::get()->first();
+        $client = Client::where('clientId', strval($req->clientId))->first();
+        // $bannedClient = Client::where('domain', '=', $req->domain)
+        //                     ->orWhere('ipaddress', '=', $data->ip)
+        //                      ->orWhere('city', '=', $data->city ?? "")
+        //                      ->orWhere('country', '=', $data->country ?? ""); 
 
 
         // Check if widget settings is enabled
@@ -43,48 +45,45 @@ class ClientController extends Controller
         {
             return response()->json([
                 'widget' => "", 
-                'clientId' => 0, 
+                'client' => null, 
                 'isNew' => false,
-                'ipAddress' => $data->ip,
-                'messages' => $messages
+                'messages' => $messages,
+                'status' => 'widget disabled'
             ], 200);
         }
 
-        if ($client->isEmpty()) 
-        {
-            $client->clientId = 0;
-        }
 
         // Check if client is included in ban list
-        if(!($bannedClient>isEmpty())) 
-        {
-            return response()->json([
-                'widget' => "",
-                'clientId' => $client->clientId,
-                'isNew' => false,
-                'ipAddress' => $data->ip,
-                'messages' => $messages
-            ], 200);
-        }
-   
-        // Create new client record if client data isempty. Otherwise, retrieve messages
-        if($client->isEmpty()) 
+        // if(!($bannedClient->first())) 
+        // {
+        //     $client->ipaddress = $data->ip;
+        //     return response()->json([
+        //         'widget' => "",
+        //         'client' => 0,
+        //         'isNew' => false,
+        //         'messages' => $messages,
+        //         'status' => 'banned'
+        //     ], 200);
+        // }
+
+        // Create new client record if client data is empty. Otherwise, retrieve messages
+        if(is_null($client)) 
         {          
             $client = new Client;
             $client->clientId = substr(md5(uniqid(rand(), true)), 16);
             $client->ipaddress = $data->ip;
-            $client->domain = $req->domain;      
-            $client->country = $data->country;
-            $client->city = $data->cityName;
-            $client->timezone = $data->timezone;
+            $client->domain = $req->domain ?? "";      
+            $client->country = $data->country ?? "";
+            $client->city = $data->cityName ?? "";
+            // $client->timezone = $data->timezone;
             $client->save();
             $isNewClient = true;
         }
         else 
         {
-            $messages = Message::where('clientId', $client->clientId)
-                        ->where('isWhispher', false)
-                        ->get(['clientId','senderId','body','isAgent','isWhispher','created_at']);
+            $messages = Message::where('clientId', strval($req->clientId))
+                        ->where('isWhisper', false)
+                        ->get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
         }
 
         // Update widget component based on settings
@@ -92,15 +91,15 @@ class ClientController extends Controller
         $component = str_replace("%DOMAIN%",  env('APP_URL'), $component);
         $component = str_replace("%NAME%",  $widget->name ?? "Reach App", $component);   
         $component = str_replace("%COLOR%",  $widget->color ?? "#CC9900", $component);
+        $client->ipaddress = $data->ip;
 
         // Retrieve messages if client exist
-
         return response()->json([
             'widget' => $component,
-            'clientId' => $client->clientId,
+            'client' => $client,
             'isNew' => $isNewClient,
-            'ipAddress' => $data->ip,
-            'messages' => $messages
+            'messages' => $messages,
+            'status' => 'successful'
         ], 200);
     }
 
@@ -109,7 +108,7 @@ class ClientController extends Controller
     public function getClients()
     {
         $clients = Client::get();
-        return response()->json(['clients' =>  $clients], 200);
+        return response()->json($clients, 200);
     }
 
 

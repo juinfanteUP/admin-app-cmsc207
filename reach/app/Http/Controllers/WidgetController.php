@@ -16,23 +16,28 @@ class WidgetController extends Controller
     // Get widget settings
     public function getSettings()
     {
-        $widget = Widget::where('widgetId', '1')->first();
+        $widget = Widget::get()->first();
+
+        if (is_null($widget)) {
+            return response()->json(["result" => "widget not found"], 400);
+        }
+
         $script = str_replace("%URL%",  env('APP_URL'), strval(View('widget.script')));
         return response()->json(['widget'=> $widget, 'script'=> $script], 200);
     }
 
 
     // Update widget settings
-    public function update($widgetId, Request $req)
+    public function update(Request $req)
     {
-        $widget = Widget::where('widgetId', 1)->first();
+        $widget = Widget::get()->first();
 
         if (is_null($widget)) {
-            return response()->json(["result" => "nok"], 400);
+            return response()->json(["result" => "widget not found"], 400);
         }
 
         $widget->name = $req->name;
-        $widget->isActive = $req->isActive;
+        $widget->isActive = (boolean)$req->isActive;
         $widget->color = $req->color;
         $widget->starttime = $req->starttime;
         $widget->endtime = $req->endtime;

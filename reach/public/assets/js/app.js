@@ -31723,18 +31723,11 @@ var __webpack_exports__ = {};
 /*!************************************!*\
   !*** ./resources/assets/js/app.js ***!
   \************************************/
-var _templateObject, _templateObject2, _templateObject3, _templateObject4;
-
-function _taggedTemplateLiteral(strings, raw) { if (!raw) { raw = strings.slice(0); } return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
-var _require = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js"),
-    trimEnd = _require.trimEnd;
-
 __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
@@ -31792,7 +31785,9 @@ var app = new Vue({
     // Clients
     clients: [],
     searchClient: '',
-    selectedClient: {},
+    selectedClient: {
+      clientId: 0
+    },
     viewClient: {}
   },
   mounted: function mounted() {
@@ -31829,17 +31824,24 @@ var app = new Vue({
   },
   methods: {
     // ************************ Subscribe to Socket Server ************************ //
-    registerSocketServer: function registerSocketServer(cid) {
+    registerSocketServer: function registerSocketServer() {
       var _this = this;
 
-      var socket = io(socketioUrl);
-      var room = cid;
-      socket.emit('join-room', {
-        "room": room,
-        "username": _this.agent.nickname
+      var socket = io(socketioUrl); // New clients from server
+
+      socket.on('join-room', function (client) {
+        _this.reports.clientCount++;
+
+        if (!_.find(_this.clients, {
+          clientId: client === null || client === void 0 ? void 0 : client.clientId
+        })) {
+          _this.clients.push(client);
+        }
       }); // Message from server
 
       socket.on('message', function (msg) {
+        _this.reports.messageVolumeCount++;
+
         _this.messages.push(msg);
 
         scrollToBottom();
@@ -31847,7 +31849,19 @@ var app = new Vue({
     },
     // ************************ Agent and Reports Helper ************************ //
     getProfile: function getProfile() {
-      var api = $(_templateObject || (_templateObject = _taggedTemplateLiteral(["/api/agent/profile"])));
+      var api = "/api/agent/profile";
+
+      var _this = this;
+
+      axios.get(api).then(function (response) {
+        console.log(response.data);
+        _this.agent = response.data;
+      })["catch"](function (error) {
+        handleError(error);
+      });
+    },
+    getAgents: function getAgents() {
+      var api = "/api/agent/list";
 
       var _this = this;
 
@@ -31857,19 +31871,8 @@ var app = new Vue({
         handleError(error);
       });
     },
-    getAgents: function getAgents() {
-      var api = $(_templateObject2 || (_templateObject2 = _taggedTemplateLiteral(["/api/agent/list"])));
-
-      var _this = this;
-
-      axios.get(api).then(function (response) {
-        _this.agent = response.data;
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
     getReports: function getAgents() {
-      var api = $(_templateObject3 || (_templateObject3 = _taggedTemplateLiteral(["/api/message/report"])));
+      var api = "/api/message/report";
 
       var _this = this; // Manipulate Data
 
@@ -31882,33 +31885,27 @@ var app = new Vue({
     },
     // ************************ Client Helper ************************ //
     getClients: function getClients() {
-      var api = $(_templateObject4 || (_templateObject4 = _taggedTemplateLiteral(["/api/client/list"])));
+      var api = "/api/client/list";
 
       var _this = this;
 
       axios.get(api).then(function (response) {
         _this.clients = response.data;
-
-        if (_this.clients.length > 0) {
-          _this.selectClient(_this.clients[0]);
-
-          _this.$forceUpdate();
-        } // Hide/Disable chat box if no client exists
-
       })["catch"](function (error) {
         handleError(error);
       });
     },
     selectClient: function selectClient(client) {
-      this.selectedClient = client;
+      this.selectedClient = _.clone(client);
     },
     viewClientInfo: function viewClientInfo(client) {
       this.viewClient = {
-        ipaddress: client.ipaddress,
-        domain: client.domain,
-        country: client.country,
-        region: client.region,
-        city: client.city
+        ipaddress: client === null || client === void 0 ? void 0 : client.ipaddress,
+        domain: client === null || client === void 0 ? void 0 : client.domain,
+        country: client === null || client === void 0 ? void 0 : client.country,
+        clientId: client === null || client === void 0 ? void 0 : client.clientId,
+        city: client === null || client === void 0 ? void 0 : client.city,
+        createddtm: client === null || client === void 0 ? void 0 : client.createddtm
       };
       $('#view-client-modal').modal('show');
     },
@@ -31919,51 +31916,138 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
+        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2;
+
         _this.widget = response.data.widget;
-        _this.widget.script = _this.widget.script;
+        _this.widget.script = response.data.script;
+        (_this$widget$domainBa = (_this$widget$domainBa2 = _this.widget.domainBanList) === null || _this$widget$domainBa2 === void 0 ? void 0 : _this$widget$domainBa2.forEach(function (ban) {
+          return _this.banList.push({
+            type: 'domain',
+            value: ban
+          });
+        })) !== null && _this$widget$domainBa !== void 0 ? _this$widget$domainBa : [];
+        (_this$widget$ipBanLis = (_this$widget$ipBanLis2 = _this.widget.ipBanList) === null || _this$widget$ipBanLis2 === void 0 ? void 0 : _this$widget$ipBanLis2.forEach(function (ban) {
+          return _this.banList.push({
+            type: 'ipaddress',
+            value: ban
+          });
+        })) !== null && _this$widget$ipBanLis !== void 0 ? _this$widget$ipBanLis : [];
+        (_this$widget$countryB = (_this$widget$countryB2 = _this.widget.countryBanList) === null || _this$widget$countryB2 === void 0 ? void 0 : _this$widget$countryB2.forEach(function (ban) {
+          return _this.banList.push({
+            type: 'country',
+            value: ban
+          });
+        })) !== null && _this$widget$countryB !== void 0 ? _this$widget$countryB : [];
+        (_this$widget$cityBanL = (_this$widget$cityBanL2 = _this.widget.cityBanList) === null || _this$widget$cityBanL2 === void 0 ? void 0 : _this$widget$cityBanL2.forEach(function (ban) {
+          return _this.banList.push({
+            type: 'city',
+            value: ban
+          });
+        })) !== null && _this$widget$cityBanL !== void 0 ? _this$widget$cityBanL : [];
       })["catch"](function (error) {
         handleError(error);
       });
     },
-    updateSettings: function updateSettings(is) {
+    updateSettings: function updateSettings() {
+      var action = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      var removeByIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
       var api = "/api/widget/update";
 
       var _this = this;
 
+      if (action == 'addBan') {
+        if (_this.banInput == null || _this.banInput == '') {
+          alert('Please provide a value that needs to be banned');
+          return;
+        }
+
+        switch (_this.selectedBanKey) {
+          case 'domain':
+            if (!validateDomain(_this.banInput)) {
+              alert('Please provide a valid domain name');
+              return;
+            }
+
+            break;
+
+          case 'ipaddress':
+            if (!validateIP(_this.banInput)) {
+              alert('Please provide a valid IP Address');
+              return;
+            }
+
+            break;
+        }
+      }
+
       if (confirm('Are you sure you want to update the widget settings?')) {
         showLoader();
-        axios.put(api, {
-          widgetId: 1,
-          name: _this.widget.widgetName,
+
+        switch (action) {
+          case 'addBan':
+            _this.banList.push({
+              type: _this.selectedBanKey,
+              value: _this.banInput
+            });
+
+            break;
+
+          case 'removeBan':
+            _this.banList.splice(removeByIndex, 1);
+
+            break;
+        }
+
+        var dataParams = {
+          name: _this.widget.name,
           isActive: _this.widget.isActive,
-          color: _this.widget.widgetColor,
+          color: _this.widget.color,
           starttime: _this.widget.startTime,
           endtime: _this.widget.endTime,
           // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          // Supply data to these properties
           domainBanList: [],
           cityBanList: [],
           ipBanList: [],
           countryBanList: []
-        }).then(function (response) {
+        };
+
+        _this.banList.forEach(function (ban) {
+          switch (ban.type) {
+            case 'domain':
+              dataParams.domainBanList.push(ban.value);
+              break;
+
+            case 'ipaddress':
+              dataParams.ipBanList.push(ban.value);
+              break;
+
+            case 'country':
+              dataParams.countryBanList.push(ban.value);
+              break;
+
+            case 'city':
+              dataParams.cityBanList.push(ban.value);
+              break;
+          }
+        });
+
+        _this.selectedBanKey = '';
+        axios.put(api, dataParams).then(function (response) {
           showLoader(false);
-          var res = response.data;
           alert('Settings has been updated successfully.');
         })["catch"](function (error) {
           handleError(error);
         });
       }
     },
-    addBanList: function addBanList() {
-      console.log(this.banInput);
-      console.log(this.selectedBanKey); // TODO: Manipulate this and push it to API
-
-      this.updateSettings();
-    },
-    removeBanItem: function removeBanItem(item) {
-      console.log(item); // TODO: manipulate this and push it to API
-
-      this.updateSettings();
+    copyWidgetScript: function copyWidgetScript() {
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = this.widget.script;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      alert('Copied successfully!');
     },
     // ************************ Message Helper ************************ //
     getMessages: function getMessages() {
@@ -31991,24 +32075,28 @@ var app = new Vue({
 
       var _this = this;
 
+      console.log('1');
+
       if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
+        console.log('declined');
         return;
       }
 
+      console.log('2');
       var msg = {
         "clientId": this.clientId,
         "body": this.chatbox,
         "senderId": 0,
         "isWhisper": isWhisperChecked,
         "isAgent": true,
-        "createddtm": Date.now().toISOString().slice(0, 19).replace('T', ' '),
         "attachment": {
           "referenceId": 0,
           "size": "",
           "type": "",
           "filename": ""
         }
-      }; // Handle plain message
+      };
+      console.log('sent'); // Handle plain message
 
       if (!(this.file && ((_this$file3 = this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
         this.chatbox = "";
@@ -32110,6 +32198,14 @@ function formatBytes(bytes) {
   var k = 1024;
   var i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
+}
+
+function validateIP(str) {
+  return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
+}
+
+function validateDomain(str) {
+  return /\S+\.\S+/.test(str);
 }
 })();
 
