@@ -19,31 +19,57 @@ class ClientController extends Controller
     {  
 
         // Get IP and client's details
+        $isNewClient = false;
+        $messages = [];
+
         $ip = $req->ip();
-        $data = \Location::get($ip);  
+        $data = \Location::get($ip);    
         
         if($data == false){
             $data = \Location::get($ip.':8000'); 
-
-            // data: ['countryName', 'cityName', 'ip', 'domain']    -- use these properties for validation
         }
 
 
-        // Get widget settings
-        $isNewClient = false;
         $widget = Widget::where('widgetId', 1)->first();
+        $client = Client::where('clientId', $req->clientId)->first();
+        $bannedClient = Client::where('domain', '=', $req->domain)
+                            ->orWhere('ipaddress', '=', $data->ipaddress)
+                            ->orWhere('city', '=', $data->city)
+                            ->orWhere('country', '=', $data->country);
 
-        // Do validation using widget variable
-        // Validate client's domain/ip/location
 
-        if($widget->isActive == false) // OR INCLUDED IN BAN LIST) 
+        // Check if widget settings is enabled
+        if($widget->isActive == false) 
         {
-            return response()->json(['widget' => null, 'clientId' => 0, 'isNew' => false], 200);
+            return response()->json([
+                'widget' => "", 
+                'clientId' => 0, 
+                'isNew' => false,
+                'ipAddress' => $data->ip,
+                'messages' => $messages
+            ], 200);
         }
 
-        $client = Client::where('clientId', $req->clientId)->first();
+        if ($client->isEmpty()) 
+        {
+            $client->clientId = 0;
+        }
 
-        if(is_null($agent)) {          
+        // Check if client is included in ban list
+        if(!($bannedClient>isEmpty())) 
+        {
+            return response()->json([
+                'widget' => "",
+                'clientId' => $client->clientId,
+                'isNew' => false,
+                'ipAddress' => $data->ip,
+                'messages' => $messages
+            ], 200);
+        }
+   
+        // Create new client record if client data isempty. Otherwise, retrieve messages
+        if($client->isEmpty()) 
+        {          
             $client = new Client;
             $client->clientId = substr(md5(uniqid(rand(), true)), 16);
             $client->ipaddress = $data->ip;
@@ -54,6 +80,12 @@ class ClientController extends Controller
             $client->save();
             $isNewClient = true;
         }
+        else 
+        {
+            $messages = Message::where('clientId', $client->clientId)
+                        ->where('isWhispher', false)
+                        ->get(['clientId','senderId','body','isAgent','isWhispher','created_at']);
+        }
 
         // Update widget component based on settings
         $component = strval(View('widget.component'));
@@ -61,10 +93,14 @@ class ClientController extends Controller
         $component = str_replace("%NAME%",  $widget->name ?? "Reach App", $component);   
         $component = str_replace("%COLOR%",  $widget->color ?? "#CC9900", $component);
 
+        // Retrieve messages if client exist
+
         return response()->json([
             'widget' => $component,
             'clientId' => $client->clientId,
-            'isNew' => $isNewClient
+            'isNew' => $isNewClient,
+            'ipAddress' => $data->ip,
+            'messages' => $messages
         ], 200);
     }
 
@@ -77,7 +113,7 @@ class ClientController extends Controller
     }
 
 
-    // Get IP
+    // Get IP details of the client
     public function getIP(Request $req)
     {
         $ip = $req->ip();

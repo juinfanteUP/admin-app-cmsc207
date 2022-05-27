@@ -1,4 +1,6 @@
 const mix = require('laravel-mix');
+let webpack = require('webpack')
+require('dotenv').config()
 
 /*
  |--------------------------------------------------------------------------
@@ -11,7 +13,19 @@ const mix = require('laravel-mix');
  |
  */
 
+ let dotenvplugin = new webpack.DefinePlugin({
+    'process.env': {
+        APP_NAME: JSON.stringify(process.env.APP_NAME || 'Reach App'),
+        APP_URL: JSON.stringify(process.env.APP_URL || ''),
+        SOCKET_SERVER_URL: JSON.stringify(process.env.SOCKET_SERVER_URL || ''),
+        SOCKET_LIB_URL: JSON.stringify(process.env.SOCKET_LIB_URL || '')
+    }
+});
+
+
+mix.webpackConfig({ plugins: [ dotenvplugin ] });
 mix.js('resources/assets/js/app.js', 'public/assets/js/app.js')
+    .js('resources/assets/js/widget.js', 'public/widget/widget.js')
     .vue()
     .combine(
   [

@@ -24,19 +24,20 @@ use App\Http\Controllers\ClientController;
 
 
 // Widget API
-Route::get('/widget/getSettings', [WidgetController::class, 'getSettings']);
+Route::get('/widget/settings', [WidgetController::class, 'getSettings']);
 Route::put('/widget/update', [WidgetController::class, 'update']);
 
 
 // Message API
 Route::post('/message/send', [MessageController::class, 'send']);
 Route::get('/message/getByClientId', [MessageController::class, 'getByClientId']);
-Route::get('/message/getReport', [MessageController::class, 'getReport']);
+Route::get('/message/report', [MessageController::class, 'getReport']);
+Route::get('/message/download', [AgentController::class, 'download']);
 
 
 // Client API
 Route::post('/client/validate', [ClientController::class, 'validateClient']);
-Route::get('/client/getClients', [ClientController::class, 'getClients']);
+Route::get('/client/list', [ClientController::class, 'getClients']);
 Route::get('/client/getIP', [ClientController::class, 'getIP']);
 
 
@@ -44,6 +45,6 @@ Route::get('/client/getIP', [ClientController::class, 'getIP']);
 Route::post('/agent/login', [AgentController::class, 'login'])->name('login');
 Route::post('/agent/register', [AgentController::class, 'register'])->name('register');
 Route::get('/agent/logout', [AgentController::class, 'logout']);
-Route::get('/agent/getAgents', [AgentController::class, 'getAgents']);
-
+Route::get('/agent/list', [AgentController::class, 'getAgents']);
+Route::get('/agent/profile', [AgentController::class, 'getProfile']);
 

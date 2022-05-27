@@ -1,5 +1,5 @@
 
-<!-- <div class="user-chat w-100 overflow-hidden user-chat-show"> -->
+<!-- <div id="chat-pane" class="user-chat w-100 overflow-hidden user-chat-show"> -->
 <div id="chat-pane" class="w-100 overflow-hidden chat-bg main-page">
     <div class="chat-content d-lg-flex">
         <div class="w-100 overflow-hidden position-relative">
@@ -36,7 +36,7 @@
 
 
                         <!-- Message Entry -->
-                        <li class="chat-list" v-bind:class="[true ? 'right' : 'left']" v-for="message in messages">
+                        <li class="chat-list" v-bind:class="[false ? 'right' : 'left']" v-for="message in messages">
                             <div class="chat-avatar">
                                 <img src="assets/images/chat-avatar.png" alt="profile">
                             </div>
@@ -81,7 +81,10 @@
 
                                     </div>
                                     <div class="conversation-name">
-                                        <sub class="text-muted time">Sent by @{{ message.name }} at @{{ message.created_dtm }}</sub> 
+                                        <sub class="text-muted time">
+                                            Sent by @{{ message.name }} at @{{ message.created_dtm }}
+                                            <b class="px-2"> (whisper)</b>
+                                        </sub> 
                                         <span class="text-success check-message-icon"><i class="bx bx-check-double"></i></span>
                                     </div>
                                 </div>
@@ -101,7 +104,7 @@
 
 
             <!-- Attachment -->
-            {{-- <div class="attachment-tab row" v-show ="file.name != ''">
+            <div class="attachment-tab row" v-show ="file.name != ''">
                 <div class="col-sm-10 text-left">
                     <b>@{{ isSubmitting ? 'Uploading File:' : 'Attachment Name:' }}</b> <span class="mx-1"> @{{ file.name }} </span>
                 </div>
@@ -110,7 +113,7 @@
                         <i class="bx bx-x align-middle"></i>
                     </a>
                 </div>
-            </div> --}}
+            </div>
 
 
             <!-- start chat input section -->
@@ -143,8 +146,8 @@
 
                             <!-- Agent Whisper -->
                             <div>
-                                <input type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
-                                data-onstyle="success" data-offstyle="secondary" data-size="sm">  
+                                <input id="isWhisperChecked" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
+                                 data-onstyle="success" data-offstyle="secondary" data-size="sm">  
                             </div>
                             <p class="text-muted small mt-2">Agent Whisper</p>      
                         </div>
@@ -158,7 +161,7 @@
                                 </div>
 
                                 <textarea v-model="chatbox" type="text" placeholder="Type your message" id="chat-input" rows="3" style="resize: none"
-                                    @keyup.13="postMessage()" class="form-control form-control-lg bg-light border-0 chat-input" autofocus></textarea>
+                                class="form-control form-control-lg bg-light border-0 chat-input" autofocus></textarea>
                             </div>
                         </div>
 

@@ -4,28 +4,20 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+const { trimEnd } = require('lodash');
+
 require('./bootstrap');
 
 window.Vue = require('vue').default;
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// ***************** Update these Properties ***************** //
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+const socketioUrl = process.env.SOCKET_SERVER_URL;
+
+
+// ***************** Update these Properties ***************** //
 
 
  var app = new Vue({
@@ -34,7 +26,6 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
         // Agent
 		agent: {
-            _id: '',
 			firstname: '',
 			lastname: '',
 			nickname: '',
@@ -42,13 +33,28 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 		},
 
         // Message/ widgets	
-        widget: {},
-        widgetScript: '',
+        widget: {
+            name: 'Reach App',
+            color: '#4eac6d',
+            isActive: true,
+            startTime: '',
+            endTime: '',
+            script: ''
+        },
         reports: {
             clientCount: 0,
             messageVolumeCount: 0,
             historyList : []
         },
+
+        // Ban components
+        banList: [],
+        banSelectionList: [
+            {id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, 
+            {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}, 
+        ],
+        banInput: '',
+        selectedBanKey: 'domain',
 
         // Message Inputs
 		chatbox: '',
@@ -64,13 +70,14 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 	},
 
 	mounted: function mounted() {
-		// this.getClients();
+        this.getProfile();
+		this.getClients();
 		// this.getAgents();
         // this.getReports();
         this.getUserInput();
 		this.getWidgetSettings();
        
-        this.registerSocketServer();
+        this.registerSocketServer();        
 	},
 
 	computed: {
@@ -87,6 +94,11 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 			return this.clients;
 		},
+
+        selectedBan: function () {
+            return this.selectedBanKey;
+        },
+
         disableSend: function disableSend() {
             return this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "");
         }
@@ -98,16 +110,27 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
         registerSocketServer: function registerSocketServer(cid) {
 			var _this = this;
 
-            // Register SOCKET IO
-         
+            const socket = io(socketioUrl);
+            const room = cid;
+
+            socket.emit('join-room', {
+                "room": room,
+                "username": _this.agent.nickname
+            });
+        
+            // Message from server
+            socket.on('message', (msg) => {
+                _this.messages.push(msg);
+                scrollToBottom();
+            });
 		},
 
 
         // ************************ Agent and Reports Helper ************************ //
 
 
-		getAgents: function getAgents() {		
-            var api = $`/api/agent/getAgents`;
+		getProfile: function getProfile() {		
+            var api = $`/api/agent/profile`;
             var _this = this;
 
 			axios.get(api).then(function(response) {
@@ -117,9 +140,22 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 			});
 		},
 
-        getReports: function getAgents() {		
-            var api = $`/api/message/getReport`;
+		getAgents: function getAgents() {		
+            var api = $`/api/agent/list`;
             var _this = this;
+
+			axios.get(api).then(function(response) {
+				_this.agent = response.data;
+			})["catch"](function(error) {
+				handleError(error);
+			});
+		},
+
+        getReports: function getAgents() {		
+            var api = $`/api/message/report`;
+            var _this = this;
+
+            // Manipulate Data
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
@@ -133,9 +169,9 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 
 		getClients: function getClients() {		
-            var api = $`/api/client/getClients`;
+            var api = $`/api/client/list`;
             var _this = this;
-
+        
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
 
@@ -173,19 +209,19 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 
 		getWidgetSettings: function getWidgetSettings() {
-            var api = `/api/widget/getSettings`;
+            var api = `/api/widget/settings`;
 			var _this = this;
 
 			axios.get(api).then(function(response) {
                 _this.widget = response.data.widget;
-                _this.widgetScript = response.data.script;
-
+                _this.widget.script = _this.widget.script;
 			})["catch"](function(error) {
 				handleError(error);
 			});
 		},
 
-		updateWidget: function updateWidget(submitEvent) {
+
+		updateSettings: function updateSettings(is) {
             var api = `/api/widget/update`;
 			var _this = this;
 
@@ -193,11 +229,19 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 				showLoader();
 				axios.put(api, {
 
-					name: submitEvent.target.elements.name.value,
-					email: submitEvent.target.elements.email.value,
-					contact_no: submitEvent.target.elements.contact_no.value
-
-                    // Change all of these
+					widgetId: 1,
+					name: _this.widget.widgetName,
+					isActive: _this.widget.isActive,
+					color: _this.widget.widgetColor,
+					starttime: _this.widget.startTime, 
+					endtime: _this.widget.endTime,
+                    // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+					
+                    // Supply data to these properties
+                    domainBanList: [],
+                    cityBanList: [],
+                    ipBanList: [],
+                    countryBanList: []
 
 				}).then(function(response) {
 					showLoader(false);
@@ -210,13 +254,30 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 			}
 		},
 
+        addBanList: function addBanList() {
+            console.log(this.banInput);
+            console.log(this.selectedBanKey);
+
+            // TODO: Manipulate this and push it to API
+
+            this.updateSettings();
+        },
+
+        removeBanItem: function removeBanItem(item) {
+            console.log(item);
+
+            // TODO: manipulate this and push it to API
+
+            this.updateSettings();
+        },
+
 
 		// ************************ Message Helper ************************ //
 
 
 		getMessages: function getMessages() {
 			var _this = this;
-            let api = `/api/message?channel_id=${this.selectedClient.clientId}`;
+            let api = `/api/message/getByClientId?clientId=${this.selectedClient.clientId}`;
 
 			showLoader();
 			axios.get(api).then(function(response) {    
@@ -233,10 +294,11 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 		postMessage: function postMessage() {
             //var uploadApi = `/api/message/upload?channel_id=${this.selectedChannel.id}`;
+            var isWhisperChecked = document.getElementById("isWhisperChecked")?.checked ?? false;
             var sendApi = `/api/message/send`;
-            var _this = this;
+            var _this = this;      
 
-			if (!(this.chatbox && this.chatbox != "" || this.isSubmitting)) {
+			if (this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "")) {
 				return;
 			}
 
@@ -244,9 +306,9 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
                 "clientId": this.clientId,
 				"body": this.chatbox,
 				"senderId": 0,
-				"isWhisper": false,
-				"isClient": false,
-				"createddtm": new Date().toISOString().slice(0, 19).replace('T', ' '),
+				"isWhisper": isWhisperChecked,
+				"isAgent": true,
+				"createddtm": Date.now().toISOString().slice(0, 19).replace('T', ' '),
 				"attachment": {
                     "referenceId": 0,
                     "size": "",
@@ -255,9 +317,31 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
                 }
 			}; 
 
+
+            // Handle plain message
+            if (!(this.file && this.file?.name != "")) {
+                
+                this.chatbox = "";
+                socket.emit('send-message', msg);
+                this.messages.push(msg);
+                scrollToBottom();
+                
+                return axios.post(sendApi, {
+
+                    clientId: msg.clientId,
+                    body: msg.body,          
+                    senderId: msg.senderId,
+                    isWhisper: msg.isWhisper,
+                    isAgent: msg.isAgent
+
+                }).then(function(response) {
+                    _this.$forceUpdate();
+                })["catch"](function(error) {
+                    handleError(error);
+                });
+            }
+
             // Handle message with attachment
-			// if (this.file && this.file?.name != "") {
-        
 			// 	var formData = new FormData();
 			// 	formData.append('file', this.file);
 			// 	formData.append('document', JSON.stringify(msg));
@@ -280,28 +364,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 			// 	})["catch"](function(error) {
 			// 		handleError(error);
 			// 	});
-
-            //     return;
-			// } 
-            
-            // Handle plain message
-            this.chatbox = "";
-            this.messages.push(msg);
-            scrollToBottom();
-            
-            axios.post(sendApi, {
-                clientId: msg.clientId,
-                body: msg.body,          
-                senderId: msg.senderId,
-                isWhisper: msg.isWhisper,
-                isClient: msg.isClient
-            }).then(function(response) {
-                _this.$forceUpdate();
-            })["catch"](function(error) {
-                handleError(error);
-            });
 		},
-
 
         // ************************ File Helper ************************ //
 
@@ -335,6 +398,7 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
 
 
 // *********** Helper Methods *********** //
+
 
 function hideModal() {
     $('.modal').modal('hide');

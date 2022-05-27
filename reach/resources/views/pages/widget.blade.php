@@ -23,7 +23,7 @@
                                     <!-- Name -->
                                     <div class="col-sm-12 mb-3" title="Widget name">
                                         <label class="form-label small">Widget Name</label>
-                                        <input type="text" name="widgetName" class="form-control" 
+                                        <input v-model="widget.name" type="text" name="widgetName" class="form-control" 
                                         placeholder="Enter widget name" title="Enter widget name">
                                     </div>
 
@@ -31,7 +31,7 @@
                                     <!-- Color -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Widget Color <small>(e.g. #000)</small></label>
-                                        <input type="text" name="widgetColor" class="form-control"
+                                        <input v-model="widget.color" type="text" name="widgetColor" class="form-control"
                                         placeholder="Enter RGB color" title="Enter RGB color">
                                     </div>
 
@@ -39,9 +39,9 @@
                                     <!-- Status -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label">Widget Status</label>
-                                        <select class="form-select" placeholder="Show Weekly Report">
-                                            <option value="Active" selected >Active</option>
-                                            <option value="Disabled" >Disabled</option>
+                                        <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
+                                            <option value="true" selected >Active</option>
+                                            <option value="false" >Disabled</option>
                                         </select>
                                     </div>
 
@@ -49,25 +49,24 @@
                                     <!-- Start time -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Availability Start Time</label>
-                                        <input type="date" name="password" class="form-control" title="Select availability time">
+                                        <input v-model="widget.startTime" type="text" name="starttime" class="form-control time-picker" value="">
                                     </div>
 
 
                                      <!-- End time -->
                                      <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Availability End Time</label>
-                                        <input type="date" name="password" class="form-control" title="Select availability time">
+                                        <input v-model="widget.endTime" type="text" name="schedule" class="form-control time-picker" value="">
                                     </div>
 
 
                                     <div class="col-sm-12 text-center my-1">
-                                        <button class="btn btn-success" type="button">
+                                        <button class="btn btn-success" type="button" @click="updateSettings()">
                                             Save Changes
                                         </button>
                                     </div>
 
                                 </div>    
-        
                             </div>
                         </div>
                     </div>
@@ -84,7 +83,7 @@
 
                                
                                 <div class="py-4">
-                                    <textarea class="w-100" rows="14" style="resize: none;" v-model="widgetScript" disabled ></textarea>
+                                    <textarea class="w-100" rows="14" style="resize: none;" v-model="widget.script" disabled ></textarea>
                                 </div>
 
                                 <p class="m-0 small text-muted">
@@ -113,15 +112,13 @@
 
                                     <div class="col-md-6">
                                         <div class="input-group">
-                                            <input type="text" class="form-control" placeholder="Enter data to ban">
+                                            <input type="text" class="form-control" placeholder="Enter data to ban" v-model="banInput">
                                             <div class="input-group-append">
-                                                <select class="form-select">
-                                                    <option value="IPAddress" selected >IP Address</option>
-                                                    <option value="Country">Country</option>
-                                                    <option value="City">City</option>
-                                                    <option value="Domain">Domain</option>
-                                                </select>
-                                                <button class="btn btn-danger" type="button">
+                                                <select class="form-select" v-model="selectedBanKey">
+                                                    <option v-for="ban in banSelectionList" v-bind:value="ban.id" >@{{ ban.labels }}</option>
+                                                </select>  
+
+                                                <button class="btn btn-danger" type="button"  @click="addBanList()">
                                                     Add to Ban
                                                 </button>
                                             </div>
@@ -134,16 +131,21 @@
                                             <table class="table table-editable table-nowrap align-middle table-edits">
                                                 <thead>
                                                     <tr>
-                                                        <th>Banned Data</th>
+                                                        <th>Banned Value</th>
                                                         <th colspan="2">Ban Type</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>[Entry]</td>
-                                                        <td>[Type]</td>
+                                                    <tr v-show ="banList.length == 0">
+                                                        <td class="text-center" colspan="3">
+                                                            --- Ban list is empty ---
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-for="banItem in banList">
+                                                        <td>@{{ banItem.value }}</td>
+                                                        <td>@{{ banItem.type }}</td>
                                                         <td class="ban-remove-button">
-                                                            <button class="btn btn-sm btn-danger" type="button">
+                                                            <button class="btn btn-sm btn-danger" type="button" @click="removeBanItem(banItem)">
                                                                 Remove
                                                             </button>
                                                         </td>
@@ -163,4 +165,5 @@
             </div>
         </div>
     </div>
+
 </div>
