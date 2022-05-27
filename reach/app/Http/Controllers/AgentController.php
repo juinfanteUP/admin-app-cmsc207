@@ -33,6 +33,7 @@ class AgentController extends Controller
             {
                 unset($agent->password);
                 $req->session()->put('user', $agent->email);
+                $req->session()->put('loginId', $agent->id);
                 return redirect('/');
             }
         }   
@@ -54,7 +55,7 @@ class AgentController extends Controller
 
         $agent = Agent::where('email', '=', $req->email)->first();
 
-        if($agent>isEmpty()) {
+        if(!is_null($agent)) {
             return back()->with('failed', 'Email already exists');
         }
 
