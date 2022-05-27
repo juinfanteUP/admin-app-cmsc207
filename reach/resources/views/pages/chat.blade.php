@@ -36,7 +36,7 @@
 
 
                         <!-- Message Entry -->
-                        <li class="chat-list" v-bind:class="[false ? 'right' : 'left']" v-for="message in messages">
+                        <li class="chat-list" v-bind:class="[agent.agentId == message.senderId ? 'right' : 'left']" v-for="message in messages">
                             <div class="chat-avatar">
                                 <img src="assets/images/chat-avatar.png" alt="profile">
                             </div>
@@ -82,8 +82,8 @@
                                     </div>
                                     <div class="conversation-name">
                                         <sub class="text-muted time">
-                                            Sent by @{{ message.name }} at @{{ message.created_dtm }}
-                                            <b class="px-2"> (whisper)</b>
+                                            Sent by @{{ agent.agentId == message.senderId ? 'you' : message.isAgent ? 'another agent' : 'the client' }} at @{{ message.created_at }}
+                                            <span class="px-2"  v-show="message.isWhisper"> (whisper)</span>
                                         </sub> 
                                         <span class="text-success check-message-icon"><i class="bx bx-check-double"></i></span>
                                     </div>

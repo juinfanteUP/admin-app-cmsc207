@@ -18,7 +18,6 @@ class ClientController extends Controller
     // Validate widget based on client id and client details
     public function validateClient(Request $req)
     {  
-
         // Get IP and client's details
         $isNewClient = false;
         $messages = [];
@@ -27,7 +26,7 @@ class ClientController extends Controller
         $data = \Location::get($ip);    
         
         if($data == false){
-            $data = \Location::get($ip.':8000'); 
+            $data = \Location::get($ip.':5000'); 
         }
 
         // return response()->json($req->clientId, 200);
@@ -119,7 +118,7 @@ class ClientController extends Controller
         $data = \Location::get($ip);  
         
         if($data == false){
-            $data = \Location::get($ip.':8000'); 
+            $data = \Location::get($ip.':5000'); 
         }
 
         return response()->json(['ip' =>  $ip, 'data' =>  $data], 200);

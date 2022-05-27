@@ -10,7 +10,7 @@
                 <div class="row">
 
                     <!-- Widget settings -->
-                    <div class="col-md-5">        
+                    <div class="col-md-6">        
                         <div class="card mt-3">
                             <div class="card-body">
         
@@ -73,7 +73,7 @@
             
 
                     <!-- Widget script tag -->
-                    <div class="col-md-6 offset-md-1">      
+                    <div class="col-md-6">      
                         <div class="card mt-3">
                             <div class="card-body">
         

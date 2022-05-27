@@ -12,6 +12,7 @@ window.Vue = require('vue').default;
 
 
 const socketioUrl = process.env.SOCKET_SERVER_URL;
+const socket = io(socketioUrl);
 
 
 // ***************** Update these Properties ***************** //
@@ -106,22 +107,36 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 		
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
-            const socket = io(socketioUrl);
-
+           
             // New clients from server
             socket.on('join-room', (client) => { 
+
+                console.log(client);
+
                 _this.reports.clientCount++;
                 if (!_.find(_this.clients, { clientId: client?.clientId })) {
                     _this.clients.push(client);
                 }
             });
-        
+
+            
             // Message from server
             socket.on('message', (msg) => {
+
+                console.log(msg);
+
                 _this.reports.messageVolumeCount++;
                 _this.messages.push(msg);
                 scrollToBottom();
             });
+
+
+            // Event for users that deactivates
+            // socket.on('disconnect', (msg) => {
+            //     _this.reports.messageVolumeCount++;
+            //     _this.messages.push(msg);
+            //     scrollToBottom();
+            // });
 		},
 
 
@@ -258,8 +273,8 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 					name: _this.widget.name,
 					isActive: _this.widget.isActive,
 					color: _this.widget.color,
-					starttime: _this.widget.startTime, 
-					endtime: _this.widget.endTime,
+					starttime: _this.widget.starttime, 
+					endtime: _this.widget.endtime,
                     // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     domainBanList: [],
                     cityBanList: [],
@@ -311,6 +326,7 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
 		getMessages: function getMessages() {
 			var _this = this;
             let api = `/api/message/getByClientId?clientId=${this.selectedClient.clientId}`;
+            _this.reports.messageVolumeCount++;
 
 			showLoader();
 			axios.get(api).then(function(response) {    
@@ -331,37 +347,35 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
             var sendApi = `/api/message/send`;
             var _this = this;      
 
-            console.log('1');
 			if (this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "")) {
 				console.log('declined');
                 return;
 			}
 
-            console.log('2');
 			var msg = {
                 "clientId": this.clientId,
 				"body": this.chatbox,
-				"senderId": 0,
+				"senderId": this.agent.agentId,
 				"isWhisper": isWhisperChecked,
 				"isAgent": true,
-				"attachment": {
-                    "referenceId": 0,
-                    "size": "",
-                    "type": "",
-                    "filename": ""
-                }
+                "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
+				// "attachment": {
+                //     "referenceId": 0,
+                //     "size": "",
+                //     "type": "",
+                //     "filename": ""
+                // }
 			}; 
-
-            console.log('sent');
 
             // Handle plain message
             if (!(this.file && this.file?.name != "")) {
                 
                 this.chatbox = "";
-                socket.emit('send-message', msg);
+
                 this.messages.push(msg);
                 scrollToBottom();
                 
+                socket.emit('send-message', msg);
                 return axios.post(sendApi, {
 
                     clientId: msg.clientId,
@@ -371,6 +385,9 @@ const socketioUrl = process.env.SOCKET_SERVER_URL;
                     isAgent: msg.isAgent
 
                 }).then(function(response) {
+
+                    console.log(response);
+
                     _this.$forceUpdate();
                 })["catch"](function(error) {
                     handleError(error);

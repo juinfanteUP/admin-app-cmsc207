@@ -17,7 +17,7 @@ const validateClientApi = sourceDomain + "/api/client/validate";
 // ***************** Services ***************** //
 
 
-// Emit message
+// Send message 
 function sendMessage (msg) {
 	$.ajax({
 		type: "POST",
@@ -77,7 +77,7 @@ var generateComponent = (widget, client, messages) => {
     // If new user, jump in and join the 
     socket.emit('join-room', {
         "room": room,
-        "client": client
+        "client": client.clientId
     });
 
 
@@ -86,6 +86,8 @@ var generateComponent = (widget, client, messages) => {
         if(!msg.isWhispher){
             generateMessage(msg.body, !msg.isAgent, msg.created_at);
         }	
+
+        console.log(msg);
 	});
 
 
@@ -208,7 +210,7 @@ var generateComponent = (widget, client, messages) => {
                     setLocalClientData(result.client.clientId);
                 }
     
-                console.log(result);
+                console.log(result.client.clientId);
                 generateComponent(result.widget, result.client, result.messages);
 			}
 		});

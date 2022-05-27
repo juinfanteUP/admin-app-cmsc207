@@ -100,8 +100,6 @@ class AgentController extends Controller
         $email = Session::get('user');
         $agent = Agent::where('email', $email)->first();
 
-        return response()->json($agent, 200);
-
         if(is_null($agent))
         {
             return response()->json(null, 401);
