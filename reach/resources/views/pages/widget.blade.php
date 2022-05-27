@@ -82,8 +82,8 @@
                                 </h4>
 
                                
-                                <div class="py-4">
-                                    <textarea class="w-100" rows="14" style="resize: none;" v-model="widget.script" disabled ></textarea>
+                                <div class="py-4" id="selectText">
+                                    <textarea id="widgetScript" class="w-100" rows="14" style="resize: none;" v-model="widgetScript" disabled ></textarea>
                                 </div>
 
                                 <p class="m-0 small text-muted">

@@ -6,13 +6,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
+use App\Models\User;
 use App\Models\Client;
-use Session;
+use Illuminate\Support\Facades\Session;
+use Hash;
+use Auth;
 
 
 // TODO: PLEASE REFINE AND TEST...
 class AgentController extends Controller
 {
+    
     // Login a User
     public function login(Request $req) 
     {
@@ -21,7 +25,7 @@ class AgentController extends Controller
             'password'=>'required|max:100'
         ]);
 
-        $agent = Agent::where('agentId', $req->email)->first();
+        $agent = Agent::where('email', $req->email)->first();
 
         if($agent)
         {
@@ -48,7 +52,7 @@ class AgentController extends Controller
             'nickname'=>'required|max:50'
         ]);
 
-        $agent = Agent::where('email',$req->email)->first();
+        $agent = Agent::where('email', '=', $req->email)->first();
 
         if($agent>isEmpty()) {
             return back()->with('failed', 'Email already exists');
@@ -74,8 +78,9 @@ class AgentController extends Controller
     // Clear session and redirect to login page
     public function logout(Request $req)
     {
-        $req->session()->forget('user');
+        $req->session()->forget('loginId');
         $req->session()->flush();
+   
         return redirect('login');
     }
 
