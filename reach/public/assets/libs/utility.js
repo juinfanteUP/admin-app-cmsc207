@@ -38,7 +38,7 @@
     var pwdEye = document.getElementById("password-addon");
     if(pwdEye){
       pwdEye.addEventListener("click", function() {
-          var e = document.getElementById("password-input");
+          var e = document.getElementById("txtPassword");
           "password" === e.type ? e.type = "text" : e.type = "password"
       });
     }
