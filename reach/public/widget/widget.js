@@ -67,12 +67,13 @@ var generateComponent = function generateComponent(widget, client, messages) {
   console.log(client); // If new user, jump in and join the 
 
   socket.emit('join-room', {
-    "room": room,
+    "room": client.clientId,
     "clientId": client.clientId
   }); // Message from server. If messaged is whispered, do not generate the line
 
   socket.on('message', function (msg) {
     if (msg.isWhisper == 'false') {
+      console.log(msg);
       generateMessage(msg.body, msg.isAgent == 'false', msg.created_at);
     }
 
