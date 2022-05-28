@@ -51,8 +51,18 @@ class MessageController extends Controller
     {
 
         // Get Message Volume Count List
-        // Get Active Client Count List
 
-        return response()->json(null, 200);
+        $messageVolumeCount  = Message::get(['id','created_at'])
+                                ->count();
+        // Get Active Client Count List
+        $clientCount = 0;
+        
+        $historyList = [];
+
+        return response()->json([ 
+                "messageVolumeCount" => $messageVolumeCount,
+                "clientCount" => $clientCount,
+                "historyList" => $historyList,
+        ], 200);
     }
 }

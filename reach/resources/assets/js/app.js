@@ -72,7 +72,7 @@ const socket = io(socketioUrl);
         this.getProfile();
 		this.getClients();
 		// this.getAgents();
-        // this.getReports();
+        this.getReports();
         this.getMessages();
         this.getUserInput();
 		this.getWidgetSettings();
