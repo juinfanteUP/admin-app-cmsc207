@@ -121,8 +121,8 @@ const socket = io(socketioUrl);
             //     }
             // });
 
-            socket.on('client-join-room', (c) => {
-                console.log(`client join room ${c}`);
+            socket.on('client-join-room', (clientId) => {
+                console.log(`client join room: ${clientId}`);
                 _this.getClients();
             });
 

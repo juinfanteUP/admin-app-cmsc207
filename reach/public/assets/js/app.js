@@ -31823,8 +31823,8 @@ var app = new Vue({
       // });
 
 
-      socket.on('client-join-room', function (c) {
-        console.log("client join room ".concat(c));
+      socket.on('client-join-room', function (clientId) {
+        console.log("client join room: ".concat(clientId));
 
         _this.getClients();
       }); // Message from server
