@@ -67,7 +67,7 @@
 
                                         <!-- Password -->
                                         <div class="col-sm-12 col-md-6 mb-3" title="Enter your password">
-                                            <label for="txtPassword" class="form-label">Password <small class="text-danger">*</small></label>
+                                            <label for="txtPassword" class="form-label">Password <sub>(min 8 char)</sub> <small class="text-danger">*</small></label>
                                             <input type="password" name="password" value="{{ old('password') }}" class="form-control" id="txtPassword" placeholder="Enter your password" title="Enter your password">
                                             <small class="text-danger">
                                                 @error('password') {{ $message }} @enderror

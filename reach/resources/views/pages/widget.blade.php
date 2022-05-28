@@ -38,29 +38,24 @@
 
                                     <!-- Status -->
                                     <div class="col-sm-12 mb-3">
-                                        <label class="form-label">Widget Status</label>
+                                        <label class="form-label">
+                                            Widget Status
+                                        </label>
                                         <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
                                             <option value="true" selected >Active</option>
                                             <option value="false" >Disabled</option>
                                         </select>
                                     </div>
 
-
-                                    <!-- Start time -->
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label small">Availability Start Time</label>
-                                        <input v-model="widget.starttime" type="text" name="starttime" class="form-control time-picker" value="">
+                            
+                                      <!-- Socket Server -->
+                                      <div class="col-sm-12 mb-3">
+                                        <label class="form-label">Socket Server</label>
+                                        <input v-model="socketServerUrl" type="text" class="form-control" disabled>
                                     </div>
 
 
-                                     <!-- End time -->
-                                     <div class="col-sm-12 mb-3">
-                                        <label class="form-label small">Availability End Time</label>
-                                        <input v-model="widget.endtime" type="text" name="endtime" class="form-control time-picker" value="">
-                                    </div>
-
-
-                                    <div class="col-sm-12 text-center my-1">
+                                    <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">
                                             Save Changes
                                         </button>

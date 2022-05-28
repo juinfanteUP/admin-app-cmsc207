@@ -186,13 +186,13 @@
 
 .chat-msg.self > .cm-msg-text {
     margin-right: 10px;
-    background: rgb(3 175 27);
+    background: rgb(117, 117, 117);
     color: white;
     word-wrap: break-word;
     box-shadow: -5px 5px 15px 0px #b9b9b9;
     width: max-content;
     font-size: 14px;
-    border-radius: 20px;
+    border-radius: 15;
     margin-left: auto;
 }
 

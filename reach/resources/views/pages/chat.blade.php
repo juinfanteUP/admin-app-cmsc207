@@ -1,6 +1,6 @@
 
-<!-- <div id="chat-pane" class="user-chat w-100 overflow-hidden user-chat-show"> -->
-<div id="chat-pane" class="w-100 overflow-hidden chat-bg main-page">
+
+<div id="chat-pane" class="w-100 overflow-hidden chat-bg main-page user-chat-show">
     <div class="chat-content d-lg-flex">
         <div class="w-100 overflow-hidden position-relative">
             <div id="users-chat" class="position-relative">
@@ -82,6 +82,17 @@
             <!-- Chat Input components -->
             <div v-show="selectedClientId != 0 && clients.length > 0">
 
+                <!-- Attachment -->
+                <div class="attachment-tab row" v-show ="file.name != ''">
+                    <div class="col-sm-10 text-left">
+                        <b>@{{ isSubmitting ? 'Uploading File:' : 'Attachment Name:' }}</b> <span class="mx-1"> @{{ file.name }} </span>
+                    </div>
+                    <div class="col-sm-2 attachment-tab-close">
+                        <a href="javascript:" class="text-white " @click="cancelUpload()" v-show ="!isSubmitting" title="Remove attachment">
+                            <i class="bx bx-x align-middle"></i>
+                        </a>
+                    </div>
+                </div>
 
                 <!-- start chat input section -->
                 <div class="position-relative">
@@ -91,8 +102,18 @@
                             <div class="col-auto text-center px-4">
                                 <div class="chat-input-links me-md-2 mb-2">
                                     
+                                    <!-- Attachments -->
+                                    <input type="file" id="file-uploader" ref="file" v-on:change="handleFileUpload()" hidden/>
+                                    <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Attachments">
+                                        <button type="button" onclick="document.getElementById('file-uploader').click()"
+                                            class="btn btn-link text-decoration-none btn-lg waves-effect">
+                                            <i class="bx bx-paperclip align-middle"></i>
+                                        </button>
+                                    </div>
+
+
                                     <!-- Emojis -->
-                                    <div class="links-list-item" data-bs-toggle="tooltip" data-bs-trigger="hover"
+                                    <div class="links-list-item text-center" data-bs-toggle="tooltip" data-bs-trigger="hover"
                                         data-bs-placement="top" title="Emoji">
                                         <button type="button"
                                             class="btn btn-link text-decoration-none btn-lg waves-effect emoji-btn"
@@ -120,6 +141,18 @@
 
                                     <textarea v-model="chatbox" type="text" placeholder="Type your message" id="chat-input" rows="3" style="resize: none"
                                     class="form-control form-control-lg bg-light border-0 chat-input" autofocus></textarea>
+                                </div>
+                            </div>
+
+
+                            <div class="col-auto">
+                                <div class="chat-input-links ms-2 gap-md-1">
+                                    <div class="links-list-item">
+                                        <button type="button" @click="postMessage()" 
+                                            class="btn btn-primary btn-lg chat-send waves-effect waves-light">
+                                            <i class="bx bxs-send align-middle" id="submit-btn"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 

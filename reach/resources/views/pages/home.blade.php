@@ -60,18 +60,18 @@
                        
                         <div class="row">
 
-                            <!-- Active Users -->
+                            <!-- Active User -->
                             <div class="col-sm-6">
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>
-                                            <h6>Client Count today</h6>
+                                            <h6>Good Day,</h6>
                                             <h3>
-                                                @{{ reports.clientCount }}
+                                                @{{ agent.nickname }}!
                                             </h3> 
                                         </div>
                                         <div>
-                                            <i class="ri-user-voice-line"></i>
+                                            <i class="ri-sun-line"></i>
                                         </div>   
                                     </div>
                                 </div>
@@ -82,7 +82,7 @@
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>
-                                            <h6>Message Volume today</h6>
+                                            <h6>Message Volume</h6>
                                             <h3>
                                                 @{{ reports.messageVolumeCount }}
                                             </h3> 
@@ -100,25 +100,12 @@
                                     <div class="card-body">
                 
                                         <!-- Header and Search -->
-                                        <div class="row">
-                                            <div class="col-sm-12 col-md-8">
-                                                <h4 class="card-title pt-1">
-                                                    Recent History Report
-                                                </h4>
-                                            </div>
-                                            <div class="col-sm-12 col-md-4">
-                                                <div class="input-group search-panel mb-3">
-                                                    <select class="form-select" placeholder="Show Weekly Report">
-                                                        <option value="Daily" selected >Daily</option>
-                                                        <option value="Monthly" >Monthly</option>
-                                                    </select>
-                
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <h4 class="card-title pt-1">
+                                            Recent History Report
+                                        </h4>
                 
                                         <!-- Data History Report -->
-                                        <div class="table-responsive mt-3">
+                                        <div class="table-responsive mt-4">
                                             <table class="table table-editable table-nowrap align-middle table-edits">
                                                 <thead>
                                                     <tr>

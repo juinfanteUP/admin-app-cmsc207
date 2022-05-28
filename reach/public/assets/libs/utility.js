@@ -45,26 +45,20 @@
   
   
     // Chat Pane
-    var chatPane = document.getElementById("channelList");
-    var genChatPane = document.getElementById("genChat");
-    var returnContacts = document.getElementById("return-contacts");
+    // var chatPane = document.getElementById("channelList");
+    // var returnContacts = document.getElementById("return-contacts");
   
-    if(chatPane && returnContacts && genChatPane){
-        chatPane.addEventListener("click", function() {
-          var e = document.getElementById("chat-pane");
-          e.classList.toggle("user-chat-show");
-        });
-
-        genChatPane.addEventListener("click", function() {
-          var e = document.getElementById("chat-pane");
-          e.classList.toggle("user-chat-show");
-        });
+    // if(chatPane && returnContacts){
+    //     chatPane.addEventListener("click", function() {
+    //       var e = document.getElementById("chat-pane");
+    //       e.classList.toggle("user-chat-show");
+    //     });
   
-        returnContacts.addEventListener("click", function() {
-          var e = document.getElementById("chat-pane");
-          e.classList.toggle("user-chat-show");
-      });
-    }
+    //     returnContacts.addEventListener("click", function() {
+    //       var e = document.getElementById("chat-pane");
+    //       e.classList.toggle("user-chat-show");
+    //   });
+    // }
   
   
     // Navbar Menu List
