@@ -148,7 +148,6 @@ const socket = io(socketioUrl);
             var _this = this;
 
 			axios.get(api).then(function(response) {
-                console.log(response.data)
 				_this.agent = response.data;
 			})["catch"](function(error) {
 				handleError(error);
@@ -348,7 +347,6 @@ const socket = io(socketioUrl);
             var _this = this;      
 
 			if (this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "")) {
-				console.log('declined');
                 return;
 			}
 
@@ -359,12 +357,6 @@ const socket = io(socketioUrl);
 				"isWhisper": isWhisperChecked,
 				"isAgent": true,
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
-				// "attachment": {
-                //     "referenceId": 0,
-                //     "size": "",
-                //     "type": "",
-                //     "filename": ""
-                // }
 			}; 
 
             // Handle plain message
@@ -385,38 +377,11 @@ const socket = io(socketioUrl);
                     isAgent: msg.isAgent
 
                 }).then(function(response) {
-
-                    console.log(response);
-
                     _this.$forceUpdate();
                 })["catch"](function(error) {
                     handleError(error);
                 });
             }
-
-            // Handle message with attachment
-			// 	var formData = new FormData();
-			// 	formData.append('file', this.file);
-			// 	formData.append('document', JSON.stringify(msg));
-			// 	this.isSubmitting = true;
-			// 	this.$forceUpdate();
-
-			// 	axios.post(uploadApi, formData, {
-			// 		headers: {
-			// 			'Content-Type': 'multipart/form-data'
-			// 		}
-			// 	}).then(function(response) {
-			// 		_this.isSubmitting = false;
-			// 		_this.chatbox = "";
-
-			// 		_this.messages.push(response.data);
-
-			// 		_this.cancelUpload();
-
-			// 		scrollToBottom();
-			// 	})["catch"](function(error) {
-			// 		handleError(error);
-			// 	});
 		},
 
         // ************************ File Helper ************************ //
@@ -479,13 +444,6 @@ function scrollToBottom() {
             $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
         }
     }, 200);
-}
-
-function formatBytes(bytes) {
-    if (!(bytes || bytes > 0)) return '0 Bytes';
-    var k = 1024;
-    var i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
 }
 
 function validateIP(str) {

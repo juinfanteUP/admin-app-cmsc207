@@ -11,7 +11,6 @@ use App\Models\Message;
 use Session;
 
 
-// TODO: PLEASE REFINE AND TEST...
 class ClientController extends Controller
 {
 
