@@ -42,8 +42,8 @@
                                             Widget Status
                                         </label>
                                         <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
-                                            <option value="true" selected >Active</option>
-                                            <option value="false" >Disabled</option>
+                                            <option value="1" selected >Active</option>
+                                            <option value="0" >Disabled</option>
                                         </select>
                                     </div>
 
