@@ -31719,7 +31719,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "http://localhost:3000";
+var socketioUrl = "http://localhost:5000";
 var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
@@ -31780,8 +31780,8 @@ var app = new Vue({
   mounted: function mounted() {
     this.getProfile();
     this.getClients(); // this.getAgents();
-    // this.getReports();
 
+    this.getReports();
     this.getMessages();
     this.getUserInput();
     this.getWidgetSettings();
@@ -31814,24 +31814,33 @@ var app = new Vue({
     // ************************ Subscribe to Socket Server ************************ //
     registerSocketServer: function registerSocketServer() {
       var _this = this; // New clients from server
+      // socket.on('join-room', (client) => { 
+      //     console.log(client);
+      //     _this.reports.clientCount++;
+      //     if (!_.find(_this.clients, { clientId: client?.clientId })) {
+      //         _this.clients.push(client);
+      //     }
+      // });
 
 
-      socket.on('join-room', function (client) {
-        console.log(client);
-        _this.reports.clientCount++;
+      socket.on('client-join-room', function (c) {
+        console.log("client join room ".concat(c));
 
-        if (!_.find(_this.clients, {
-          clientId: client === null || client === void 0 ? void 0 : client.clientId
-        })) {
-          _this.clients.push(client);
-        }
+        _this.getClients();
       }); // Message from server
 
       socket.on('message', function (msg) {
         console.log(msg);
         _this.reports.messageVolumeCount++;
+        msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
         _this.allMessages.push(msg);
+
+        if (msg.clientId === _this.selectedClientId) {
+          _this.messages.push(msg);
+        }
+
+        _this.$forceUpdate();
 
         scrollToBottom();
       }); // Event for users that deactivates
@@ -31884,6 +31893,15 @@ var app = new Vue({
 
       axios.get(api).then(function (response) {
         _this.clients = response.data;
+
+        _this.clients.forEach(function (c) {
+          socket.emit('join-room', {
+            "room": c.clientId,
+            "clientId": _this.agent.agentId
+          });
+        });
+
+        _this.$forceUpdate();
       })["catch"](function (error) {
         handleError(error);
       });
@@ -32060,6 +32078,11 @@ var app = new Vue({
       showLoader();
       axios.get(api).then(function (response) {
         _this.allMessages = response.data;
+
+        _this.allMessages.forEach(function (m) {
+          m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
+        });
+
         showLoader(false);
       })["catch"](function (error) {
         handleError(error);

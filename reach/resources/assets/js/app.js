@@ -111,14 +111,19 @@ const socket = io(socketioUrl);
 			var _this = this;
            
             // New clients from server
-            socket.on('join-room', (client) => { 
+            // socket.on('join-room', (client) => { 
 
-                console.log(client);
+            //     console.log(client);
 
-                _this.reports.clientCount++;
-                if (!_.find(_this.clients, { clientId: client?.clientId })) {
-                    _this.clients.push(client);
-                }
+            //     _this.reports.clientCount++;
+            //     if (!_.find(_this.clients, { clientId: client?.clientId })) {
+            //         _this.clients.push(client);
+            //     }
+            // });
+
+            socket.on('client-join-room', (c) => {
+                console.log(`client join room ${c}`);
+                _this.getClients();
             });
 
             
@@ -128,7 +133,14 @@ const socket = io(socketioUrl);
                 console.log(msg);
 
                 _this.reports.messageVolumeCount++;
+
+                msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
                 _this.allMessages.push(msg);
+                if (msg.clientId === _this.selectedClientId) {
+                    _this.messages.push(msg);
+                }
+                _this.$forceUpdate();
                 scrollToBottom();
             });
 
@@ -189,6 +201,16 @@ const socket = io(socketioUrl);
         
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
+
+                _this.clients.forEach(c => {
+                    
+                    socket.emit('join-room', {
+                        "room": c.clientId,
+                        "clientId": _this.agent.agentId
+                    }); 
+                });
+
+                _this.$forceUpdate();
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -340,6 +362,11 @@ const socket = io(socketioUrl);
 			showLoader();
 			axios.get(api).then(function(response) {    
 				_this.allMessages = response.data;
+
+                _this.allMessages.forEach(m => {
+                    m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
+                });
+
                 showLoader(false);
 
 			})["catch"](function(error) {
