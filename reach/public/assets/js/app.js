@@ -31816,8 +31816,8 @@ var app = new Vue({
     registerSocketServer: function registerSocketServer() {
       var _this = this;
 
-      socket.on('client-join-room', function (c) {
-        console.log("client join room ".concat(c));
+      socket.on('client-join-room', function (clientId) {
+        console.log("client join room: ".concat(clientId));
 
         _this.onlineClientIds.push(c);
 
