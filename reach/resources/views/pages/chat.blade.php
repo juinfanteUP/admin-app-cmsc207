@@ -156,18 +156,6 @@
                                 </div>
                             </div>
 
-
-                            <!-- Submit Chat Button -->
-                            <div class="col-auto">
-                                <div class="chat-input-links ms-2 gap-md-1">
-                                    <div class="links-list-item">
-                                        <button type="button" @click="postMessage()" 
-                                            class="btn btn-primary btn-lg chat-send waves-effect waves-light">
-                                            <i class="bx bxs-send align-middle" id="submit-btn"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
