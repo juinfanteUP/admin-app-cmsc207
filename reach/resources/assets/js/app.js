@@ -111,26 +111,10 @@ const socket = io(socketioUrl);
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
            
-<<<<<<< HEAD
             socket.on('client-join-room', (c) => {
                 console.log(`client join room ${c}`);
                 _this.onlineClientIds.push(c);
                 _this.reports.clientCount++;
-=======
-            // New clients from server
-            // socket.on('join-room', (client) => { 
-
-            //     console.log(client);
-
-            //     _this.reports.clientCount++;
-            //     if (!_.find(_this.clients, { clientId: client?.clientId })) {
-            //         _this.clients.push(client);
-            //     }
-            // });
-
-            socket.on('client-join-room', (clientId) => {
-                console.log(`client join room: ${clientId}`);
->>>>>>> a5402d3265e4c7f4582f6c0df002118120929ef4
                 _this.getClients();
             });
          
