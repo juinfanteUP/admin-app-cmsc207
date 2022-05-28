@@ -13,19 +13,20 @@ use Auth;
 
 class ViewController extends Controller
 {
-     // Show Login Page
-     public function showLogin()
-     {
-         return view("auth.login");
-     }
+    // Show Login Page
+    public function showLogin()
+    {
+        return view("auth.login");
+    }
  
-     // Show Registration Page
-     public function showRegister()
-     {
-         return view("auth.register");
-     }
+    // Show Registration Page
+    public function showRegister()
+    {
+        return view("auth.register");
+    }
 
-     public function showHome()
+    // Show home
+    public function showHome()
     {
         $user = Agent::where('email', '=', Session::get('user'))->first();
         return view('home', ['user' => $user]);

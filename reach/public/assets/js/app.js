@@ -31763,6 +31763,7 @@ var app = new Vue({
     }],
     banInput: '',
     selectedBanKey: 'domain',
+    socketServerUrl: socketioUrl,
     // Message Inputs
     chatbox: '',
     file: {
@@ -31816,8 +31817,8 @@ var app = new Vue({
     registerSocketServer: function registerSocketServer() {
       var _this = this;
 
-      socket.on('client-join-room', function (clientId) {
-        console.log("client join room: ".concat(clientId));
+      socket.on('client-join-room', function (c) {
+        console.log("client join room ".concat(c));
 
         _this.onlineClientIds.push(c);
 
@@ -31868,13 +31869,14 @@ var app = new Vue({
         handleError(error);
       });
     },
-    getReports: function getAgents() {
+    getReports: function getReports() {
       var api = "/api/message/report";
 
       var _this = this;
 
       axios.get(api).then(function (response) {
         _this.reports = response.data;
+        console.log(response.data);
       })["catch"](function (error) {
         handleError(error);
       });

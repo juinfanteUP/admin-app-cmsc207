@@ -53,6 +53,7 @@ const socket = io(socketioUrl);
         ],
         banInput: '',
         selectedBanKey: 'domain',
+        socketServerUrl: socketioUrl, 
 
         // Message Inputs
 		chatbox: '',
@@ -88,7 +89,7 @@ const socket = io(socketioUrl);
 			if (this.searchClient) {
 				return this.clients.filter((i)=>{
 					return _this.searchClient.toLowerCase().split(' ').every(function(v) {
-						return i.ipaddress.toLowerCase().includes(v);
+						return i.domain.toLowerCase().includes(v);
 					});
 				});
 			}
@@ -164,12 +165,14 @@ const socket = io(socketioUrl);
 			});
 		},
 
-        getReports: function getAgents() {		
+        getReports: function getReports() {		
             var api = `/api/message/report`;
             var _this = this;
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
+                 console.log(response.data)
+
 			})["catch"](function(error) {
 				handleError(error);
 			});

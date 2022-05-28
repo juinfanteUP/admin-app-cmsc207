@@ -27,7 +27,7 @@ class WidgetController extends Controller
             $widget->domainBanList = [];
             $widget->IpBanList = [];
             $widget->countryBanList = [];
-            // $widget->timezone = $req->timezone;
+            $widget->cityBanList = [];
             $widget->save();
         }
 
@@ -53,7 +53,7 @@ class WidgetController extends Controller
         $widget->domainBanList = $req->domainBanList;
         $widget->IpBanList = $req->IpBanList;
         $widget->countryBanList = $req->countryBanList;
-        // $widget->timezone = $req->timezone;
+        $widget->cityBanList = $req->cityBanList;
         $widget->save();
 
         return response()->json(["result" => "ok"], 201);

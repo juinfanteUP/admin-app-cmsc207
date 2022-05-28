@@ -28,7 +28,7 @@
             </div>
 
             <div class="chat-message-list">
-                <ul class="list-unstyled chat-list chat-user-list mb-3">
+                <ul class="list-unstyled chat-list chat-user-list mb-3" id="channelList">
 
                     <li class="chat-message-item pb-3"  @click="selectClient(client)"
                         v-bind:id="client.clientId" v-for="client in resultClientSearch" 
@@ -58,11 +58,11 @@
 
 <!-- View client Info -->
 <div class="modal fade" id="view-client-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="min-width: 1000px;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content modal-header-colored border-0">
             <div class="modal-header">
                 <h5 class="modal-title text-white fs-16">
-                    Info - @{{ viewClient.domain }} / @{{ viewClient.ipAddress }} 
+                    Info - @{{ viewClient.domain }} / @{{ viewClient.ipaddress }} 
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" ></button>
             </div>
@@ -90,11 +90,7 @@
                             <tr>
                                 <th>City</th>
                                 <td>@{{ viewClient.city }} </td>
-                            </tr>   
-                            <tr>
-                                <th>Date Joined</th>
-                                <td>@{{ viewClient.createddtm }} </td>
-                            </tr>                 
+                            </tr>              
                         </tbody>
                     </table>
                 </div>
