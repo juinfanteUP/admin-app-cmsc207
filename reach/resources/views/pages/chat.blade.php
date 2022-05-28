@@ -18,7 +18,7 @@
                                         <div class="flex-grow-1 overflow-hidden">
                                             <h6 class="text-truncate mb-0 fs- px-4">
                                                 <a href="javascript:" class="user-profile-show text-reset">
-                                                    @{{ selectedClient.ipAddress }}
+                                                    @{{ selectedClientId }}
                                                 </a>
                                             </h6>
                                         </div>
@@ -53,8 +53,8 @@
                                     </div>
                                     <div class="conversation-name">
                                         <sub class="text-muted time">
-                                            Sent by @{{ agent.agentId == message.senderId ? 'you' : message.isAgent ? 'another agent' : 'the client' }} at @{{ message.created_at }}
-                                            <span class="px-2"  v-show="message.isWhisper"> (whisper)</span>
+                                            Sent by @{{ agent.agentId == message.senderId ? 'you' : message.isAgent == 'true' ? 'another agent' : 'the client' }} at @{{ message.created_at }}
+                                            <span class="px-2"  v-show="message.isWhisper == 'true'"> (whisper)</span>
                                         </sub> 
                                         <span class="text-success check-message-icon"><i class="bx bx-check-double"></i></span>
                                     </div>
@@ -74,7 +74,7 @@
             </div>
 
 
-            <div id="empty-chat" class="text-center" v-show="selectedClient.clientId == 0">
+            <div id="empty-chat" class="text-center" v-show="selectedClientId == 0">
                 <img src="assets/images/brand/reach-128.png" width="128">
                 <p>
                     Please select a client to begin the chat
@@ -83,7 +83,7 @@
 
 
             <!-- Chat Input components -->
-            <div v-show="selectedClient.clientId != 0 && clients.length > 0">
+            <div v-show="selectedClientId != 0 && clients.length > 0">
 
 
                 <!-- start chat input section -->

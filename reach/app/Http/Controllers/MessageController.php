@@ -25,13 +25,13 @@ class MessageController extends Controller
         $message->clientId =  $req->clientId;
         $message->senderId = $req->senderId;
         $message->body = $req->body;
-        $message->isAgent = (boolean)$req->isAgent;
-        $message->isWhisper = (boolean)$req->isWhisper;
+        $message->isAgent = $req->isAgent;
+        $message->isWhisper = $req->isWhisper;
         $res = $message->save();
 
         if($res)
         {
-            return response()->json($req, 201);
+            return response()->json($message, 201);
         } 
 
         return response()->json("An error has occurred during saving", 400);
@@ -39,17 +39,10 @@ class MessageController extends Controller
 
 
     // Get message list
-    public function getByClientId(Request $req)
+    public function getMessages(Request $req)
     {
-        if($req)
-        {
-            $messages = Message::where('clientId', $req->query('clientId'))
-                        ->get(['clientId','senderId','body','isAgent','isWhisper','createddtm']);
-
-            return response()->json(['messages' => $messages], 200);
-        }
-
-        return response()->json("An error has occurred during saving", 400);
+        $messages = Message::get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
+        return response()->json($messages, 200);
     }
 
 

@@ -59,11 +59,12 @@ const socket = io(socketioUrl);
 		file: { name: '' },
 		isSubmitting: false,
         messages: [],
+        allMessages: [],
 
         // Clients
         clients: [],
 		searchClient: '',
-        selectedClient: { clientId : 0 },
+        selectedClientId: 0,
         viewClient: {}
 	},
 
@@ -72,6 +73,7 @@ const socket = io(socketioUrl);
 		this.getClients();
 		// this.getAgents();
         // this.getReports();
+        this.getMessages();
         this.getUserInput();
 		this.getWidgetSettings();
        
@@ -126,7 +128,7 @@ const socket = io(socketioUrl);
                 console.log(msg);
 
                 _this.reports.messageVolumeCount++;
-                _this.messages.push(msg);
+                _this.allMessages.push(msg);
                 scrollToBottom();
             });
 
@@ -134,7 +136,7 @@ const socket = io(socketioUrl);
             // Event for users that deactivates
             // socket.on('disconnect', (msg) => {
             //     _this.reports.messageVolumeCount++;
-            //     _this.messages.push(msg);
+            //     _this.allMessages.push(msg);
             //     scrollToBottom();
             // });
 		},
@@ -181,7 +183,6 @@ const socket = io(socketioUrl);
 
         // ************************ Client Helper ************************ //
 
-
 		getClients: function getClients() {		
             var api = `/api/client/list`;
             var _this = this;
@@ -194,7 +195,17 @@ const socket = io(socketioUrl);
 		},
 
         selectClient: function selectClient(client) {
-            this.selectedClient = _.clone(client);
+            this.selectedClientId = client.clientId;   
+            this.messages = [];
+
+            this.allMessages.forEach(msg => {
+                if(msg.clientId == this.selectedClientId){
+                    this.messages.push(msg);
+                }
+            });
+
+            this.$forceUpdate();
+            scrollToBottom();
 		},
 
 		viewClientInfo: function viewClientInfo(client) {
@@ -274,7 +285,6 @@ const socket = io(socketioUrl);
 					color: _this.widget.color,
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
-                    // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     domainBanList: [],
                     cityBanList: [],
                     ipBanList: [],
@@ -324,15 +334,12 @@ const socket = io(socketioUrl);
 
 		getMessages: function getMessages() {
 			var _this = this;
-            let api = `/api/message/getByClientId?clientId=${this.selectedClient.clientId}`;
-            _this.reports.messageVolumeCount++;
+            let api = '/api/message/list';
+            //_this.reports.messageVolumeCount++;
 
 			showLoader();
 			axios.get(api).then(function(response) {    
-				_this.messages = response.data;
-
-				_this.$forceUpdate();
-				scrollToBottom();
+				_this.allMessages = response.data;
                 showLoader(false);
 
 			})["catch"](function(error) {
@@ -341,7 +348,6 @@ const socket = io(socketioUrl);
 		},
 
 		postMessage: function postMessage() {
-            //var uploadApi = `/api/message/upload?channel_id=${this.selectedChannel.id}`;
             var isWhisperChecked = document.getElementById("isWhisperChecked")?.checked ?? false;
             var sendApi = `/api/message/send`;
             var _this = this;      
@@ -351,11 +357,11 @@ const socket = io(socketioUrl);
 			}
 
 			var msg = {
-                "clientId": this.clientId,
+                "clientId": this.selectedClientId,
 				"body": this.chatbox,
 				"senderId": this.agent.agentId,
-				"isWhisper": isWhisperChecked,
-				"isAgent": true,
+				"isWhisper": (isWhisperChecked).toString(),
+				"isAgent": 'true',
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
 			}; 
 
@@ -364,6 +370,7 @@ const socket = io(socketioUrl);
                 
                 this.chatbox = "";
 
+                this.allMessages.push(msg);
                 this.messages.push(msg);
                 scrollToBottom();
                 
@@ -417,11 +424,6 @@ const socket = io(socketioUrl);
 
 // *********** Helper Methods *********** //
 
-
-function hideModal() {
-    $('.modal').modal('hide');
-    $('.modal-backdrop').remove();
-}
 
 function showLoader(willShow = true) {
     let loader = document.getElementById("loader");

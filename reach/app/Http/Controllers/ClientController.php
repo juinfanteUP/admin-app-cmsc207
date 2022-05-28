@@ -31,7 +31,8 @@ class ClientController extends Controller
         // return response()->json($req->clientId, 200);
 
         $widget = Widget::get()->first();
-        $client = Client::where('clientId', strval($req->clientId))->first();
+        $client = Client::where('clientId', strval($req->clientId))
+                            ->where('domain', strval($req->domain))->first();
         // $bannedClient = Client::where('domain', '=', $req->domain)
         //                     ->orWhere('ipaddress', '=', $data->ip)
         //                      ->orWhere('city', '=', $data->city ?? "")
@@ -79,10 +80,13 @@ class ClientController extends Controller
         }
         else 
         {
-            $messages = Message::where('clientId', strval($req->clientId))
-                        ->where('isWhisper', false)
+            $messages = Message::where('clientId', $req->clientId)
+                        ->where('isWhisper', 'false')
                         ->get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
         }
+
+       // return response()->json($messages);
+
 
         // Update widget component based on settings
         $component = strval(View('widget.component'));

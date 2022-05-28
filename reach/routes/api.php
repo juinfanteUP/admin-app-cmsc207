@@ -30,7 +30,7 @@ Route::put('/widget/update', [WidgetController::class, 'update']);
 
 // Message API
 Route::post('/message/send', [MessageController::class, 'send']);
-Route::get('/message/getByClientId', [MessageController::class, 'getByClientId']);
+Route::get('/message/list', [MessageController::class, 'getMessages']);
 Route::get('/message/report', [MessageController::class, 'getReport']);
 Route::get('/message/download', [AgentController::class, 'download']);
 

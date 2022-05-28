@@ -4,9 +4,9 @@ var __webpack_exports__ = {};
   !*** ./resources/assets/js/widget.js ***!
   \***************************************/
 // ***************** Update these Properties ***************** //
-var sourceDomain = "http://127.0.0.1:5000";
-var socketioUrl = "https://socketio.erickdelrey.rocks";
-var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
+var sourceDomain = "http://127.0.0.1:8000";
+var socketioUrl = "http://localhost:3000";
+var socketioLib = "http://localhost:3000/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
 var lurl = sourceDomain + '/widget/style.css';
@@ -62,31 +62,24 @@ var setLocalClientData = function setLocalClientData() {
 var generateComponent = function generateComponent(widget, client, messages) {
   var INDEX = 0;
   document.body.innerHTML += widget;
-  var clientName = "".concat(client.domain, " - ").concat(client.ipAddress);
   var socket = io(socketioUrl);
   var room = getLocalClientData(); // If new user, jump in and join the 
 
   socket.emit('join-room', {
     "room": room,
     "client": client.clientId
-  }); // Message from server. If messaged is whispered, do not generate the line (2nd validation)
+  }); // Message from server. If messaged is whispered, do not generate the line
 
   socket.on('message', function (msg) {
-    if (!msg.isWhispher) {
-      generateMessage(msg.body, !msg.isAgent, msg.created_at);
+    if (msg.isWhisper == 'false') {
+      generateMessage(msg.body, msg.isAgent == 'false', msg.created_at);
     }
 
     console.log(msg);
   }); // Generate message history
 
   messages.forEach(function (msg) {
-    generateMessage(msg.body, !msg.isAgent, msg.created_at, true);
-  }); // Trigger click when user pressed enter
-
-  $('#chat-input').keydown(function (e) {
-    if (e.keyCode === 13) {
-      $("#chat-submit").trigger('click');
-    }
+    generateMessage(msg.body, msg.isAgent == 'false', msg.created_at, true);
   }); // Send message
 
   $("#chat-submit").click(function (e) {
@@ -108,7 +101,6 @@ var generateComponent = function generateComponent(widget, client, messages) {
     sendMessage(message);
     socket.emit('send-message', message);
     generateMessage(msg);
-    setTimeout(function () {}, 1000);
   }); // User opened the widget
 
   $("#chat-circle").click(function () {
@@ -126,7 +118,7 @@ var generateComponent = function generateComponent(widget, client, messages) {
     var sentDate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
     var isChatHistory = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
     INDEX++;
-    var dtm = sentDate.toLocaleString();
+    var dtm = new Date(sentDate).toISOString().slice(0, 19).replace('T', ' ');
     var type = isSelf ? 'self' : 'user';
     var sender = isSelf ? "You sent this on ".concat(dtm) : "Sent by an agent on ".concat(dtm);
     var str = "<div id='cm-msg-".concat(INDEX, "' class=\"chat-msg ").concat(type, "\"><div class=\"cm-msg-text\"> ").concat(msg, " </div><small>").concat(sender, "</small></div>");
@@ -162,7 +154,6 @@ var generateComponent = function generateComponent(widget, client, messages) {
     var s = document.createElement("script");
     s.src = jurl;
     document.head.appendChild(s);
-    console.log(jurl);
   } // Send client id from local storage.
 
 
@@ -172,6 +163,7 @@ var generateComponent = function generateComponent(widget, client, messages) {
       clientId: getLocalClientData(),
       domain: domain !== null && domain !== void 0 ? domain : "Unknown Site"
     };
+    console.log("ClientId: ".concat(params.clientId));
     validateClientAndGetWidget(params).then(function (result) {
       // If widget is empty, widget may be unavailable or the client is banned
       if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.clientId) != 0) {
@@ -179,11 +171,18 @@ var generateComponent = function generateComponent(widget, client, messages) {
           setLocalClientData(result.client.clientId);
         }
 
-        console.log(result.client.clientId);
+        console.log(result.messages);
         generateComponent(result.widget, result.client, result.messages);
       }
     });
   }, 1000);
 })();
+
+function scrollToBottom() {
+  setTimeout(function () {
+    var div = document.getElementById("chat-body");
+    div.scrollTop = div.scrollHeight;
+  }, 200);
+}
 /******/ })()
 ;
