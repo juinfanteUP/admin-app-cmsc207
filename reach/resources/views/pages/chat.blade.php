@@ -17,8 +17,8 @@
                                     <div class="d-flex align-items-center">
                                         <div class="flex-grow-1 overflow-hidden">
                                             <h6 class="text-truncate mb-0 fs- px-4">
-                                                <a href="javascript:" class="user-profile-show text-reset">
-                                                    @{{ selectedClientId }}
+                                                <a href="javascript:" class="user-profile-show text-reset" v-show="selectedClientId != 0">
+                                                    Client Id - @{{ selectedClientId }}
                                                 </a>
                                             </h6>
                                         </div>
@@ -49,7 +49,6 @@
                                             <p class="mb-0 ctext-content">@{{ message.body }}</p>
                                         </div>
 
-    
                                     </div>
                                     <div class="conversation-name">
                                         <sub class="text-muted time">
@@ -62,12 +61,10 @@
                             </div>
                         </li>
 
-
                         <!-- Empty Message Indicator -->
                         <li class="text-center" v-show="messages.length == 0 && clients.length > 0">
                             <span class="w-100 text-muted">--- Enter a message to start a conversation now! ---</span>
                         </li>
-
 
                     </ul>
                 </div>

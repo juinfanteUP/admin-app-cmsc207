@@ -18,7 +18,17 @@ class WidgetController extends Controller
         $widget = Widget::get()->first();
 
         if (is_null($widget)) {
-            return response()->json(["result" => "widget not found"], 400);
+            $widget = new Widget();
+            $widget->name = "Reach App";
+            $widget->isActive = true;
+            $widget->color = "#5eb37a";
+            $widget->starttime = "6:00";
+            $widget->endtime = "18:00";
+            $widget->domainBanList = [];
+            $widget->IpBanList = [];
+            $widget->countryBanList = [];
+            // $widget->timezone = $req->timezone;
+            $widget->save();
         }
 
         $script = str_replace("%URL%",  env('APP_URL'), strval(View('widget.script')));

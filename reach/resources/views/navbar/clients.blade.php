@@ -34,10 +34,11 @@
                         v-bind:id="client.clientId" v-for="client in resultClientSearch" 
                         :class="[client.clientId == selectedClientId ? 'selected-client' : '']">                
                         <a href="javascript:" >   
-                            <img src="/assets/images/offline.png" width="16" class="mx-3">                   
+                            <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
+                            <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
                             @{{ client.domain }} - @{{ client.ipaddress }}          
                         </a>  
-                        
+
                         <a href="javascript:" class="client-info" @click="viewClientInfo(client)" title="Click to view client details">
                             <i class="ri-information-line"></i> 
                         </a>

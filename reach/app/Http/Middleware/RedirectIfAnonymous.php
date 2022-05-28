@@ -12,7 +12,7 @@ class RedirectIfAnonymous
     {
         if(!($req->session()->has('user')))
         {
-            //return redirect('login');
+            return redirect('login');
         }
 
         return $next($req);

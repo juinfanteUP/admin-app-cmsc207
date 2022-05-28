@@ -121,4 +121,11 @@
     console.log('App has been initiated...');
   
   })();
+
+  
+  function showConfirm(msg) {
+      if(confirm(msg)) 
+          return true;
+      return false;
+  }
   

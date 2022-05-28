@@ -31773,6 +31773,7 @@ var app = new Vue({
     allMessages: [],
     // Clients
     clients: [],
+    onlineClientIds: [],
     searchClient: '',
     selectedClientId: 0,
     viewClient: {}
@@ -31813,18 +31814,14 @@ var app = new Vue({
   methods: {
     // ************************ Subscribe to Socket Server ************************ //
     registerSocketServer: function registerSocketServer() {
-      var _this = this; // New clients from server
-      // socket.on('join-room', (client) => { 
-      //     console.log(client);
-      //     _this.reports.clientCount++;
-      //     if (!_.find(_this.clients, { clientId: client?.clientId })) {
-      //         _this.clients.push(client);
-      //     }
-      // });
-
+      var _this = this;
 
       socket.on('client-join-room', function (c) {
         console.log("client join room ".concat(c));
+
+        _this.onlineClientIds.push(c);
+
+        _this.reports.clientCount++;
 
         _this.getClients();
       }); // Message from server
@@ -31843,12 +31840,10 @@ var app = new Vue({
         _this.$forceUpdate();
 
         scrollToBottom();
-      }); // Event for users that deactivates
-      // socket.on('disconnect', (msg) => {
-      //     _this.reports.messageVolumeCount++;
-      //     _this.allMessages.push(msg);
-      //     scrollToBottom();
-      // });
+      });
+    },
+    isClientOnline: function isClientOnline(cid) {
+      return this.onlineClientIds.indexOf(cid) >= 0;
     },
     // ************************ Agent and Reports Helper ************************ //
     getProfile: function getProfile() {
@@ -31876,8 +31871,7 @@ var app = new Vue({
     getReports: function getAgents() {
       var api = "/api/message/report";
 
-      var _this = this; // Manipulate Data
-
+      var _this = this;
 
       axios.get(api).then(function (response) {
         _this.reports = response.data;
@@ -31893,6 +31887,7 @@ var app = new Vue({
 
       axios.get(api).then(function (response) {
         _this.clients = response.data;
+        _this.reports.clientCount = _this.clients.length;
 
         _this.clients.forEach(function (c) {
           socket.emit('join-room', {
@@ -32073,8 +32068,8 @@ var app = new Vue({
     getMessages: function getMessages() {
       var _this = this;
 
-      var api = '/api/message/list'; //_this.reports.messageVolumeCount++;
-
+      var api = '/api/message/list';
+      _this.reports.messageVolumeCount++;
       showLoader();
       axios.get(api).then(function (response) {
         _this.allMessages = response.data;

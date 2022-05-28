@@ -49,14 +49,9 @@ class MessageController extends Controller
     // Get summary report list
     public function getReport()
     {
-
         // Get Message Volume Count List
-
-        $messageVolumeCount  = Message::get(['id','created_at'])
-                                ->count();
-        // Get Active Client Count List
-        $clientCount = 0;
-        
+        $messageVolumeCount  = Message::get(['id','created_at'])->count();
+        $clientCount = 0;  
         $historyList = [];
 
         return response()->json([ 

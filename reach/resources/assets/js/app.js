@@ -63,6 +63,7 @@ const socket = io(socketioUrl);
 
         // Clients
         clients: [],
+        onlineClientIds: [],
 		searchClient: '',
         selectedClientId: 0,
         viewClient: {}
@@ -110,28 +111,16 @@ const socket = io(socketioUrl);
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
            
-            // New clients from server
-            // socket.on('join-room', (client) => { 
-
-            //     console.log(client);
-
-            //     _this.reports.clientCount++;
-            //     if (!_.find(_this.clients, { clientId: client?.clientId })) {
-            //         _this.clients.push(client);
-            //     }
-            // });
-
             socket.on('client-join-room', (c) => {
                 console.log(`client join room ${c}`);
+                _this.onlineClientIds.push(c);
+                _this.reports.clientCount++;
                 _this.getClients();
             });
-
-            
+         
             // Message from server
             socket.on('message', (msg) => {
-
                 console.log(msg);
-
                 _this.reports.messageVolumeCount++;
 
                 msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -143,15 +132,11 @@ const socket = io(socketioUrl);
                 _this.$forceUpdate();
                 scrollToBottom();
             });
-
-
-            // Event for users that deactivates
-            // socket.on('disconnect', (msg) => {
-            //     _this.reports.messageVolumeCount++;
-            //     _this.allMessages.push(msg);
-            //     scrollToBottom();
-            // });
 		},
+
+        isClientOnline: function (cid) {
+            return this.onlineClientIds.indexOf(cid) >= 0;
+        },
 
 
         // ************************ Agent and Reports Helper ************************ //
@@ -183,8 +168,6 @@ const socket = io(socketioUrl);
             var api = `/api/message/report`;
             var _this = this;
 
-            // Manipulate Data
-
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
 			})["catch"](function(error) {
@@ -195,15 +178,16 @@ const socket = io(socketioUrl);
 
         // ************************ Client Helper ************************ //
 
+
 		getClients: function getClients() {		
             var api = `/api/client/list`;
             var _this = this;
         
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
+                _this.reports.clientCount = _this.clients.length;
 
                 _this.clients.forEach(c => {
-                    
                     socket.emit('join-room', {
                         "room": c.clientId,
                         "clientId": _this.agent.agentId
@@ -239,7 +223,6 @@ const socket = io(socketioUrl);
 				city: client?.city,
                 createddtm: client?.createddtm
 			};
-
 			$('#view-client-modal').modal('show');
 		},
 
@@ -357,7 +340,7 @@ const socket = io(socketioUrl);
 		getMessages: function getMessages() {
 			var _this = this;
             let api = '/api/message/list';
-            //_this.reports.messageVolumeCount++;
+            _this.reports.messageVolumeCount++;
 
 			showLoader();
 			axios.get(api).then(function(response) {    
@@ -368,7 +351,6 @@ const socket = io(socketioUrl);
                 });
 
                 showLoader(false);
-
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -393,10 +375,8 @@ const socket = io(socketioUrl);
 			}; 
 
             // Handle plain message
-            if (!(this.file && this.file?.name != "")) {
-                
+            if (!(this.file && this.file?.name != "")) {           
                 this.chatbox = "";
-
                 this.allMessages.push(msg);
                 this.messages.push(msg);
                 scrollToBottom();
@@ -417,6 +397,7 @@ const socket = io(socketioUrl);
                 });
             }
 		},
+
 
         // ************************ File Helper ************************ //
 
