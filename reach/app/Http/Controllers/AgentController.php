@@ -13,7 +13,6 @@ use Hash;
 use Auth;
 
 
-// TODO: PLEASE REFINE AND TEST...
 class AgentController extends Controller
 {
     

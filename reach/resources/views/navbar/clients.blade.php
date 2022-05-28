@@ -32,7 +32,7 @@
 
                     <li class="chat-message-item pb-3"  @click="selectClient(client)"
                         v-bind:id="client.clientId" v-for="client in resultClientSearch" 
-                        :class="[client.clientId == selectedClient.clientId ? 'selected-client' : '']">                
+                        :class="[client.clientId == selectedClientId ? 'selected-client' : '']">                
                         <a href="javascript:" >   
                             <img src="/assets/images/offline.png" width="16" class="mx-3">                   
                             @{{ client.domain }} - @{{ client.ipaddress }}          

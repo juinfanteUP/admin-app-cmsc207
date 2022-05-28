@@ -2171,19 +2171,6 @@ window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
 
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
 
 /***/ }),
 
@@ -31732,7 +31719,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "https://socketio.erickdelrey.rocks";
+var socketioUrl = "http://localhost:3000";
 var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
@@ -31783,12 +31770,11 @@ var app = new Vue({
     },
     isSubmitting: false,
     messages: [],
+    allMessages: [],
     // Clients
     clients: [],
     searchClient: '',
-    selectedClient: {
-      clientId: 0
-    },
+    selectedClientId: 0,
     viewClient: {}
   },
   mounted: function mounted() {
@@ -31796,6 +31782,7 @@ var app = new Vue({
     this.getClients(); // this.getAgents();
     // this.getReports();
 
+    this.getMessages();
     this.getUserInput();
     this.getWidgetSettings();
     this.registerSocketServer();
@@ -31844,13 +31831,13 @@ var app = new Vue({
         console.log(msg);
         _this.reports.messageVolumeCount++;
 
-        _this.messages.push(msg);
+        _this.allMessages.push(msg);
 
         scrollToBottom();
       }); // Event for users that deactivates
       // socket.on('disconnect', (msg) => {
       //     _this.reports.messageVolumeCount++;
-      //     _this.messages.push(msg);
+      //     _this.allMessages.push(msg);
       //     scrollToBottom();
       // });
     },
@@ -31861,7 +31848,6 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
-        console.log(response.data);
         _this.agent = response.data;
       })["catch"](function (error) {
         handleError(error);
@@ -31903,7 +31889,17 @@ var app = new Vue({
       });
     },
     selectClient: function selectClient(client) {
-      this.selectedClient = _.clone(client);
+      var _this2 = this;
+
+      this.selectedClientId = client.clientId;
+      this.messages = [];
+      this.allMessages.forEach(function (msg) {
+        if (msg.clientId == _this2.selectedClientId) {
+          _this2.messages.push(msg);
+        }
+      });
+      this.$forceUpdate();
+      scrollToBottom();
     },
     viewClientInfo: function viewClientInfo(client) {
       this.viewClient = {
@@ -32011,7 +32007,6 @@ var app = new Vue({
           color: _this.widget.color,
           starttime: _this.widget.starttime,
           endtime: _this.widget.endtime,
-          // timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           domainBanList: [],
           cityBanList: [],
           ipBanList: [],
@@ -32060,15 +32055,11 @@ var app = new Vue({
     getMessages: function getMessages() {
       var _this = this;
 
-      var api = "/api/message/getByClientId?clientId=".concat(this.selectedClient.clientId);
-      _this.reports.messageVolumeCount++;
+      var api = '/api/message/list'; //_this.reports.messageVolumeCount++;
+
       showLoader();
       axios.get(api).then(function (response) {
-        _this.messages = response.data;
-
-        _this.$forceUpdate();
-
-        scrollToBottom();
+        _this.allMessages = response.data;
         showLoader(false);
       })["catch"](function (error) {
         handleError(error);
@@ -32077,34 +32068,27 @@ var app = new Vue({
     postMessage: function postMessage() {
       var _document$getElementB, _document$getElementB2, _this$file2, _this$file3;
 
-      //var uploadApi = `/api/message/upload?channel_id=${this.selectedChannel.id}`;
       var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
       var sendApi = "/api/message/send";
 
       var _this = this;
 
       if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
-        console.log('declined');
         return;
       }
 
       var msg = {
-        "clientId": this.clientId,
+        "clientId": this.selectedClientId,
         "body": this.chatbox,
         "senderId": this.agent.agentId,
-        "isWhisper": isWhisperChecked,
-        "isAgent": true,
-        "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ') // "attachment": {
-        //     "referenceId": 0,
-        //     "size": "",
-        //     "type": "",
-        //     "filename": ""
-        // }
-
+        "isWhisper": isWhisperChecked.toString(),
+        "isAgent": 'true',
+        "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
       }; // Handle plain message
 
       if (!(this.file && ((_this$file3 = this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
         this.chatbox = "";
+        this.allMessages.push(msg);
         this.messages.push(msg);
         scrollToBottom();
         socket.emit('send-message', msg);
@@ -32115,32 +32099,11 @@ var app = new Vue({
           isWhisper: msg.isWhisper,
           isAgent: msg.isAgent
         }).then(function (response) {
-          console.log(response);
-
           _this.$forceUpdate();
         })["catch"](function (error) {
           handleError(error);
         });
-      } // Handle message with attachment
-      // 	var formData = new FormData();
-      // 	formData.append('file', this.file);
-      // 	formData.append('document', JSON.stringify(msg));
-      // 	this.isSubmitting = true;
-      // 	this.$forceUpdate();
-      // 	axios.post(uploadApi, formData, {
-      // 		headers: {
-      // 			'Content-Type': 'multipart/form-data'
-      // 		}
-      // 	}).then(function(response) {
-      // 		_this.isSubmitting = false;
-      // 		_this.chatbox = "";
-      // 		_this.messages.push(response.data);
-      // 		_this.cancelUpload();
-      // 		scrollToBottom();
-      // 	})["catch"](function(error) {
-      // 		handleError(error);
-      // 	});
-
+      }
     },
     // ************************ File Helper ************************ //
     handleFileUpload: function handleFileUpload() {
@@ -32166,11 +32129,6 @@ var app = new Vue({
     }
   }
 }); // *********** Helper Methods *********** //
-
-function hideModal() {
-  $('.modal').modal('hide');
-  $('.modal-backdrop').remove();
-}
 
 function showLoader() {
   var willShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -32198,13 +32156,6 @@ function scrollToBottom() {
       $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
     }
   }, 200);
-}
-
-function formatBytes(bytes) {
-  if (!(bytes || bytes > 0)) return '0 Bytes';
-  var k = 1024;
-  var i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
 }
 
 function validateIP(str) {

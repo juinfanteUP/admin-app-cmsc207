@@ -9,7 +9,6 @@ use App\Models\Widget;
 use Session;
 
 
-// TODO: PLEASE REFINE AND TEST...
 class WidgetController extends Controller
 {
 

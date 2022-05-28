@@ -27,17 +27,8 @@
         <!-- Chat conversation-->
         <div class="chat-box-body">
             <div class="chat-box-overlay"></div>
-            <div class="chat-logs">
+            <div id="chat-body" class="chat-logs">
 
-                <!-- Representation of agent's chat -->
-                {{-- <div id='cm-msg-1000' class="chat-msg user">
-                    <div class="cm-msg-text">
-                        Sample message
-                    </div>
-                    <small>Sent by an agent on 1/1/2022</small>
-                </div> --}}
-
-                <!-- User/Client chat will be generated here -->
             </div>
         </div>
 
