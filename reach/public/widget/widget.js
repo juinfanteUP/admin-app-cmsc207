@@ -5,8 +5,8 @@ var __webpack_exports__ = {};
   \***************************************/
 // ***************** Update these Properties ***************** //
 var sourceDomain = "http://127.0.0.1:8000";
-var socketioUrl = "http://localhost:3000";
-var socketioLib = "http://localhost:3000/socket.io/socket.io.js"; // *********************************************************** //
+var socketioUrl = "http://localhost:5000";
+var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
 var lurl = sourceDomain + '/widget/style.css';
@@ -63,11 +63,12 @@ var generateComponent = function generateComponent(widget, client, messages) {
   var INDEX = 0;
   document.body.innerHTML += widget;
   var socket = io(socketioUrl);
-  var room = getLocalClientData(); // If new user, jump in and join the 
+  var room = getLocalClientData();
+  console.log(client); // If new user, jump in and join the 
 
   socket.emit('join-room', {
     "room": room,
-    "client": client.clientId
+    "clientId": client.clientId
   }); // Message from server. If messaged is whispered, do not generate the line
 
   socket.on('message', function (msg) {

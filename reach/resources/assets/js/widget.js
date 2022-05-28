@@ -71,11 +71,12 @@ var generateComponent = (widget, client, messages) => {
 	const socket = io(socketioUrl);
 	const room = getLocalClientData();
 
+	console.log(client);
 
     // If new user, jump in and join the 
     socket.emit('join-room', {
         "room": room,
-        "client": client.clientId
+        "clientId": client.clientId
     });
 
 
