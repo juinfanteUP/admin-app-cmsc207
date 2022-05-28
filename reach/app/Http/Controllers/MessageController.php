@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Message;
+use App\Models\Client;
 use Session;
 
 
@@ -51,7 +52,7 @@ class MessageController extends Controller
     {
         // Get Message Volume Count List
         $messageVolumeCount  = Message::get(['id','created_at'])->count();
-        $clientCount = 0;  
+        $clientCount = Client::get(['id','created_at'])->count();;  
         $historyList = [];
 
         return response()->json([ 
