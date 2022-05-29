@@ -31796,7 +31796,7 @@ var app = new Vue({
       if (this.searchClient) {
         return this.clients.filter(function (i) {
           return _this.searchClient.toLowerCase().split(' ').every(function (v) {
-            return i.ipaddress.toLowerCase().includes(v);
+            return i.domain.toLowerCase().includes(v);
           });
         });
       }
@@ -31817,10 +31817,10 @@ var app = new Vue({
     registerSocketServer: function registerSocketServer() {
       var _this = this;
 
-      socket.on('client-join-room', function (c) {
-        console.log("client join room ".concat(c));
+      socket.on('client-join-room', function (clientId) {
+        console.log("client join room ".concat(clientId));
 
-        _this.onlineClientIds.push(c);
+        _this.onlineClientIds.push(clientId);
 
         _this.reports.clientCount++;
 
@@ -31828,8 +31828,8 @@ var app = new Vue({
       }); // Message from server
 
       socket.on('message', function (msg) {
-        console.log(msg);
-        _this.reports.messageVolumeCount++;
+        console.log(msg); // _this.reports.messageVolumeCount++;
+
         msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
         _this.allMessages.push(msg);

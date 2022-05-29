@@ -112,9 +112,9 @@ const socket = io(socketioUrl);
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
            
-            socket.on('client-join-room', (c) => {
-                console.log(`client join room ${c}`);
-                _this.onlineClientIds.push(c);
+            socket.on('client-join-room', (clientId) => {
+                console.log(`client join room ${clientId}`);
+                _this.onlineClientIds.push(clientId);
                 _this.reports.clientCount++;
                 _this.getClients();
             });
