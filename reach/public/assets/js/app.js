@@ -31719,7 +31719,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "http://localhost:5000";
+var socketioUrl = "http://localhost:3002";
 var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
@@ -31858,6 +31858,9 @@ var app = new Vue({
         _this.$forceUpdate();
 
         scrollToBottom();
+      });
+      socket.on('listen-client-type', function (msg) {
+        console.log(msg.body);
       });
     },
     isClientOnline: function isClientOnline(cid) {
