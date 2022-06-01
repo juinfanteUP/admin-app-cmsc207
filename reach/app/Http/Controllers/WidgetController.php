@@ -28,6 +28,7 @@ class WidgetController extends Controller
             $widget->IpBanList = [];
             $widget->countryBanList = [];
             $widget->cityBanList = [];
+            $widget->img_src = "%DOMAIN%/assets/images/widget-icon.png";
             $widget->save();
         }
 
@@ -54,6 +55,7 @@ class WidgetController extends Controller
         $widget->IpBanList = $req->IpBanList;
         $widget->countryBanList = $req->countryBanList;
         $widget->cityBanList = $req->cityBanList;
+        $widget->img_src = $req->img_src;
         $widget->save();
 
         return response()->json(["result" => "ok"], 201);

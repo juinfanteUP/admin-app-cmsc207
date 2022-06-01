@@ -53,7 +53,19 @@
                                         <label class="form-label">Socket Server</label>
                                         <input v-model="socketServerUrl" type="text" class="form-control" disabled>
                                     </div>
-
+                                    
+                                    <!-- Socket Server -->
+                                    <div class="col-sm-12 mb-3">
+                                        <label class="form-label">
+                                            Widget Icon
+                                        </label>
+                                        <select v-model="widget.img_src" name="img_src" class="form-select">
+                                            @foreach($widget_icons as $icon)
+                                            {{-- <option value="1" >Leaves</option> --}}
+                                            <option value="{{ $icon->img_src }}" >{{ $icon->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                     <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">

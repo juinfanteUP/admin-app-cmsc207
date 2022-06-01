@@ -31828,8 +31828,8 @@ var app = new Vue({
       }); // Message from server
 
       socket.on('message', function (msg) {
-        console.log(msg); // _this.reports.messageVolumeCount++;
-
+        console.log(msg);
+        _this.reports.messageVolumeCount++;
         msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
         _this.allMessages.push(msg);
@@ -32020,6 +32020,7 @@ var app = new Vue({
           name: _this.widget.name,
           isActive: _this.widget.isActive,
           color: _this.widget.color,
+          img_src: _this.widget.img_src,
           starttime: _this.widget.starttime,
           endtime: _this.widget.endtime,
           domainBanList: [],

@@ -291,6 +291,7 @@ const socket = io(socketioUrl);
 					name: _this.widget.name,
 					isActive: _this.widget.isActive,
 					color: _this.widget.color,
+                    img_src: _this.widget.img_src,
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
                     domainBanList: [],
