@@ -198,14 +198,6 @@ const socket = io(socketioUrl);
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
                 _this.reports.clientCount = _this.clients.length;
-
-                _this.clients.forEach(c => {
-                    socket.emit('join-room', {
-                        "room": c.clientId,
-                        "clientId": _this.agent.agentId
-                    }); 
-                });
-
                 _this.$forceUpdate();
 			})["catch"](function(error) {
 				handleError(error);
@@ -215,6 +207,11 @@ const socket = io(socketioUrl);
         selectClient: function selectClient(client) {
             this.selectedClientId = client.clientId;   
             this.messages = [];
+
+            socket.emit('join-room', {
+                "room": this.selectedClientId,
+                "clientId": "agent" //replace with agent id
+            }); 
 
             this.allMessages.forEach(msg => {
                 if(msg.clientId == this.selectedClientId){
