@@ -142,6 +142,10 @@ const socket = io(socketioUrl);
                 _this.$forceUpdate();
                 scrollToBottom();
             });
+
+            socket.on('listen-client-type', (msg) => {
+                console.log(msg.body);
+            });
 		},
 
         isClientOnline: function (cid) {

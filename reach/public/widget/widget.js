@@ -5,7 +5,7 @@ var __webpack_exports__ = {};
   \***************************************/
 // ***************** Update these Properties ***************** //
 var sourceDomain = "http://127.0.0.1:8000";
-var socketioUrl = "http://localhost:5000";
+var socketioUrl = "http://localhost:3002";
 var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
@@ -103,6 +103,16 @@ var generateComponent = function generateComponent(widget, client, messages) {
     sendMessage(message);
     socket.emit('send-message', message);
     generateMessage(msg);
+  });
+  $("#chat-input").keyup(function () {
+    var msg = $("#chat-input").val();
+    var message = {
+      'body': msg,
+      'senderId': room,
+      'clientId': room,
+      'createddtm': Date.now()
+    };
+    socket.emit("client-typing", message);
   }); // User opened the widget
 
   $("#chat-circle").click(function () {
