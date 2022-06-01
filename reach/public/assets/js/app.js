@@ -31764,6 +31764,23 @@ var app = new Vue({
     banInput: '',
     selectedBanKey: 'domain',
     socketServerUrl: socketioUrl,
+    // Allow components
+    whiteList: [],
+    whiteSelectionList: [{
+      id: 'domain',
+      labels: 'Domain'
+    }, {
+      id: 'ipaddress',
+      labels: 'IP Address'
+    }, {
+      id: 'country',
+      labels: 'Country'
+    }, {
+      id: 'city',
+      labels: 'City'
+    }],
+    whiteInput: '',
+    selectedWhiteKey: 'domain',
     // Message Inputs
     chatbox: '',
     file: {
@@ -31934,7 +31951,7 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
-        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2;
+        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2;
 
         _this.widget = response.data.widget;
         _this.widget.script = response.data.script;
@@ -31962,6 +31979,30 @@ var app = new Vue({
             value: ban
           });
         })) !== null && _this$widget$cityBanL !== void 0 ? _this$widget$cityBanL : [];
+        (_this$widget$domainWh = (_this$widget$domainWh2 = _this.widget.domainWhiteList) === null || _this$widget$domainWh2 === void 0 ? void 0 : _this$widget$domainWh2.forEach(function (white) {
+          return _this.whiteList.push({
+            type: 'domain',
+            value: white
+          });
+        })) !== null && _this$widget$domainWh !== void 0 ? _this$widget$domainWh : [];
+        (_this$widget$ipWhiteL = (_this$widget$ipWhiteL2 = _this.widget.ipWhiteList) === null || _this$widget$ipWhiteL2 === void 0 ? void 0 : _this$widget$ipWhiteL2.forEach(function (white) {
+          return _this.whiteList.push({
+            type: 'ipaddress',
+            value: white
+          });
+        })) !== null && _this$widget$ipWhiteL !== void 0 ? _this$widget$ipWhiteL : [];
+        (_this$widget$countryW = (_this$widget$countryW2 = _this.widget.countryWhiteList) === null || _this$widget$countryW2 === void 0 ? void 0 : _this$widget$countryW2.forEach(function (white) {
+          return _this.whiteList.push({
+            type: 'country',
+            value: white
+          });
+        })) !== null && _this$widget$countryW !== void 0 ? _this$widget$countryW : [];
+        (_this$widget$cityWhit = (_this$widget$cityWhit2 = _this.widget.cityWhiteList) === null || _this$widget$cityWhit2 === void 0 ? void 0 : _this$widget$cityWhit2.forEach(function (white) {
+          return _this.whiteList.push({
+            type: 'city',
+            value: white
+          });
+        })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
       })["catch"](function (error) {
         handleError(error);
       });
@@ -31998,6 +32039,31 @@ var app = new Vue({
         }
       }
 
+      if (action == 'addWhite') {
+        if (_this.whiteInput == null || _this.whiteInput == '') {
+          alert('Please provide a value that needs to be allowed');
+          return;
+        }
+
+        switch (_this.selectedWhiteKey) {
+          case 'domain':
+            if (!validateDomain(_this.whiteInput)) {
+              alert('Please provide a valid domain name');
+              return;
+            }
+
+            break;
+
+          case 'ipaddress':
+            if (!validateIP(_this.whiteInput)) {
+              alert('Please provide a valid IP Address');
+              return;
+            }
+
+            break;
+        }
+      }
+
       if (confirm('Are you sure you want to update the widget settings?')) {
         showLoader();
 
@@ -32014,6 +32080,19 @@ var app = new Vue({
             _this.banList.splice(removeByIndex, 1);
 
             break;
+
+          case 'addWhite':
+            _this.whiteList.push({
+              type: _this.selectedWhiteKey,
+              value: _this.whiteInput
+            });
+
+            break;
+
+          case 'removeWhite':
+            _this.whiteList.splice(removeByIndex, 1);
+
+            break;
         }
 
         var dataParams = {
@@ -32026,7 +32105,11 @@ var app = new Vue({
           domainBanList: [],
           cityBanList: [],
           ipBanList: [],
-          countryBanList: []
+          countryBanList: [],
+          domainWhiteList: [],
+          cityWhiteList: [],
+          ipWhiteList: [],
+          countryWhiteList: []
         };
 
         _this.banList.forEach(function (ban) {
@@ -32050,6 +32133,34 @@ var app = new Vue({
         });
 
         _this.selectedBanKey = '';
+        axios.put(api, dataParams).then(function (response) {
+          showLoader(false);
+          alert('Settings has been updated successfully.');
+        })["catch"](function (error) {
+          handleError(error);
+        });
+
+        _this.whiteList.forEach(function (white) {
+          switch (white.type) {
+            case 'domain':
+              dataParams.domainWhiteList.push(white.value);
+              break;
+
+            case 'ipaddress':
+              dataParams.ipWhiteList.push(white.value);
+              break;
+
+            case 'country':
+              dataParams.countryWhiteList.push(white.value);
+              break;
+
+            case 'city':
+              dataParams.cityWhiteList.push(white.value);
+              break;
+          }
+        });
+
+        _this.selectedWhiteKey = '';
         axios.put(api, dataParams).then(function (response) {
           showLoader(false);
           alert('Settings has been updated successfully.');

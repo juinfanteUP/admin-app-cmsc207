@@ -52,9 +52,13 @@ class WidgetController extends Controller
         $widget->starttime = $req->starttime;
         $widget->endtime = $req->endtime;
         $widget->domainBanList = $req->domainBanList;
-        $widget->IpBanList = $req->IpBanList;
+        $widget->ipBanList = $req->ipBanList;
         $widget->countryBanList = $req->countryBanList;
         $widget->cityBanList = $req->cityBanList;
+        $widget->domainWhiteList = $req->domainWhiteList;
+        $widget->ipWhiteList = $req->ipWhiteList;
+        $widget->countryWhiteList = $req->countryWhiteList;
+        $widget->cityWhiteList = $req->cityWhiteList;
         $widget->img_src = $req->img_src;
         $widget->save();
 
