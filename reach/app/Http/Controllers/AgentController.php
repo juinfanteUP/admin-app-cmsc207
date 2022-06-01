@@ -80,6 +80,7 @@ class AgentController extends Controller
     public function logout(Request $req)
     {
         $req->session()->forget('loginId');
+        $req->session()->forget('user');
         $req->session()->flush();
    
         return redirect('login');
