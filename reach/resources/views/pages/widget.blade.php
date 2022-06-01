@@ -53,7 +53,19 @@
                                         <label class="form-label">Socket Server</label>
                                         <input v-model="socketServerUrl" type="text" class="form-control" disabled>
                                     </div>
-
+                                    
+                                    <!-- Socket Server -->
+                                    <div class="col-sm-12 mb-3">
+                                        <label class="form-label">
+                                            Widget Icon
+                                        </label>
+                                        <select v-model="widget.img_src" name="img_src" class="form-select">
+                                            @foreach($widget_icons as $icon)
+                                            {{-- <option value="1" >Leaves</option> --}}
+                                            <option value="{{ $icon->img_src }}" >{{ $icon->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                     <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">
@@ -97,11 +109,75 @@
                     </div>
 
 
-                    <!-- Ban list -->
+                    <!-- White list -->
                     <div class="col-md-12">          
                         <div class="card mt-3">
                             <div class="card-body">
                                       
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <h4 class="card-title pt-1 text-muted">
+                                            White List
+                                        </h4>
+                                    </div>
+
+
+                                    <div class="col-md-6">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter data to allow" v-model="whiteInput">
+                                            <div class="input-group-append">
+                                                <select class="form-select" v-model="selectedWhiteKey">
+                                                    <option v-for="white in whiteSelectionList" v-bind:value="white.id" >@{{ white.labels }}</option>
+                                                </select>  
+
+                                                <button class="btn btn-primary" type="button"  @click="updateSettings('addWhite')">
+                                                    Allow
+                                                </button>
+                                            </div>
+                                          </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+
+                                        <div class="table-responsive mt-3">
+                                            <table class="table table-editable table-nowrap align-middle table-edits">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Allowed Value</th>
+                                                        <th colspan="2">Allow Type</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-show ="whiteList.length == 0">
+                                                        <td class="text-center" colspan="3">
+                                                            --- Allow list is empty ---
+                                                        </td>
+                                                    </tr>
+                                                    <tr v-for="(whiteItem, index) in whiteList">
+                                                        <td>@{{ whiteItem.value }}</td>
+                                                        <td>@{{ whiteItem.type }}</td>
+                                                        <td class="ban-remove-button">
+                                                            <button class="btn btn-sm btn-danger" type="button" @click="updateSettings('removeWhite', index)">
+                                                                Remove
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                             
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ban list -->
+                    <div class="col-md-12">          
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                        
                                 <div class="row">
 
                                     <div class="col-md-6">
@@ -123,7 +199,7 @@
                                                     Add to Ban
                                                 </button>
                                             </div>
-                                          </div>
+                                            </div>
                                     </div>
 
                                     <div class="col-md-12">
@@ -156,11 +232,10 @@
                                         </div>
                                     </div>
                                 </div>
-                             
+                                
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>

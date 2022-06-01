@@ -55,6 +55,15 @@ const socket = io(socketioUrl);
         selectedBanKey: 'domain',
         socketServerUrl: socketioUrl, 
 
+        // Allow components
+        whiteList: [],
+        whiteSelectionList: [
+            {id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, 
+            {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}, 
+        ],
+        whiteInput: '',
+        selectedWhiteKey: 'domain',
+
         // Message Inputs
 		chatbox: '',
 		file: { name: '' },
@@ -133,6 +142,10 @@ const socket = io(socketioUrl);
                 _this.$forceUpdate();
                 scrollToBottom();
             });
+
+            socket.on('listen-client-type', (msg) => {
+                console.log(msg.body);
+            });
 		},
 
         isClientOnline: function (cid) {
@@ -187,14 +200,6 @@ const socket = io(socketioUrl);
 			axios.get(api).then(function(response) {
 				_this.clients = response.data;
                 _this.reports.clientCount = _this.clients.length;
-
-                _this.clients.forEach(c => {
-                    socket.emit('join-room', {
-                        "room": c.clientId,
-                        "clientId": _this.agent.agentId
-                    }); 
-                });
-
                 _this.$forceUpdate();
 			})["catch"](function(error) {
 				handleError(error);
@@ -204,6 +209,11 @@ const socket = io(socketioUrl);
         selectClient: function selectClient(client) {
             this.selectedClientId = client.clientId;   
             this.messages = [];
+
+            socket.emit('join-room', {
+                "room": this.selectedClientId,
+                "clientId": "agent" //replace with agent id
+            }); 
 
             this.allMessages.forEach(msg => {
                 if(msg.clientId == this.selectedClientId){
@@ -242,6 +252,10 @@ const socket = io(socketioUrl);
                 _this.widget.ipBanList?.forEach(ban => _this.banList.push({ type: 'ipaddress', value: ban })) ?? [];
                 _this.widget.countryBanList?.forEach(ban => _this.banList.push({ type: 'country', value: ban })) ?? [];
                 _this.widget.cityBanList?.forEach(ban => _this.banList.push({ type: 'city', value: ban })) ?? [];
+                _this.widget.domainWhiteList?.forEach(white => _this.whiteList.push({ type: 'domain', value: white })) ?? [];
+                _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
+                _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
+                _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -274,6 +288,28 @@ const socket = io(socketioUrl);
                 }
             }
 
+            if(action == 'addWhite'){         
+                if(_this.whiteInput == null || _this.whiteInput == ''){
+                    alert('Please provide a value that needs to be allowed');
+                    return;
+                }
+
+                switch(_this.selectedWhiteKey){
+                    case 'domain':
+                        if(!validateDomain(_this.whiteInput)){
+                            alert('Please provide a valid domain name');
+                            return;
+                        }
+                        break;
+                    case 'ipaddress':
+                        if(!validateIP(_this.whiteInput)){
+                            alert('Please provide a valid IP Address');
+                            return;
+                        }
+                        break;
+                }
+            }
+
 			if (confirm('Are you sure you want to update the widget settings?')) {
                 showLoader();
                 switch(action){
@@ -283,18 +319,29 @@ const socket = io(socketioUrl);
                     case 'removeBan':
                         _this.banList.splice(removeByIndex, 1);
                         break;
+                    case 'addWhite':
+                        _this.whiteList.push({ type: _this.selectedWhiteKey, value: _this.whiteInput });
+                        break;
+                    case 'removeWhite':
+                        _this.whiteList.splice(removeByIndex, 1);
+                        break;
                 }
 
                 var dataParams = {
 					name: _this.widget.name,
 					isActive: _this.widget.isActive,
 					color: _this.widget.color,
+                    img_src: _this.widget.img_src,
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
                     domainBanList: [],
                     cityBanList: [],
                     ipBanList: [],
-                    countryBanList: []
+                    countryBanList: [],
+                    domainWhiteList: [],
+                    cityWhiteList: [],
+                    ipWhiteList: [],
+                    countryWhiteList: []
 				};
           
                 _this.banList.forEach(ban => {
@@ -315,6 +362,31 @@ const socket = io(socketioUrl);
                 });
 				
                 _this.selectedBanKey = '';        
+				axios.put(api, dataParams).then(function(response) {
+					showLoader(false);
+					alert('Settings has been updated successfully.');
+				})["catch"](function(error) {
+					handleError(error);
+				});
+
+                _this.whiteList.forEach(white => {
+                    switch(white.type){
+                        case 'domain':
+                            dataParams.domainWhiteList.push(white.value);
+                            break;
+                        case 'ipaddress':
+                            dataParams.ipWhiteList.push(white.value);
+                            break;
+                        case 'country':
+                            dataParams.countryWhiteList.push(white.value);
+                            break;
+                        case 'city':
+                            dataParams.cityWhiteList.push(white.value);
+                            break;
+                    }
+                });
+				
+                _this.selectedWhiteKey = '';        
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
 					alert('Settings has been updated successfully.');

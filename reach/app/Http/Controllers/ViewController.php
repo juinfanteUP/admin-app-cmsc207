@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
 use App\Models\Agent;
 use App\Models\Client;
+use App\Models\WidgetIcon;
 use Illuminate\Support\Facades\Session;
 use Hash;
 use Auth;
@@ -28,7 +29,8 @@ class ViewController extends Controller
     // Show home
     public function showHome()
     {
+        $widget_icons = WidgetIcon::all();
         $user = Agent::where('email', '=', Session::get('user'))->first();
-        return view('home', ['user' => $user]);
+        return view('home', ['user' => $user, 'widget_icons' => $widget_icons]);
     }
 }

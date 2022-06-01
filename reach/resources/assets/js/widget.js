@@ -121,6 +121,16 @@ var generateComponent = (widget, client, messages) => {
 		generateMessage(msg);
 	});
 
+	$("#chat-input").keyup(function() {
+		var msg = $("#chat-input").val();
+		var message = {
+            'body': msg,
+            'senderId': room,
+            'clientId': room,
+            'createddtm': Date.now()
+        }
+		 socket.emit("client-typing", message);		
+	});
 
 	// User opened the widget
 	$("#chat-circle").click(() => {

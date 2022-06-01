@@ -10,7 +10,7 @@
     <!-- Chat icon collapsed -->
     <div id="chat-circle" class="btn btn-raised" title="Click to chat" style="background: %COLOR%">  
         <div id="chat-overlay"></div>
-        <img src="%DOMAIN%/assets/images/widget-icon.png" width="40"> 
+        <img src="%DOMAIN%/%IMG_SRC%" width="40"> 
     </div>
     <div class="chat-box">
 

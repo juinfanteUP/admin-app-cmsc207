@@ -93,6 +93,7 @@ class ClientController extends Controller
         $component = str_replace("%DOMAIN%",  env('APP_URL'), $component);
         $component = str_replace("%NAME%",  $widget->name ?? "Reach App", $component);   
         $component = str_replace("%COLOR%",  $widget->color ?? "#CC9900", $component);
+        $component = str_replace("%IMG_SRC%",  $widget->img_src ?? "assets/images/widget-icon.png", $component);
         $client->ipaddress = $data->ip;
 
         // Retrieve messages if client exist
