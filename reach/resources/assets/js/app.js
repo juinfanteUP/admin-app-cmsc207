@@ -171,8 +171,6 @@ const socket = io(socketioUrl);
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
-                 console.log(response.data)
-
 			})["catch"](function(error) {
 				handleError(error);
 			});

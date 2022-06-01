@@ -116,9 +116,9 @@
                                                 </thead>
                                                 <tbody>
                                                     <tr v-for="summary in reports.historyList">
+                                                        <td>@{{ summary.date }}</td>
                                                         <td>@{{ summary.clientCount }}</td>
                                                         <td>@{{ summary.messageVolumeCount }}</td>
-                                                        <td>@{{ summary.date }}</td>
                                                     </tr>
                                                     <tr v-show ="reports.historyList.length == 0">
                                                         <td class="text-center" colspan="3">--- Data not available ---</td>
