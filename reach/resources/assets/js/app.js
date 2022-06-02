@@ -141,6 +141,13 @@ const socket = io(socketioUrl);
                 }
                 _this.$forceUpdate();
                 scrollToBottom();
+
+                if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+                    console.log('incoming message, creating notification')
+                    notify = new Notification("REACH", {
+                        body: msg
+                    });
+                }
             });
 
             socket.on('listen-client-type', (msg) => {
@@ -538,3 +545,22 @@ function validateIP(str) {
 function validateDomain(str) {
     return /\S+\.\S+/.test(str);
   }
+
+function checkNotificationCompatibility() {
+    if (typeof Notification === 'undefined') {
+        console.log("Notification is not supported by this browser");
+        return false;
+    }
+    return true;
+}
+
+function requestNotificationPermission() {
+    if (checkNotificationCompatibility()) {
+        Notification.requestPermission(function(permission){
+            console.log('notification permission: '+permission);
+        })
+    }
+}
+
+// request permission for notification
+requestNotificationPermission();
