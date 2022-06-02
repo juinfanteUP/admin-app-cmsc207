@@ -10,6 +10,8 @@ use App\Models\Client;
 use App\Models\Attachment;
 use Session;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class MessageController extends Controller
 {
@@ -65,14 +67,32 @@ class MessageController extends Controller
         return response()->json($messages, 200);
     }
 
-
+    
     // Get summary report list
     public function getReport()
     {
         // Get Message Volume Count List
         $messageVolumeCount  = Message::get(['id','created_at'])->count();
-        $clientCount = Client::get(['id','created_at'])->count();;  
+        $clientCount = Client::get(['id','created_at'])->count();  
+
+        // HistoryList
+
+        $messages = Message::get(['created_at','clientId','id'])
+                        ->groupBy(function($item) {
+                            return Carbon::parse($item->created_at)->format("Y-m-d");
+                        })
+                        ->sortByDesc('created_at')
+                        ->take(31);  // last 31 days
+
         $historyList = [];
+        foreach ($messages as $key => $message) {
+            $day = $key;
+            $totalCount = $message->count();
+            $totalClient =  $message->unique('clientId')->count();
+            array_push($historyList , [ "date" => $day ,
+                                            "clientCount" =>  $totalClient, 
+                                            "messageVolumeCount" => $totalCount]);
+        }
 
         return response()->json([ 
                 "messageVolumeCount" => $messageVolumeCount,

@@ -6,7 +6,7 @@ use App\Http\Controllers\WidgetController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AgentController;
 use App\Http\Controllers\ClientController;
-
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +48,6 @@ Route::get('/agent/logout', [AgentController::class, 'logout']);
 Route::get('/agent/list', [AgentController::class, 'getAgents']);
 Route::get('/agent/profile', [AgentController::class, 'getProfile']);
 
+// Report API
+Route::get('/report/client-list', [ReportController::class, 'getClientList']);
+Route::get('/report/chat-volume', [ReportController::class, 'getChatVolumeByDateRange']);

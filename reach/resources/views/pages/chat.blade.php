@@ -65,7 +65,6 @@
                         <li class="text-center" v-show="messages.length == 0 && clients.length > 0">
                             <span class="w-100 text-muted">--- Enter a message to start a conversation now! ---</span>
                         </li>
-
                     </ul>
                 </div>
             </div>
@@ -97,6 +96,8 @@
                 <!-- start chat input section -->
                 <div class="position-relative">
                     <div class="chat-input-section p-4 border-top">
+                    <span id="istyping" class="text-mute small"></span>
+                    <span id="typing-client" class="text-purple small fst-italic"></span>
                         <div class="row g-0 align-items-center">
                             
                             <div class="col-auto text-center px-4">
