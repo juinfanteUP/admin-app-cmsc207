@@ -31870,7 +31870,7 @@ var app = new Vue({
       });
       socket.on('listen-client-type', function (msg) {
         console.log(msg.body);
-        $("#typing-client").text(msg.body);
+        $("#typing-client").text("Client is typing this: " + msg.body);
       });
     },
     isClientOnline: function isClientOnline(cid) {

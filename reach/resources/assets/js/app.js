@@ -142,7 +142,7 @@ const socket = io(socketioUrl);
                 }
                 _this.$forceUpdate();
                 scrollToBottom();
-                
+
                 $("#typing-client").text("");
 
                 if (checkNotificationCompatibility() && Notification.permission === 'granted') {
@@ -155,7 +155,7 @@ const socket = io(socketioUrl);
 
             socket.on('listen-client-type', (msg) => {
                 console.log(msg.body);
-                $("#typing-client").text(msg.body);
+                $("#typing-client").text("Client is typing this: " + msg.body);
             });
 		},
 
