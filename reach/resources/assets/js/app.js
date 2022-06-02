@@ -71,6 +71,7 @@ const socket = io(socketioUrl);
 		isSubmitting: false,
         messages: [],
         allMessages: [],
+        typingmsg: [],
 
         // Clients
         clients: [],
@@ -142,10 +143,22 @@ const socket = io(socketioUrl);
                 }
                 _this.$forceUpdate();
                 scrollToBottom();
+
+                $("#typing-client").text("");
+                $("#istyping").text("");
+
+                if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+                    console.log('incoming message, creating notification')
+                    notify = new Notification("REACH", {
+                        body: msg
+                    });
+                }
             });
 
             socket.on('listen-client-type', (msg) => {
                 console.log(msg.body);
+                $("#istyping").text("Client is typing this: ");
+                $("#typing-client").text(msg.body);
             });
 		},
 
@@ -185,8 +198,6 @@ const socket = io(socketioUrl);
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
-                 console.log(response.data)
-
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -542,3 +553,22 @@ function validateIP(str) {
 function validateDomain(str) {
     return /\S+\.\S+/.test(str);
   }
+
+function checkNotificationCompatibility() {
+    if (typeof Notification === 'undefined') {
+        console.log("Notification is not supported by this browser");
+        return false;
+    }
+    return true;
+}
+
+function requestNotificationPermission() {
+    if (checkNotificationCompatibility()) {
+        Notification.requestPermission(function(permission){
+            console.log('notification permission: '+permission);
+        })
+    }
+}
+
+// request permission for notification
+requestNotificationPermission();
