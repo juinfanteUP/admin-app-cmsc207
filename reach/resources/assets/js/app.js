@@ -35,8 +35,9 @@ const socket = io(socketioUrl);
             name: 'Reach App',
             color: '#4eac6d',
             isActive: true,
-            startTime: '',
-            endTime: '',
+            hasSchedule: false,
+            starttime: '',
+            endtime: '',
             script: ''
         },
         reports: {
@@ -334,6 +335,7 @@ const socket = io(socketioUrl);
 					isActive: _this.widget.isActive,
 					color: _this.widget.color,
                     img_src: _this.widget.img_src,
+					hasSchedule: _this.widget.hasSchedule, 
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
                     domainBanList: [],
@@ -388,7 +390,9 @@ const socket = io(socketioUrl);
                     }
                 });
 				
-                _this.selectedWhiteKey = '';        
+                _this.selectedWhiteKey = '';     
+                console.log(api);
+                console.log(dataParams);   
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
 					alert('Settings has been updated successfully.');

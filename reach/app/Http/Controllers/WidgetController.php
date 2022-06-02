@@ -22,6 +22,7 @@ class WidgetController extends Controller
             $widget->name = "Reach App";
             $widget->isActive = true;
             $widget->color = "#5eb37a";
+            $widget->hasSchedule = false;
             $widget->starttime = "6:00";
             $widget->endtime = "18:00";
             $widget->domainBanList = [];
@@ -33,6 +34,8 @@ class WidgetController extends Controller
         }
 
         $script = str_replace("%URL%",  env('APP_URL'), strval(View('widget.script')));
+        $widget->isActive = $widget->isActive == true ? 1 : 0;
+        $widget->hasSchedule = $widget->hasSchedule == true ? 1 : 0;
         return response()->json(['widget'=> $widget, 'script'=> $script], 200);
     }
 
@@ -60,8 +63,12 @@ class WidgetController extends Controller
         $widget->countryWhiteList = $req->countryWhiteList;
         $widget->cityWhiteList = $req->cityWhiteList;
         $widget->img_src = $req->img_src;
+        $widget->hasSchedule = (boolean)$req->hasSchedule;
         $widget->save();
-
+error_log($req->hasSchedule);
+error_log($req->starttime);
+error_log($req->endtime);
+error_log($req);
         return response()->json(["result" => "ok"], 201);
     }
 }
