@@ -402,8 +402,7 @@ const socket = io(socketioUrl);
                 });
 				
                 _this.selectedWhiteKey = '';     
-                console.log(api);
-                console.log(dataParams);   
+
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
 					alert('Settings has been updated successfully.');

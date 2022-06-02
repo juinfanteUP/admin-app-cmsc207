@@ -65,10 +65,7 @@ class WidgetController extends Controller
         $widget->img_src = $req->img_src;
         $widget->hasSchedule = (boolean)$req->hasSchedule;
         $widget->save();
-error_log($req->hasSchedule);
-error_log($req->starttime);
-error_log($req->endtime);
-error_log($req);
+
         return response()->json(["result" => "ok"], 201);
     }
 }
