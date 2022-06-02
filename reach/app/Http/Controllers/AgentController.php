@@ -19,11 +19,6 @@ class AgentController extends Controller
     // Login a User
     public function login(Request $req) 
     {
-        $req->validate([
-            'email'=>'required|email|max:100',
-            'password'=>'required|max:100'
-        ]);
-
         $agent = Agent::where('email', $req->email)->first();
 
         if($agent)
@@ -31,8 +26,7 @@ class AgentController extends Controller
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                $req->session()->put('user', $agent->email);
-                $req->session()->put('loginId', $agent->id);
+                Session::put('user', $agent->email);
                 return redirect('/');
             }
         }   
@@ -44,14 +38,6 @@ class AgentController extends Controller
     // Register a new agent
     public function register(Request $req)
     {
-        $req->validate([
-            'email'=>'required|max:100|email', 
-            'password'=>'required|min:8|max:100|confirmed',
-            'firstname'=>'required|max:50',
-            'lastname'=>'required|max:50',
-            'nickname'=>'required|max:50'
-        ]);
-
         $agent = Agent::where('email', $req->email)->first();
 
         if(!is_null($agent)) {
@@ -79,10 +65,8 @@ class AgentController extends Controller
     // Clear session and redirect to login page
     public function logout(Request $req)
     {
-        $req->session()->forget('loginId');
-        $req->session()->forget('user');
+        Session::forget('user');
         $req->session()->flush();
-   
         return redirect('login');
     }
 

@@ -10,7 +10,9 @@ class RedirectIfAnonymous
 {
     public function handle(Request $req, Closure $next)
     {
-        if(!($req->session()->has('user')))
+        $refId = Session::get('user');
+
+        if(is_null($refId))
         {
             return redirect('login');
         }

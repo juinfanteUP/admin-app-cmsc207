@@ -31,8 +31,8 @@
                                     <!-- Color -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label small">Widget Color <small>(e.g. #000)</small></label>
-                                        <input v-model="widget.color" type="text" name="widgetColor" class="form-control"
-                                        placeholder="Enter RGB color" title="Enter RGB color">
+                                        <input id="color-picker" class="form-control" value='#276cb8' v-model="widget.color"
+                                            name="widgetColor" placeholder="Enter RGB color" title="Enter RGB color">
                                     </div>
 
 
@@ -87,10 +87,10 @@
                                 <h4 class="card-title pt-1 text-muted">
                                     Widget Script
                                 </h4>
-
-                               
+                                
                                 <div class="py-4">
-                                    <textarea id="widgetScriptText" class="w-100" rows="14" style="resize: none;" disabled >@{{ widget.script }}</textarea>
+                                    <textarea id="widgetScriptText" class="w-100" rows="14" style="resize: none; padding: 1rem;" 
+                                    disabled >@{{ widget.script }}</textarea>
                                 </div>
 
                                 <div class="text-center pb-3">
@@ -110,20 +110,20 @@
 
 
                     <!-- White list -->
-                    <div class="col-md-12">          
+                    <div class="col-md-6">          
                         <div class="card mt-3">
                             <div class="card-body">
                                       
                                 <div class="row">
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <h4 class="card-title pt-1 text-muted">
                                             White List
                                         </h4>
                                     </div>
 
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <div class="input-group">
                                             <input type="text" class="form-control" placeholder="Enter data to allow" v-model="whiteInput">
                                             <div class="input-group-append">
@@ -174,20 +174,20 @@
                     </div>
 
                     <!-- Ban list -->
-                    <div class="col-md-12">          
+                    <div class="col-md-6">          
                         <div class="card mt-3">
                             <div class="card-body">
                                         
                                 <div class="row">
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <h4 class="card-title pt-1 text-muted">
                                             Ban List
                                         </h4>
                                     </div>
 
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-9">
                                         <div class="input-group">
                                             <input type="text" class="form-control" placeholder="Enter data to ban" v-model="banInput">
                                             <div class="input-group-append">

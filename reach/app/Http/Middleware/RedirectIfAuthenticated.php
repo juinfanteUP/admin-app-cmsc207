@@ -10,7 +10,9 @@ class RedirectIfAuthenticated
 {
     public function handle(Request $req, Closure $next)
     {
-        if(Session()->has('loginId') )
+        $refId = Session::get('user');
+        
+        if(!is_null($refId))
         {
             return back();
         }

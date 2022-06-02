@@ -26,6 +26,22 @@
                 </a>
             </li>
 
+            
+            <!-- Multi Chats -->
+            <li class="nav-item" title="Go to multi chats">
+                <a class="nav-link" id="nav-item-multichat" data-bs-toggle="pill" href="#pills-chat" role="tab">
+                    <i class="ri-checkbox-multiple-blank-line"></i>
+                </a>
+            </li>
+
+
+            <!-- Reports -->
+            <li class="nav-item" title="Go to reports">
+                <a class="nav-link" id="nav-item-reports" data-bs-toggle="pill" href="#pills-chat" role="tab">
+                    <i class="ri-file-chart-line"></i>
+                </a>
+            </li>
+
 
             <!-- Widget -->
             <li class="nav-item" title="Go to chat widget">

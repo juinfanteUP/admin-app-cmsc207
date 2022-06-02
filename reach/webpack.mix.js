@@ -24,14 +24,17 @@ require('dotenv').config()
 
 
 mix.webpackConfig({ plugins: [ dotenvplugin ] });
-mix.js('resources/assets/js/app.js', 'public/assets/js/app.js')
+mix
+    .js('resources/assets/js/app.js', 'public/assets/js/app.js')
+    .js('resources/assets/js/auth.js', 'public/assets/js/auth.js')
     .js('resources/assets/js/widget.js', 'public/widget/widget.js')
     .vue()
     .combine(
-  [
+    [
             'resources/assets/css/app.css',
             'resources/assets/css/bootstrap.css',
-            'resources/assets/css/icons.css'
+            'resources/assets/css/icons.css',
+            'resources/assets/css/spectrum.css',
         ], 
     'public/assets/css/app.css'
     );

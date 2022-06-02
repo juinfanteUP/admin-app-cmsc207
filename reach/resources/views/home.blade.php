@@ -1,4 +1,4 @@
-@extends('layout.layout')
+@extends('layout.main-layout')
 @section('content')
 
     <div id="app" class="chat-bg">

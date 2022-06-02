@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Jenssegers\Mongodb\Eloquent\Model;
 
-class WidgetIcon extends Model
+class Attachment extends Model
 {
     protected $connection = 'mongodb';
-    protected $collection = 'widget_icons';
+    protected $collection = 'attachments';
     protected $fillable = [
         'id',
-        'name',
-        'img_src'
+        'path',
+        'name', 
+        'size'
     ]; 
 
-    protected $dates = ['created_at', 'updated_at', 'datetime'];
+    protected $dates = ['created_at'];
 }

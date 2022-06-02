@@ -42,8 +42,8 @@ Route::get('/client/getIP', [ClientController::class, 'getIP']);
 
 
 // Agent API
-Route::post('/agent/login', [AgentController::class, 'login'])->name('login');
-Route::post('/agent/register', [AgentController::class, 'register'])->name('register');
+Route::post('/agent/login', [AgentController::class, 'login']);
+Route::post('/agent/register', [AgentController::class, 'register']);
 Route::get('/agent/logout', [AgentController::class, 'logout']);
 Route::get('/agent/list', [AgentController::class, 'getAgents']);
 Route::get('/agent/profile', [AgentController::class, 'getProfile']);

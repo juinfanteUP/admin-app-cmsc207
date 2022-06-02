@@ -1149,6 +1149,7 @@ body[data-layout-mode="dark"] h6 {
     text-align: center;
     margin-top: 25px;
 }
+
 @media (max-width: 991.98px) {
     .side-menu-nav .nav-item {
         -ms-flex-preferred-size: 0;
@@ -1157,6 +1158,11 @@ body[data-layout-mode="dark"] h6 {
         -ms-flex-positive: 1;
         flex-grow: 1;
         margin: 5px 0;
+    }
+
+    .side-menu-nav .nav-item > a > img.nav-logo {
+        width: 25px;
+        padding-top: 5px;
     }
 }
 .side-menu-nav .nav-item .nav-link {

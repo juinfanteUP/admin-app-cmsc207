@@ -98,7 +98,7 @@ const socket = io(socketioUrl);
 			if (this.searchClient) {
 				return this.clients.filter((i)=>{
 					return _this.searchClient.toLowerCase().split(' ').every(function(v) {
-						return i.domain.toLowerCase().includes(v);
+						return i.clientId.toLowerCase().includes(v);
 					});
 				});
 			}
@@ -258,6 +258,10 @@ const socket = io(socketioUrl);
                 _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
                 _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
                 _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
+
+
+
+
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -446,17 +450,19 @@ const socket = io(socketioUrl);
 				"senderId": this.agent.agentId,
 				"isWhisper": (isWhisperChecked).toString(),
 				"isAgent": 'true',
+                "attachmentId": '',
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
 			}; 
 
             // Handle plain message
-            if (!(this.file && this.file?.name != "")) {           
-                this.chatbox = "";
-                this.allMessages.push(msg);
-                this.messages.push(msg);
+            if (!(_this.file && _this.file?.name != "")) {           
+                _this.chatbox = "";
+                _this.allMessages.push(msg);
+                _this.messages.push(msg);
                 scrollToBottom();
                 
                 socket.emit('send-message', msg);
+                _this.isSubmitting = true;
                 return axios.post(sendApi, {
 
                     clientId: msg.clientId,
@@ -466,11 +472,42 @@ const socket = io(socketioUrl);
                     isAgent: msg.isAgent
 
                 }).then(function(response) {
+
+                    _this.isSubmitting = true;
+
                     _this.$forceUpdate();
                 })["catch"](function(error) {
                     handleError(error);
                 });
             }
+
+
+            // Handle message with attachment
+            let formData = new FormData();
+            formData.append('file', _this.file);
+            formData.append('document', JSON.stringify(msg));
+
+            _this.isSubmitting = true;
+            _this.$forceUpdate();
+
+            axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
+            .then(function(response) {
+                let newMsg = response.data;
+                msg.attachmentId = newMsg.attachmentId;
+
+                socket.emit('send-message', msg);
+
+                _this.isSubmitting = false;
+                _this.chatbox = "";
+                _this.messages.push(msg);
+                _this.allMessages.push(msg);
+
+                _this.cancelUpload();
+                scrollToBottom();
+
+            }).catch(function(error) {
+                handleError(error);
+            });
 		},
 
 
@@ -486,8 +523,8 @@ const socket = io(socketioUrl);
 			this.file = { name: '' };
 		},
 
-		downloadAttachment: function downloadAttachment(referenceId) {
-			window.open(`/api/message/download?id=${referenceId}`, '_blank');
+		downloadAttachment: function downloadAttachment(id) {
+			window.open(`/api/message/download?id=${id}`, '_blank');
 		},
 
 

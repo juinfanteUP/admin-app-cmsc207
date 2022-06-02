@@ -12,7 +12,7 @@
             <form>
                 <div class="input-group search-panel mb-3">
                     <input type="text" class="form-control bg-light border-0" id="searchChatUser" v-model="searchClient"
-                        title="Enter something to search a client" placeholder="Search client" autocomplete="off">
+                        title="Enter something to search a client" placeholder="Enter client Id to search" autocomplete="off">
                     <button class="btn btn-light p-0" type="button" id="searchbtn-addon"><i
                             class='bx bx-search align-middle'></i></button>
                 </div>
@@ -30,9 +30,9 @@
             <div class="chat-message-list">
                 <ul class="list-unstyled chat-list chat-user-list mb-3" id="channelList">
 
-                    <li class="chat-message-item pb-3"  @click="selectClient(client)"
-                        v-bind:id="client.clientId" v-for="client in resultClientSearch" 
-                        :class="[client.clientId == selectedClientId ? 'selected-client' : '']">                
+                    <li class="chat-message-item pb-3"  @click="selectClient(client)" v-for="client in resultClientSearch" 
+                    v-bind:id="client.clientId" :class="[client.clientId == selectedClientId ? 'selected-client' : '']">  
+                                  
                         <a href="javascript:" >   
                             <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
                             <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
@@ -93,6 +93,31 @@
                             </tr>              
                         </tbody>
                     </table>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            Allow Client Upload
+                        </div>
+                        <div class="col-sm-6">
+
+                        </div>
+
+                        <div class="col-sm-6">
+                            Block Client IP
+                        </div>
+                        <div class="col-sm-6">
+
+                        </div>
+
+                        <div class="col-sm-6">
+                            End Session
+                        </div>
+                        <div class="col-sm-6">
+
+                        </div>
+                    </div>
+
+
                 </div>
 
             </div>

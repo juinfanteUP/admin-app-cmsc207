@@ -34,32 +34,22 @@
     }
     
   
-    // Password Peek
-    var pwdEye = document.getElementById("password-addon");
-    if(pwdEye){
-      pwdEye.addEventListener("click", function() {
-          var e = document.getElementById("txtPassword");
-          "password" === e.type ? e.type = "text" : e.type = "password"
+    // Chat Pane
+    var chatPane = document.getElementById("channelList");
+    var returnContacts = document.getElementById("return-contacts");
+  
+    if(chatPane && returnContacts){
+        chatPane.addEventListener("click", function() {
+          var e = document.getElementById("chat-pane");
+          e.classList.toggle("user-chat-show");
+        });
+  
+        returnContacts.addEventListener("click", function() {
+          var e = document.getElementById("chat-pane");
+          e.classList.toggle("user-chat-show");
       });
     }
-  
-  
-    // Chat Pane
-    // var chatPane = document.getElementById("channelList");
-    // var returnContacts = document.getElementById("return-contacts");
-  
-    // if(chatPane && returnContacts){
-    //     chatPane.addEventListener("click", function() {
-    //       var e = document.getElementById("chat-pane");
-    //       e.classList.toggle("user-chat-show");
-    //     });
-  
-    //     returnContacts.addEventListener("click", function() {
-    //       var e = document.getElementById("chat-pane");
-    //       e.classList.toggle("user-chat-show");
-    //   });
-    // }
-  
+
   
     // Navbar Menu List
     var navList = document.getElementById("nav-item-list"); 
@@ -78,13 +68,17 @@
         pane_home.style.display = 'block';
         pane_chat.style.display = 'none';
         pane_widget.style.display = 'none';
-  
+        pane_home.classList.add("active");
 
         nav_home.addEventListener("click", function() {
           inner_navbar.style.display = 'none';
           pane_home.style.display = 'block';
           pane_chat.style.display = 'none';
           pane_widget.style.display = 'none';
+
+          nav_home.classList.add("active");
+          nav_chat.classList.remove("active");
+          nav_widget.classList.remove("active");
         });
   
 
@@ -93,6 +87,10 @@
           pane_home.style.display = 'none';
           pane_chat.style.display = 'block';
           pane_widget.style.display = 'none';
+
+          nav_home.classList.remove("active");
+          nav_chat.classList.add("active");
+          nav_widget.classList.remove("active");
         });
   
         
@@ -101,6 +99,10 @@
           pane_home.style.display = 'none';
           pane_chat.style.display = 'none';
           pane_widget.style.display = 'block';
+
+          nav_home.classList.remove("active");
+          nav_chat.classList.remove("active");
+          nav_widget.classList.add("active");
         });
   
 
@@ -110,6 +112,16 @@
           }
         });
     }
+
+
+    // Spectrum color picker
+    $('#color-picker').spectrum({
+        type: "component",
+        showAlpha: false,
+        showButtons: false,
+        allowEmpty: false
+    });
+
 
 
     console.log('App has been initiated...');

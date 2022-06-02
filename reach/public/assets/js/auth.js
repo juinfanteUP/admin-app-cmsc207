@@ -31707,598 +31707,206 @@ Vue.compile = compileToFunctions;
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-/*!************************************!*\
-  !*** ./resources/assets/js/app.js ***!
-  \************************************/
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
+/*!*************************************!*\
+  !*** ./resources/assets/js/auth.js ***!
+  \*************************************/
 __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
-window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
-
-var socketioUrl = "http://localhost:5000";
-var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
-
-var app = new Vue({
+window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]);
+new Vue({
   el: '#app',
   data: {
-    // Agent
-    agent: {
-      firstname: '',
-      lastname: '',
-      nickname: '',
-      email: ''
+    email: {
+      value: '',
+      error: ''
     },
-    // Message/ widgets	
-    widget: {
-      name: 'Reach App',
-      color: '#4eac6d',
-      isActive: true,
-      startTime: '',
-      endTime: '',
-      script: ''
+    password: {
+      value: '',
+      error: ''
     },
-    reports: {
-      clientCount: 0,
-      messageVolumeCount: 0,
-      historyList: []
+    passwordConfirm: {
+      value: '',
+      error: ''
     },
-    // Ban components
-    banList: [],
-    banSelectionList: [{
-      id: 'domain',
-      labels: 'Domain'
-    }, {
-      id: 'ipaddress',
-      labels: 'IP Address'
-    }, {
-      id: 'country',
-      labels: 'Country'
-    }, {
-      id: 'city',
-      labels: 'City'
-    }],
-    banInput: '',
-    selectedBanKey: 'domain',
-    socketServerUrl: socketioUrl,
-    // Allow components
-    whiteList: [],
-    whiteSelectionList: [{
-      id: 'domain',
-      labels: 'Domain'
-    }, {
-      id: 'ipaddress',
-      labels: 'IP Address'
-    }, {
-      id: 'country',
-      labels: 'Country'
-    }, {
-      id: 'city',
-      labels: 'City'
-    }],
-    whiteInput: '',
-    selectedWhiteKey: 'domain',
-    // Message Inputs
-    chatbox: '',
-    file: {
-      name: ''
+    firstName: {
+      value: '',
+      error: ''
     },
-    isSubmitting: false,
-    messages: [],
-    allMessages: [],
-    // Clients
-    clients: [],
-    onlineClientIds: [],
-    searchClient: '',
-    selectedClientId: 0,
-    viewClient: {}
+    lastName: {
+      value: '',
+      error: ''
+    },
+    nickName: {
+      value: '',
+      error: ''
+    },
+    errorMessage: ''
   },
   mounted: function mounted() {
-    this.getProfile();
-    this.getClients(); // this.getAgents();
-
-    this.getReports();
-    this.getMessages();
-    this.getUserInput();
-    this.getWidgetSettings();
-    this.registerSocketServer();
-  },
-  computed: {
-    resultClientSearch: function resultClientSearch() {
-      var _this = this;
-
-      if (this.searchClient) {
-        return this.clients.filter(function (i) {
-          return _this.searchClient.toLowerCase().split(' ').every(function (v) {
-            return i.clientId.toLowerCase().includes(v);
-          });
-        });
-      }
-
-      return this.clients;
-    },
-    selectedBan: function selectedBan() {
-      return this.selectedBanKey;
-    },
-    disableSend: function disableSend() {
-      var _this$file;
-
-      return this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file = this.file) === null || _this$file === void 0 ? void 0 : _this$file.name) != "");
-    }
+    this.clearValues();
   },
   methods: {
-    // ************************ Subscribe to Socket Server ************************ //
-    registerSocketServer: function registerSocketServer() {
-      var _this = this;
-
-      socket.on('client-join-room', function (clientId) {
-        console.log("client join room ".concat(clientId));
-
-        _this.onlineClientIds.push(clientId);
-
-        _this.reports.clientCount++;
-
-        _this.getClients();
-      }); // Message from server
-
-      socket.on('message', function (msg) {
-        console.log(msg);
-        _this.reports.messageVolumeCount++;
-        msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
-        _this.allMessages.push(msg);
-
-        if (msg.clientId === _this.selectedClientId) {
-          _this.messages.push(msg);
-        }
-
-        _this.$forceUpdate();
-
-        scrollToBottom();
-      });
-      socket.on('listen-client-type', function (msg) {
-        console.log(msg.body);
-      });
-    },
-    isClientOnline: function isClientOnline(cid) {
-      return this.onlineClientIds.indexOf(cid) >= 0;
-    },
-    // ************************ Agent and Reports Helper ************************ //
-    getProfile: function getProfile() {
-      var api = "/api/agent/profile";
+    // ******************** API Service ******************** //
+    login: function login() {
+      var api = "/api/agent/login";
 
       var _this = this;
 
-      axios.get(api).then(function (response) {
-        _this.agent = response.data;
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    getAgents: function getAgents() {
-      var api = "/api/agent/list";
-
-      var _this = this;
-
-      axios.get(api).then(function (response) {
-        _this.agents = response.data;
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    getReports: function getReports() {
-      var api = "/api/message/report";
-
-      var _this = this;
-
-      axios.get(api).then(function (response) {
-        _this.reports = response.data;
-        console.log(response.data);
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    // ************************ Client Helper ************************ //
-    getClients: function getClients() {
-      var api = "/api/client/list";
-
-      var _this = this;
-
-      axios.get(api).then(function (response) {
-        _this.clients = response.data;
-        _this.reports.clientCount = _this.clients.length;
-
-        _this.$forceUpdate();
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    selectClient: function selectClient(client) {
-      var _this2 = this;
-
-      this.selectedClientId = client.clientId;
-      this.messages = [];
-      socket.emit('join-room', {
-        "room": this.selectedClientId,
-        "clientId": "agent" //replace with agent id
-
-      });
-      this.allMessages.forEach(function (msg) {
-        if (msg.clientId == _this2.selectedClientId) {
-          _this2.messages.push(msg);
-        }
-      });
-      this.$forceUpdate();
-      scrollToBottom();
-    },
-    viewClientInfo: function viewClientInfo(client) {
-      this.viewClient = {
-        ipaddress: client === null || client === void 0 ? void 0 : client.ipaddress,
-        domain: client === null || client === void 0 ? void 0 : client.domain,
-        country: client === null || client === void 0 ? void 0 : client.country,
-        clientId: client === null || client === void 0 ? void 0 : client.clientId,
-        city: client === null || client === void 0 ? void 0 : client.city,
-        createddtm: client === null || client === void 0 ? void 0 : client.createddtm
-      };
-      $('#view-client-modal').modal('show');
-    },
-    // ************************ Widget Helper ************************ //
-    getWidgetSettings: function getWidgetSettings() {
-      var api = "/api/widget/settings";
-
-      var _this = this;
-
-      axios.get(api).then(function (response) {
-        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2;
-
-        _this.widget = response.data.widget;
-        _this.widget.script = response.data.script;
-        (_this$widget$domainBa = (_this$widget$domainBa2 = _this.widget.domainBanList) === null || _this$widget$domainBa2 === void 0 ? void 0 : _this$widget$domainBa2.forEach(function (ban) {
-          return _this.banList.push({
-            type: 'domain',
-            value: ban
-          });
-        })) !== null && _this$widget$domainBa !== void 0 ? _this$widget$domainBa : [];
-        (_this$widget$ipBanLis = (_this$widget$ipBanLis2 = _this.widget.ipBanList) === null || _this$widget$ipBanLis2 === void 0 ? void 0 : _this$widget$ipBanLis2.forEach(function (ban) {
-          return _this.banList.push({
-            type: 'ipaddress',
-            value: ban
-          });
-        })) !== null && _this$widget$ipBanLis !== void 0 ? _this$widget$ipBanLis : [];
-        (_this$widget$countryB = (_this$widget$countryB2 = _this.widget.countryBanList) === null || _this$widget$countryB2 === void 0 ? void 0 : _this$widget$countryB2.forEach(function (ban) {
-          return _this.banList.push({
-            type: 'country',
-            value: ban
-          });
-        })) !== null && _this$widget$countryB !== void 0 ? _this$widget$countryB : [];
-        (_this$widget$cityBanL = (_this$widget$cityBanL2 = _this.widget.cityBanList) === null || _this$widget$cityBanL2 === void 0 ? void 0 : _this$widget$cityBanL2.forEach(function (ban) {
-          return _this.banList.push({
-            type: 'city',
-            value: ban
-          });
-        })) !== null && _this$widget$cityBanL !== void 0 ? _this$widget$cityBanL : [];
-        (_this$widget$domainWh = (_this$widget$domainWh2 = _this.widget.domainWhiteList) === null || _this$widget$domainWh2 === void 0 ? void 0 : _this$widget$domainWh2.forEach(function (white) {
-          return _this.whiteList.push({
-            type: 'domain',
-            value: white
-          });
-        })) !== null && _this$widget$domainWh !== void 0 ? _this$widget$domainWh : [];
-        (_this$widget$ipWhiteL = (_this$widget$ipWhiteL2 = _this.widget.ipWhiteList) === null || _this$widget$ipWhiteL2 === void 0 ? void 0 : _this$widget$ipWhiteL2.forEach(function (white) {
-          return _this.whiteList.push({
-            type: 'ipaddress',
-            value: white
-          });
-        })) !== null && _this$widget$ipWhiteL !== void 0 ? _this$widget$ipWhiteL : [];
-        (_this$widget$countryW = (_this$widget$countryW2 = _this.widget.countryWhiteList) === null || _this$widget$countryW2 === void 0 ? void 0 : _this$widget$countryW2.forEach(function (white) {
-          return _this.whiteList.push({
-            type: 'country',
-            value: white
-          });
-        })) !== null && _this$widget$countryW !== void 0 ? _this$widget$countryW : [];
-        (_this$widget$cityWhit = (_this$widget$cityWhit2 = _this.widget.cityWhiteList) === null || _this$widget$cityWhit2 === void 0 ? void 0 : _this$widget$cityWhit2.forEach(function (white) {
-          return _this.whiteList.push({
-            type: 'city',
-            value: white
-          });
-        })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    updateSettings: function updateSettings() {
-      var action = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-      var removeByIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-      var api = "/api/widget/update";
-
-      var _this = this;
-
-      if (action == 'addBan') {
-        if (_this.banInput == null || _this.banInput == '') {
-          alert('Please provide a value that needs to be banned');
-          return;
-        }
-
-        switch (_this.selectedBanKey) {
-          case 'domain':
-            if (!validateDomain(_this.banInput)) {
-              alert('Please provide a valid domain name');
-              return;
-            }
-
-            break;
-
-          case 'ipaddress':
-            if (!validateIP(_this.banInput)) {
-              alert('Please provide a valid IP Address');
-              return;
-            }
-
-            break;
-        }
-      }
-
-      if (action == 'addWhite') {
-        if (_this.whiteInput == null || _this.whiteInput == '') {
-          alert('Please provide a value that needs to be allowed');
-          return;
-        }
-
-        switch (_this.selectedWhiteKey) {
-          case 'domain':
-            if (!validateDomain(_this.whiteInput)) {
-              alert('Please provide a valid domain name');
-              return;
-            }
-
-            break;
-
-          case 'ipaddress':
-            if (!validateIP(_this.whiteInput)) {
-              alert('Please provide a valid IP Address');
-              return;
-            }
-
-            break;
-        }
-      }
-
-      if (confirm('Are you sure you want to update the widget settings?')) {
-        showLoader();
-
-        switch (action) {
-          case 'addBan':
-            _this.banList.push({
-              type: _this.selectedBanKey,
-              value: _this.banInput
-            });
-
-            break;
-
-          case 'removeBan':
-            _this.banList.splice(removeByIndex, 1);
-
-            break;
-
-          case 'addWhite':
-            _this.whiteList.push({
-              type: _this.selectedWhiteKey,
-              value: _this.whiteInput
-            });
-
-            break;
-
-          case 'removeWhite':
-            _this.whiteList.splice(removeByIndex, 1);
-
-            break;
-        }
-
-        var dataParams = {
-          name: _this.widget.name,
-          isActive: _this.widget.isActive,
-          color: _this.widget.color,
-          img_src: _this.widget.img_src,
-          starttime: _this.widget.starttime,
-          endtime: _this.widget.endtime,
-          domainBanList: [],
-          cityBanList: [],
-          ipBanList: [],
-          countryBanList: [],
-          domainWhiteList: [],
-          cityWhiteList: [],
-          ipWhiteList: [],
-          countryWhiteList: []
-        };
-
-        _this.banList.forEach(function (ban) {
-          switch (ban.type) {
-            case 'domain':
-              dataParams.domainBanList.push(ban.value);
-              break;
-
-            case 'ipaddress':
-              dataParams.ipBanList.push(ban.value);
-              break;
-
-            case 'country':
-              dataParams.countryBanList.push(ban.value);
-              break;
-
-            case 'city':
-              dataParams.cityBanList.push(ban.value);
-              break;
-          }
-        });
-
-        _this.selectedBanKey = '';
-        axios.put(api, dataParams).then(function (response) {
-          showLoader(false);
-          alert('Settings has been updated successfully.');
-        })["catch"](function (error) {
-          handleError(error);
-        });
-
-        _this.whiteList.forEach(function (white) {
-          switch (white.type) {
-            case 'domain':
-              dataParams.domainWhiteList.push(white.value);
-              break;
-
-            case 'ipaddress':
-              dataParams.ipWhiteList.push(white.value);
-              break;
-
-            case 'country':
-              dataParams.countryWhiteList.push(white.value);
-              break;
-
-            case 'city':
-              dataParams.cityWhiteList.push(white.value);
-              break;
-          }
-        });
-
-        _this.selectedWhiteKey = '';
-        axios.put(api, dataParams).then(function (response) {
-          showLoader(false);
-          alert('Settings has been updated successfully.');
-        })["catch"](function (error) {
-          handleError(error);
-        });
-      }
-    },
-    copyWidgetScript: function copyWidgetScript() {
-      var dummy = document.createElement("textarea");
-      document.body.appendChild(dummy);
-      dummy.value = this.widget.script;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-      alert('Copied successfully!');
-    },
-    // ************************ Message Helper ************************ //
-    getMessages: function getMessages() {
-      var _this = this;
-
-      var api = '/api/message/list';
-      _this.reports.messageVolumeCount++;
-      showLoader();
-      axios.get(api).then(function (response) {
-        _this.allMessages = response.data;
-
-        _this.allMessages.forEach(function (m) {
-          m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
-        });
-
-        showLoader(false);
-      })["catch"](function (error) {
-        handleError(error);
-      });
-    },
-    postMessage: function postMessage() {
-      var _document$getElementB, _document$getElementB2, _this$file2, _this$file3;
-
-      var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
-      var sendApi = "/api/message/send";
-
-      var _this = this;
-
-      if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
+      if (!this.validateLogin()) {
         return;
       }
 
-      var msg = {
-        "clientId": this.selectedClientId,
-        "body": this.chatbox,
-        "senderId": this.agent.agentId,
-        "isWhisper": isWhisperChecked.toString(),
-        "isAgent": 'true',
-        "attachmentId": '',
-        "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
-      }; // Handle plain message
+      var params = {
+        email: this.email.value,
+        password: this.password.value
+      };
+      showLoader();
+      axios.post(api, params).then(function (response) {
+        showLoader(false);
 
-      if (!(_this.file && ((_this$file3 = _this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
-        _this.chatbox = "";
+        _this.clearValues();
 
-        _this.allMessages.push(msg);
-
-        _this.messages.push(msg);
-
-        scrollToBottom();
-        socket.emit('send-message', msg);
-        _this.isSubmitting = true;
-        return axios.post(sendApi, {
-          clientId: msg.clientId,
-          body: msg.body,
-          senderId: msg.senderId,
-          isWhisper: msg.isWhisper,
-          isAgent: msg.isAgent
-        }).then(function (response) {
-          _this.isSubmitting = true;
-
-          _this.$forceUpdate();
-        })["catch"](function (error) {
-          handleError(error);
-        });
-      } // Handle message with attachment
-
-
-      var formData = new FormData();
-      formData.append('file', _this.file);
-      formData.append('document', JSON.stringify(msg));
-      _this.isSubmitting = true;
-
-      _this.$forceUpdate();
-
-      axios.post(sendApi, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }).then(function (response) {
-        var newMsg = response.data;
-        msg.attachmentId = newMsg.attachmentId;
-        socket.emit('send-message', msg);
-        _this.isSubmitting = false;
-        _this.chatbox = "";
-
-        _this.messages.push(msg);
-
-        _this.allMessages.push(msg);
-
-        _this.cancelUpload();
-
-        scrollToBottom();
+        window.location.href = '/';
       })["catch"](function (error) {
-        handleError(error);
+        _this.errorMessage.error = "Email or password is incorrect";
+        console.log(error);
       });
     },
-    // ************************ File Helper ************************ //
-    handleFileUpload: function handleFileUpload() {
-      this.file = this.$refs.file.files[0];
-    },
-    cancelUpload: function cancelUpload() {
-      this.$refs.file.value = null;
-      this.file = {
-        name: ''
-      };
-    },
-    downloadAttachment: function downloadAttachment(id) {
-      window.open("/api/message/download?id=".concat(id), '_blank');
-    },
-    // ************************ Utility Functions ************************ //
-    getUserInput: function getUserInput() {
+    register: function register() {
+      var api = "/api/agent/register";
+
       var _this = this;
 
-      setInterval(function () {
-        inp = $("#chat-input").val();
-        _this.chatbox = inp;
-      }, 200);
+      _this.error = '';
+
+      if (!this.validateRegistration()) {
+        return;
+      }
+
+      if (confirm('Are you sure you want to register a new user?')) {
+        var params = {
+          email: this.email.value,
+          password: this.password.value,
+          firstname: this.firstName.value,
+          lastname: this.lastName.value,
+          nickname: this.nickName.value
+        };
+        showLoader();
+        axios.post(api, params).then(function (response) {
+          showLoader(false);
+
+          _this.clearValues();
+
+          alert('User has been registered successfully!');
+          window.location.href = '/login';
+        })["catch"](function (error) {
+          _this.errorMessage.error = "An error has occurred";
+          console.log(error);
+        });
+      }
+    },
+    // ******************** Validation Service ******************** //
+    validateLogin: function validateLogin() {
+      this.errorMessage = '';
+
+      if (this.email.value == '' || this.password.value == '') {
+        this.errorMessage = 'Please fill up the required fields';
+        return false;
+      }
+
+      return true;
+    },
+    validateRegistration: function validateRegistration() {
+      this.clearErrors();
+      var errorCount = 0;
+
+      if (this.email.value == '') {
+        this.email.error = 'Email is empty';
+        errorCount++;
+      } else if (!/\S+@\S+\.\S+/.test(this.email.value)) {
+        this.email.error = 'Invalid email value';
+        errorCount++;
+      }
+
+      if (this.firstName.value == '') {
+        this.firstName.error = 'First name is empty';
+        errorCount++;
+      }
+
+      if (this.lastName.value == '') {
+        this.lastName.error = 'Last name is empty';
+        errorCount++;
+      }
+
+      if (this.nickName.value == '') {
+        this.nickName.error = 'Nick name is empty';
+        errorCount++;
+      }
+
+      if (this.password.value == '') {
+        this.password.error = 'Password is empty';
+        errorCount++;
+      } else if (this.password.value.length < 6) {
+        this.password.error = 'Password must be at least 6 characters';
+        errorCount++;
+      } else if (this.password.value != this.passwordConfirm.value) {
+        this.password.error = 'Password confirmation does not match';
+        errorCount++;
+      }
+
+      return errorCount == 0;
+    },
+    redirect: function redirect(route) {
+      this.clearValues();
+
+      switch (route) {
+        case 'login':
+          window.location.href = "/login";
+          break;
+
+        case 'register':
+          window.location.href = "/register";
+          break;
+      }
+    },
+    clearValues: function clearValues() {
+      this.email = {
+        value: '',
+        error: ''
+      };
+      this.password = {
+        value: '',
+        error: ''
+      };
+      this.passwordConfirm = {
+        value: '',
+        error: ''
+      };
+      this.firstName = {
+        value: '',
+        error: ''
+      };
+      this.lastName = {
+        value: '',
+        error: ''
+      };
+      this.nickName = {
+        value: '',
+        error: ''
+      };
+      this.errorMessage = '';
+    },
+    clearErrors: function clearErrors() {
+      this.email.error = "";
+      this.password.error = "";
+      this.passwordConfirm.error = "";
+      this.firstName.error = "";
+      this.lastName.error = "";
+      this.nickName.error = "";
+      this.errorMessage = '';
     }
   }
-}); // *********** Helper Methods *********** //
+});
 
 function showLoader() {
   var willShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -32309,31 +31917,13 @@ function showLoader() {
   }
 }
 
-function handleError(e) {
-  console.log(e);
-  showLoader(false);
-}
+var pwdEye = document.getElementById("password-addon");
 
-function scrollToBottom() {
-  setTimeout(function () {
-    var _document$getElementB3;
-
-    var parentContainer = (_document$getElementB3 = document.getElementById("users-conversation")) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.parentNode;
-
-    if (parentContainer) {
-      parentContainer.style.overflowX = 'hidden';
-      parentContainer.style.overflowY = 'auto';
-      $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
-    }
-  }, 200);
-}
-
-function validateIP(str) {
-  return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
-}
-
-function validateDomain(str) {
-  return /\S+\.\S+/.test(str);
+if (pwdEye) {
+  pwdEye.addEventListener("click", function () {
+    var e = document.getElementById("txtPassword");
+    "password" === e.type ? e.type = "text" : e.type = "password";
+  });
 }
 })();
 
