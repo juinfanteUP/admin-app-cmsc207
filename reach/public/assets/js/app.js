@@ -31860,6 +31860,7 @@ var app = new Vue({
 
         scrollToBottom();
         $("#typing-client").text("");
+        $("#istyping").text("");
 
         if (checkNotificationCompatibility() && Notification.permission === 'granted') {
           console.log('incoming message, creating notification');
@@ -31870,7 +31871,8 @@ var app = new Vue({
       });
       socket.on('listen-client-type', function (msg) {
         console.log(msg.body);
-        $("#typing-client").text("Client is typing this: " + msg.body);
+        $("#istyping").text("Client is typing this: ");
+        $("#typing-client").text(msg.body);
       });
     },
     isClientOnline: function isClientOnline(cid) {

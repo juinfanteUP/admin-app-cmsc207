@@ -96,7 +96,8 @@
                 <!-- start chat input section -->
                 <div class="position-relative">
                     <div class="chat-input-section p-4 border-top">
-                    <div id="typing-client" class="text-purple small fst-italic"></div>
+                    <span id="istyping" class="text-mute small"></span>
+                    <span id="typing-client" class="text-purple small fst-italic"></span>
                         <div class="row g-0 align-items-center">
                             
                             <div class="col-auto text-center px-4">

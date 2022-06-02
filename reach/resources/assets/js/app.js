@@ -144,6 +144,7 @@ const socket = io(socketioUrl);
                 scrollToBottom();
 
                 $("#typing-client").text("");
+                $("#istyping").text("");
 
                 if (checkNotificationCompatibility() && Notification.permission === 'granted') {
                     console.log('incoming message, creating notification')
@@ -155,7 +156,8 @@ const socket = io(socketioUrl);
 
             socket.on('listen-client-type', (msg) => {
                 console.log(msg.body);
-                $("#typing-client").text("Client is typing this: " + msg.body);
+                $("#istyping").text("Client is typing this: ");
+                $("#typing-client").text(msg.body);
             });
 		},
 
