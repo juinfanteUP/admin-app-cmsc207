@@ -1,0 +1,14 @@
+db.widgets.updateOne({},
+  {$set:{
+    "schedule" : [
+	  {"id": 1, "day": "Sunday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 2, "day": "Monday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 3, "day": "Tuesday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 4, "day": "Wednesday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 5, "day": "Thursday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 6, "day": "Friday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  {"id": 7, "day": "Saturday", "start_time": "08:30", "end_time": "18:30", "enabled": "true"},
+	  
+	]
+   }
+  });

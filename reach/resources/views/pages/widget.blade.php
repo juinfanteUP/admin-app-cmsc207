@@ -54,7 +54,7 @@
                                         <input v-model="socketServerUrl" type="text" class="form-control" disabled>
                                     </div>
                                     
-                                    <!-- Socket Server -->
+                                    <!-- Widget Icon -->
                                     <div class="col-sm-12 mb-3">
                                         <label class="form-label">
                                             Widget Icon
@@ -67,6 +67,32 @@
                                         </select>
                                     </div>
 
+                                    <!-- White List Toggle-->
+                                    <div class="col-sm-6 mb-3">
+                                        <label class="form-label">
+                                            White List
+                                        </label>
+                                        <input type="button" v-model="widget.whiteListEnabled" 
+                                            class="toggleButton" 
+                                            @click="widget.whiteListEnabled = !widget.whiteListEnabled">
+                                    </div>
+                                    <!-- Ban List Toggle -->
+                                    <div class="col-sm-6 mb-3">
+                                        <label class="form-label">
+                                            Ban List
+                                        </label>
+                                        <input type="button" v-model="widget.banListEnabled" 
+                                            @click="widget.banListEnabled = !widget.banListEnabled">
+                                    </div>
+
+                                    <!-- Schedule Toggle-->
+                                    <div class="col-sm-6 mb-3">
+                                        <label class="form-label">
+                                            Schedule
+                                        </label>
+                                        <input type="button" v-model="widget.scheduleEnabled" 
+                                            @click="widget.scheduleEnabled = !widget.scheduleEnabled">
+                                    </div>
                                     <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">
                                             Save Changes
@@ -110,7 +136,7 @@
 
 
                     <!-- White list -->
-                    <div class="col-md-12">          
+                    <div class="col-md-12" v-if="widget.whiteListEnabled == true">          
                         <div class="card mt-3">
                             <div class="card-body">
                                       
@@ -172,9 +198,10 @@
                             </div>
                         </div>
                     </div>
+                    {{-- End of White List --}}
 
                     <!-- Ban list -->
-                    <div class="col-md-12">          
+                    <div class="col-md-12" v-if="widget.banListEnabled == true">               
                         <div class="card mt-3">
                             <div class="card-body">
                                         
@@ -237,6 +264,62 @@
                         </div>
                     </div>
                 </div>
+                {{-- End of Ban List --}}
+
+                <!-- Schedule -->
+                <div class="col-md-12"  v-if="widget.scheduleEnabled == true">            
+                    <div class="card mt-3">
+                        <div class="card-body">
+                                    
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <h4 class="card-title pt-1 text-muted">
+                                        Schedule
+                                    </h4>
+                                </div>
+
+
+                                <div class="col-md-12">
+
+                                    <div class="table-responsive mt-3">
+                                        {{-- <div>@{{ widget }}</div> --}}
+                                        <table class="table table-editable table-nowrap align-middle table-edits">
+                                            <thead>
+                                                <tr>
+                                                    <th>Day</th>
+                                                    <th>Start Time</th>
+                                                    <th>End Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-show ="widget.schedule.length == 0">
+                                                    <td class="text-center" colspan="3">
+                                                        --- Allow list is empty ---
+                                                    </td>
+                                                </tr>
+                                                <tr v-for="(schedItem, index) in widget.schedule">
+                                                    <td>@{{ schedItem.day }}</td>
+                                                    <td><input type="time" v-model="schedItem.start_time"></td>
+                                                    <td><input type="time" v-model="schedItem.end_time"></td>
+                                                    <td class="ban-remove-button">
+                                                        <button class="btn btn-sm btn-secondary" type="button" :value="schedItem.enabled"
+                                                         @click="schedItem.enabled = !schedItem.enabled">
+                                                            @{{ schedItem.enabled }}
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                {{-- End of Schedule --}}
             </div>
         </div>
     </div>
