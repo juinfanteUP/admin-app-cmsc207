@@ -70,6 +70,7 @@ const socket = io(socketioUrl);
 		isSubmitting: false,
         messages: [],
         allMessages: [],
+        typingmsg: [],
 
         // Clients
         clients: [],
@@ -141,6 +142,8 @@ const socket = io(socketioUrl);
                 }
                 _this.$forceUpdate();
                 scrollToBottom();
+                
+                $("#typing-client").text("");
 
                 if (checkNotificationCompatibility() && Notification.permission === 'granted') {
                     console.log('incoming message, creating notification')
@@ -152,6 +155,7 @@ const socket = io(socketioUrl);
 
             socket.on('listen-client-type', (msg) => {
                 console.log(msg.body);
+                $("#typing-client").text(msg.body);
             });
 		},
 
