@@ -31719,7 +31719,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "http://localhost:5000";
+var socketioUrl = "http://localhost:3002";
 var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
@@ -31737,8 +31737,9 @@ var app = new Vue({
       name: 'Reach App',
       color: '#4eac6d',
       isActive: true,
-      startTime: '',
-      endTime: '',
+      hasSchedule: false,
+      starttime: '',
+      endtime: '',
       script: '',
       banListEnabled: 'false',
       whiteListEnabled: 'false',
@@ -32122,6 +32123,7 @@ var app = new Vue({
           isActive: _this.widget.isActive,
           color: _this.widget.color,
           img_src: _this.widget.img_src,
+          hasSchedule: _this.widget.hasSchedule,
           starttime: _this.widget.starttime,
           endtime: _this.widget.endtime,
           domainBanList: [],

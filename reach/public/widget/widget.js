@@ -5,7 +5,7 @@ var __webpack_exports__ = {};
   \***************************************/
 // ***************** Update these Properties ***************** //
 var sourceDomain = "http://127.0.0.1:8000";
-var socketioUrl = "http://localhost:5000";
+var socketioUrl = "http://localhost:3002";
 var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
