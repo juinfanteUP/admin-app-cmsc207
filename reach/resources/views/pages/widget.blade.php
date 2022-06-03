@@ -41,10 +41,40 @@
                                         <label class="form-label">
                                             Widget Status
                                         </label>
-                                        <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
+                                        <select v-model="widget.isActive" class="form-select" placeholder="Widget Status">
                                             <option value="1" selected >Active</option>
                                             <option value="0" >Disabled</option>
                                         </select>
+                                    </div>
+
+                                    
+                                    <!-- Schedule -->
+                                    <div class="col-sm-12 mb-3">
+                                        <label class="form-label">
+                                            Enable Schedule
+                                        </label>
+                                        <select v-model="widget.hasSchedule" class="form-select" placeholder="Select">
+                                            <option value="1" selected >Yes</option>
+                                            <option value="0" >No</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Start time -->
+                                    <div class="col-sm-12 mb-3">
+                                        <label class="form-label small">Availability Start Time</label>
+                                        
+                                        <input type="time" step="1" 
+                                        v-model="widget.starttime" id="starttime"
+                                        name="starttime" class="form-control" title="Select availability start time">
+                                    </div>
+
+
+                                     <!-- End time -->
+                                     <div class="col-sm-12 mb-3">
+                                        <label class="form-label small">Availability End Time</label>
+                                        <input  type="time" step="1" 
+                                        v-model="widget.endtime" id="endtime"
+                                        name="endtime" class="form-control" title="Select availability end time">
                                     </div>
 
                             
