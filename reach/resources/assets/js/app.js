@@ -35,10 +35,14 @@ const socket = io(socketioUrl);
             name: 'Reach App',
             color: '#4eac6d',
             isActive: true,
+
             hasSchedule: false,
             starttime: '',
             endtime: '',
-            script: ''
+            script: '',
+            banListEnabled: 'false',
+            whiteListEnabled: 'false',
+            scheduleEnabled: 'false'
         },
         reports: {
             clientCount: 0,
@@ -64,6 +68,9 @@ const socket = io(socketioUrl);
         ],
         whiteInput: '',
         selectedWhiteKey: 'domain',
+
+        // Schedule
+        schedule: [],
 
         // Message Inputs
 		chatbox: '',
@@ -270,6 +277,7 @@ const socket = io(socketioUrl);
                 _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
                 _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
                 _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
+                _this.widget.schedule?.forEach(sched => _this.schedule.push({ value: sched })) ?? [];
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -356,7 +364,11 @@ const socket = io(socketioUrl);
                     domainWhiteList: [],
                     cityWhiteList: [],
                     ipWhiteList: [],
-                    countryWhiteList: []
+                    countryWhiteList: [],
+                    banListEnabled: _this.widget.banListEnabled,
+                    whiteListEnabled: _this.widget.whiteListEnabled,
+                    scheduleEnabled: _this.widget.scheduleEnabled,
+                    schedule: _this.widget.schedule
 				};
           
                 _this.banList.forEach(ban => {
@@ -424,7 +436,6 @@ const socket = io(socketioUrl);
 
 
 		// ************************ Message Helper ************************ //
-
 
 		getMessages: function getMessages() {
 			var _this = this;

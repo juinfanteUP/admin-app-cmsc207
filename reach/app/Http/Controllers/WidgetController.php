@@ -64,6 +64,10 @@ class WidgetController extends Controller
         $widget->cityWhiteList = $req->cityWhiteList;
         $widget->img_src = $req->img_src;
         $widget->hasSchedule = (boolean)$req->hasSchedule;
+        $widget->banListEnabled = $req->banListEnabled;
+        $widget->whiteListEnabled = $req->whiteListEnabled;
+        $widget->scheduleEnabled = $req->scheduleEnabled;
+        $widget->schedule = $req->schedule;
         $widget->save();
 
         return response()->json(["result" => "ok"], 201);
