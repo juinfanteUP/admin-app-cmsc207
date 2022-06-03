@@ -35,9 +35,14 @@ const socket = io(socketioUrl);
             name: 'Reach App',
             color: '#4eac6d',
             isActive: true,
-            startTime: '',
-            endTime: '',
-            script: ''
+
+            hasSchedule: false,
+            starttime: '',
+            endtime: '',
+            script: '',
+            banListEnabled: 'false',
+            whiteListEnabled: 'false',
+            scheduleEnabled: 'false'
         },
         reports: {
             clientCount: 0,
@@ -64,6 +69,9 @@ const socket = io(socketioUrl);
         whiteInput: '',
         selectedWhiteKey: 'domain',
 
+        // Schedule
+        schedule: [],
+
         // Message Inputs
 		chatbox: '',
 		file: { name: '' },
@@ -71,6 +79,7 @@ const socket = io(socketioUrl);
         messages: [],
         allMessages: [],
         unseenMessages: {},
+        typingmsg: [],
 
         // Clients
         clients: [],
@@ -159,6 +168,9 @@ const socket = io(socketioUrl);
                 _this.$forceUpdate();
                 scrollToBottom();
 
+                $("#typing-client").text("");
+                $("#istyping").text("");
+
                 if (checkNotificationCompatibility() && Notification.permission === 'granted') {
                     console.log('incoming message, creating notification')
                     notify = new Notification("REACH", {
@@ -169,6 +181,8 @@ const socket = io(socketioUrl);
 
             socket.on('listen-client-type', (msg) => {
                 console.log(msg.body);
+                $("#istyping").text("Client is typing this: ");
+                $("#typing-client").text(msg.body);
             });
 		},
 
@@ -208,8 +222,6 @@ const socket = io(socketioUrl);
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
-                 console.log(response.data)
-
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -283,6 +295,7 @@ const socket = io(socketioUrl);
                 _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
                 _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
                 _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
+                _this.widget.schedule?.forEach(sched => _this.schedule.push({ value: sched })) ?? [];
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -359,6 +372,7 @@ const socket = io(socketioUrl);
 					isActive: _this.widget.isActive,
 					color: _this.widget.color,
                     img_src: _this.widget.img_src,
+					hasSchedule: _this.widget.hasSchedule, 
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
                     domainBanList: [],
@@ -368,7 +382,11 @@ const socket = io(socketioUrl);
                     domainWhiteList: [],
                     cityWhiteList: [],
                     ipWhiteList: [],
-                    countryWhiteList: []
+                    countryWhiteList: [],
+                    banListEnabled: _this.widget.banListEnabled,
+                    whiteListEnabled: _this.widget.whiteListEnabled,
+                    scheduleEnabled: _this.widget.scheduleEnabled,
+                    schedule: _this.widget.schedule
 				};
           
                 _this.banList.forEach(ban => {
@@ -413,7 +431,8 @@ const socket = io(socketioUrl);
                     }
                 });
 				
-                _this.selectedWhiteKey = '';        
+                _this.selectedWhiteKey = '';     
+
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
 					alert('Settings has been updated successfully.');
@@ -435,7 +454,6 @@ const socket = io(socketioUrl);
 
 
 		// ************************ Message Helper ************************ //
-
 
 		getMessages: function getMessages() {
 			var _this = this;

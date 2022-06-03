@@ -31737,9 +31737,13 @@ var app = new Vue({
       name: 'Reach App',
       color: '#4eac6d',
       isActive: true,
-      startTime: '',
-      endTime: '',
-      script: ''
+      hasSchedule: false,
+      starttime: '',
+      endtime: '',
+      script: '',
+      banListEnabled: 'false',
+      whiteListEnabled: 'false',
+      scheduleEnabled: 'false'
     },
     reports: {
       clientCount: 0,
@@ -31781,6 +31785,8 @@ var app = new Vue({
     }],
     whiteInput: '',
     selectedWhiteKey: 'domain',
+    // Schedule
+    schedule: [],
     // Message Inputs
     chatbox: '',
     file: {
@@ -31789,6 +31795,7 @@ var app = new Vue({
     isSubmitting: false,
     messages: [],
     allMessages: [],
+    typingmsg: [],
     // Clients
     clients: [],
     onlineClientIds: [],
@@ -31858,9 +31865,20 @@ var app = new Vue({
         _this.$forceUpdate();
 
         scrollToBottom();
+        $("#typing-client").text("");
+        $("#istyping").text("");
+
+        if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+          console.log('incoming message, creating notification');
+          notify = new Notification("REACH", {
+            body: msg
+          });
+        }
       });
       socket.on('listen-client-type', function (msg) {
         console.log(msg.body);
+        $("#istyping").text("Client is typing this: ");
+        $("#typing-client").text(msg.body);
       });
     },
     isClientOnline: function isClientOnline(cid) {
@@ -31896,7 +31914,6 @@ var app = new Vue({
 
       axios.get(api).then(function (response) {
         _this.reports = response.data;
-        console.log(response.data);
       })["catch"](function (error) {
         handleError(error);
       });
@@ -31911,13 +31928,6 @@ var app = new Vue({
         _this.clients = response.data;
         _this.reports.clientCount = _this.clients.length;
 
-        _this.clients.forEach(function (c) {
-          socket.emit('join-room', {
-            "room": c.clientId,
-            "clientId": _this.agent.agentId
-          });
-        });
-
         _this.$forceUpdate();
       })["catch"](function (error) {
         handleError(error);
@@ -31928,6 +31938,11 @@ var app = new Vue({
 
       this.selectedClientId = client.clientId;
       this.messages = [];
+      socket.emit('join-room', {
+        "room": this.selectedClientId,
+        "clientId": "agent" //replace with agent id
+
+      });
       this.allMessages.forEach(function (msg) {
         if (msg.clientId == _this2.selectedClientId) {
           _this2.messages.push(msg);
@@ -31954,7 +31969,7 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
-        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2;
+        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2, _this$widget$schedule, _this$widget$schedule2;
 
         _this.widget = response.data.widget;
         _this.widget.script = response.data.script;
@@ -32006,6 +32021,11 @@ var app = new Vue({
             value: white
           });
         })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
+        (_this$widget$schedule = (_this$widget$schedule2 = _this.widget.schedule) === null || _this$widget$schedule2 === void 0 ? void 0 : _this$widget$schedule2.forEach(function (sched) {
+          return _this.schedule.push({
+            value: sched
+          });
+        })) !== null && _this$widget$schedule !== void 0 ? _this$widget$schedule : [];
       })["catch"](function (error) {
         handleError(error);
       });
@@ -32103,6 +32123,7 @@ var app = new Vue({
           isActive: _this.widget.isActive,
           color: _this.widget.color,
           img_src: _this.widget.img_src,
+          hasSchedule: _this.widget.hasSchedule,
           starttime: _this.widget.starttime,
           endtime: _this.widget.endtime,
           domainBanList: [],
@@ -32112,7 +32133,11 @@ var app = new Vue({
           domainWhiteList: [],
           cityWhiteList: [],
           ipWhiteList: [],
-          countryWhiteList: []
+          countryWhiteList: [],
+          banListEnabled: _this.widget.banListEnabled,
+          whiteListEnabled: _this.widget.whiteListEnabled,
+          scheduleEnabled: _this.widget.scheduleEnabled,
+          schedule: _this.widget.schedule
         };
 
         _this.banList.forEach(function (ban) {
@@ -32300,6 +32325,26 @@ function validateIP(str) {
 function validateDomain(str) {
   return /\S+\.\S+/.test(str);
 }
+
+function checkNotificationCompatibility() {
+  if (typeof Notification === 'undefined') {
+    console.log("Notification is not supported by this browser");
+    return false;
+  }
+
+  return true;
+}
+
+function requestNotificationPermission() {
+  if (checkNotificationCompatibility()) {
+    Notification.requestPermission(function (permission) {
+      console.log('notification permission: ' + permission);
+    });
+  }
+} // request permission for notification
+
+
+requestNotificationPermission();
 })();
 
 /******/ })()
