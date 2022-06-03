@@ -70,6 +70,7 @@ const socket = io(socketioUrl);
 		isSubmitting: false,
         messages: [],
         allMessages: [],
+        unseenMessages: {},
 
         // Clients
         clients: [],
@@ -92,6 +93,10 @@ const socket = io(socketioUrl);
 	},
 
 	computed: {
+        unseenMessagesCount: function unseenMessagesCount() {
+            return this.unseenMessages;
+        },
+
 		resultClientSearch: function resultClientSearch() {
 			var _this = this;
 
@@ -138,7 +143,19 @@ const socket = io(socketioUrl);
                 _this.allMessages.push(msg);
                 if (msg.clientId === _this.selectedClientId) {
                     _this.messages.push(msg);
+                } else {
+                    var ctr = 0;
+
+                    if (isNaN(_this.unseenMessages.unseenCount)) {
+                        _this.unseenMessages.unseenCount = 0;
+                    }
+                    _this.unseenMessages.unseenCount += 1;
+                    _this.unseenMessages = {
+                        "clientId": msg.clientId,
+                        "unseenCount": _this.unseenMessages.unseenCount
+                    };
                 }
+
                 _this.$forceUpdate();
                 scrollToBottom();
 
@@ -218,6 +235,7 @@ const socket = io(socketioUrl);
         selectClient: function selectClient(client) {
             this.selectedClientId = client.clientId;   
             this.messages = [];
+            this.unseenMessages.unseenCount = 0;
 
             socket.emit('join-room', {
                 "room": this.selectedClientId,
