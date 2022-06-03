@@ -37,7 +37,8 @@ const socket = io(socketioUrl);
             isActive: true,
             startTime: '',
             endTime: '',
-            script: ''
+            script: '',
+            img_src: 'assets/images/widget-icon.png'
         },
         reports: {
             clientCount: 0,
@@ -72,12 +73,20 @@ const socket = io(socketioUrl);
         allMessages: [],
         typingmsg: [],
 
+        // Multiwindow
+        multiWindowList: [],
+
         // Clients
         clients: [],
         onlineClientIds: [],
 		searchClient: '',
         selectedClientId: 0,
-        viewClient: {}
+        viewClient: {},
+        allowedClientUpload: [],
+
+        // Utilities
+        currentTime: ''
+
 	},
 
 	mounted: function mounted() {
@@ -86,7 +95,7 @@ const socket = io(socketioUrl);
 		// this.getAgents();
         this.getReports();
         this.getMessages();
-        this.getUserInput();
+        this.TimeTrigger();
 		this.getWidgetSettings();
        
         this.registerSocketServer();        
@@ -113,7 +122,8 @@ const socket = io(socketioUrl);
 
         disableSend: function disableSend() {
             return this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "");
-        }
+        },
+
 	},
 	methods: {
 		
@@ -128,36 +138,55 @@ const socket = io(socketioUrl);
                 _this.reports.clientCount++;
                 _this.getClients();
             });
-         
+
+
             // Message from server
             socket.on('message', (msg) => {
                 console.log(msg);
                 _this.reports.messageVolumeCount++;
-
                 msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
+                msg.isSeen = false;
+                
                 _this.allMessages.push(msg);
+
                 if (msg.clientId === _this.selectedClientId) {
                     _this.messages.push(msg);
                 }
+
+                let windowIndex = _.findIndex(_this.multiWindowList, (w) => { return w.clientId == msg.clientId });
+                if(windowIndex>=0){
+                    _this.multiWindowList[windowIndex].messages.push(msg);
+                }
+
+                let clientIndex = _.findIndex(_this.clients, (c) => { return c.clientId == msg.clientId });
+                if(clientIndex>=0 && _this.selectedClientId != msg.clientId){
+                    _this.clients[clientIndex].missedCount++;
+                }
+
                 _this.$forceUpdate();
                 scrollToBottom();
 
                 $("#typing-client").text("");
                 $("#istyping").text("");
 
+
+            
                 if (checkNotificationCompatibility() && Notification.permission === 'granted') {
                     console.log('incoming message, creating notification')
                     notify = new Notification("REACH", {
-                        body: msg
+                        icon: 'assets/images/brand/reach-64.png',
+                        body: msg.body
                     });
                 }
+
+                alertTitle();
             });
 
-            socket.on('listen-client-type', (msg) => {
-                console.log(msg.body);
-                $("#istyping").text("Client is typing this: ");
-                $("#typing-client").text(msg.body);
+            socket.on('listen-client-type', (msg) => {   
+                if (_this.selectedClientId == msg.isWhisper) {  
+                    $("#istyping").text("Client is typing this: ");
+                    $("#typing-client").text(msg.body);
+                }
             });
 		},
 
@@ -177,6 +206,7 @@ const socket = io(socketioUrl);
 				_this.agent = response.data;
 			})["catch"](function(error) {
 				handleError(error);
+                window.location.href = "/login";
 			});
 		},
 
@@ -210,8 +240,13 @@ const socket = io(socketioUrl);
             var api = `/api/client/list`;
             var _this = this;
         
-			axios.get(api).then(function(response) {
-				_this.clients = response.data;
+			axios.get(api).then(function(response) {        
+                _this.clients = [];
+                response.data.forEach(c => {
+                    c.missedCount = 0;
+                    _this.clients.push(c)
+                });
+
                 _this.reports.clientCount = _this.clients.length;
                 _this.$forceUpdate();
 			})["catch"](function(error) {
@@ -222,6 +257,7 @@ const socket = io(socketioUrl);
         selectClient: function selectClient(client) {
             this.selectedClientId = client.clientId;   
             this.messages = [];
+            var _this = this;
 
             socket.emit('join-room', {
                 "room": this.selectedClientId,
@@ -230,8 +266,20 @@ const socket = io(socketioUrl);
 
             this.allMessages.forEach(msg => {
                 if(msg.clientId == this.selectedClientId){
+                    msg.isSeen = true;
                     this.messages.push(msg);
                 }
+            });
+
+            let clientIndex = _.findIndex(_this.clients, (c) => { return c.clientId == client.clientId });
+            if(clientIndex>=0){
+                _this.clients[clientIndex].missedCount = 0;
+            }
+
+            var api = `/api/message/setSeen`;
+            axios.post(api, { clientId: client.clientId }).then(function() {
+            })["catch"](function(error) {
+                handleError(error);
             });
 
             this.$forceUpdate();
@@ -247,8 +295,28 @@ const socket = io(socketioUrl);
 				city: client?.city,
                 createddtm: client?.createddtm
 			};
+            
 			$('#view-client-modal').modal('show');
 		},
+
+        endClientSession: function endClientSession(clientId){
+            var api = `/api/client/endSession`;
+            var _this = this;
+            
+            if(confirm('Are you sure you want to end the session for this client?')) {
+                socket.emit('end-session', clientId);
+
+                let ind = _.findIndex(_this.clients, (c) => { return c.clientId == clientId });    
+                let windowInd = _.findIndex(_this.multiWindowList, (c) => { return c.clientId == clientId });
+                if(windowInd>=0) _this.multiWindowList.splice(windowInd, 1);
+                if (ind>=0) _this.clients.splice(ind, 1);
+
+                axios.post(api, { clientId: clientId }).then(function() {
+				})["catch"](function(error) {
+					handleError(error);
+				});
+            }
+        },
 
 
 		// ************************ Widget Helper ************************ //
@@ -269,10 +337,8 @@ const socket = io(socketioUrl);
                 _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
                 _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
                 _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
-
-
-
-
+                $('#color-picker').val(_this.widget.color); 
+                
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -282,7 +348,7 @@ const socket = io(socketioUrl);
 		updateSettings: function updateSettings(action='', removeByIndex=-1) {
             var api = `/api/widget/update`;
 			var _this = this;
-            
+
             if(action == 'addBan'){         
                 if(_this.banInput == null || _this.banInput == ''){
                     alert('Please provide a value that needs to be banned');
@@ -344,10 +410,11 @@ const socket = io(socketioUrl);
                         break;
                 }
 
+                let rgb = document.getElementById("color-picker").value; 
                 var dataParams = {
 					name: _this.widget.name,
 					isActive: _this.widget.isActive,
-					color: _this.widget.color,
+					color: rgb,
                     img_src: _this.widget.img_src,
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
@@ -381,7 +448,6 @@ const socket = io(socketioUrl);
                 _this.selectedBanKey = '';        
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
-					alert('Settings has been updated successfully.');
 				})["catch"](function(error) {
 					handleError(error);
 				});
@@ -406,10 +472,12 @@ const socket = io(socketioUrl);
                 _this.selectedWhiteKey = '';        
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
-					alert('Settings has been updated successfully.');
+					
 				})["catch"](function(error) {
 					handleError(error);
 				});
+
+                alert('Settings has been updated successfully.');
 			}
 		},
 
@@ -435,6 +503,7 @@ const socket = io(socketioUrl);
 			showLoader();
 			axios.get(api).then(function(response) {    
 				_this.allMessages = response.data;
+                console.log(response.data);
 
                 _this.allMessages.forEach(m => {
                     m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
@@ -451,76 +520,160 @@ const socket = io(socketioUrl);
             var sendApi = `/api/message/send`;
             var _this = this;      
 
-			if (this.isSubmitting || !((this.chatbox && this.chatbox != "") || this.file?.name != "")) {
+            if (!((this.chatbox && this.chatbox != "") || this.file?.name != "") || this.isSubmitting) {
+                console.log('Disabled')
                 return;
-			}
+            }
 
 			var msg = {
                 "clientId": this.selectedClientId,
-				"body": this.chatbox,
+				"body": this.chatbox ?? "",
 				"senderId": this.agent.agentId,
 				"isWhisper": (isWhisperChecked).toString(),
 				"isAgent": 'true',
-                "attachmentId": '',
+                "attachmentId": '0',
+                'fileName': '',
+                'fileSize': 0,
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
 			}; 
 
             // Handle plain message
-            if (!(_this.file && _this.file?.name != "")) {           
-                _this.chatbox = "";
-                _this.allMessages.push(msg);
-                _this.messages.push(msg);
-                scrollToBottom();
-                
-                socket.emit('send-message', msg);
+            if (_this.file && _this.file?.name != "") {      
+                 // Handle message with attachment
+                let formData = new FormData();
+                formData.append('file', _this.file);
+                formData.append('document', JSON.stringify(msg));
+
                 _this.isSubmitting = true;
-                return axios.post(sendApi, {
+                _this.$forceUpdate();
 
-                    clientId: msg.clientId,
-                    body: msg.body,          
-                    senderId: msg.senderId,
-                    isWhisper: msg.isWhisper,
-                    isAgent: msg.isAgent
+                return axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
+                .then(function(response) {
+                    let newMsg = response.data;
 
-                }).then(function(response) {
+                    console.log(newMsg);
 
-                    _this.isSubmitting = true;
+                    msg.attachmentId = newMsg.attachmentId;
+                    msg.fileName = newMsg.fileName;
+                    msg.fileSize = newMsg.fileSize;
 
-                    _this.$forceUpdate();
-                })["catch"](function(error) {
+                    socket.emit('send-message', msg);
+
+                    _this.isSubmitting = false;
+                    _this.chatbox = "";
+                    _this.messages.push(msg);
+                    _this.allMessages.push(msg);
+
+                    _this.cancelUpload();
+                    scrollToBottom();
+
+                }).catch(function(error) {
                     handleError(error);
                 });
             }
-
-
-            // Handle message with attachment
-            let formData = new FormData();
-            formData.append('file', _this.file);
-            formData.append('document', JSON.stringify(msg));
-
+                
+            _this.chatbox = "";
+            _this.allMessages.push(msg);
+            _this.messages.push(msg);
+            scrollToBottom();
+            
+            socket.emit('send-message', msg);
             _this.isSubmitting = true;
-            _this.$forceUpdate();
+            return axios.post(sendApi, {
 
-            axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
-            .then(function(response) {
-                let newMsg = response.data;
-                msg.attachmentId = newMsg.attachmentId;
+                clientId: msg.clientId,
+                body: msg.body,          
+                senderId: msg.senderId,
+                isWhisper: msg.isWhisper,
+                isAgent: msg.isAgent,
+                attachmentId: '0'
 
-                socket.emit('send-message', msg);
+            }).then(function(response) {
 
                 _this.isSubmitting = false;
-                _this.chatbox = "";
-                _this.messages.push(msg);
-                _this.allMessages.push(msg);
 
-                _this.cancelUpload();
-                scrollToBottom();
-
-            }).catch(function(error) {
+                _this.$forceUpdate();
+            })["catch"](function(error) {
                 handleError(error);
             });
 		},
 
+
+        // ***************************** UI Component Controls ***************************** //
+
+
+        addClientToMultiWindow: function addClientToMultiWindow (clientId) {
+            let index = _.findIndex(this.multiWindowList, (w) => { return w.clientId == clientId });
+
+            if (index >= 0) {
+                return;
+            }
+
+            let msgs = _.filter(this.allMessages, (m) => { return m.clientId == clientId });
+
+            let entity = {
+                windowId: `mw-${clientId}`,
+                label: clientId,
+                clientId: clientId,
+                body: '',
+                messages: msgs
+            }
+      
+            socket.emit('join-room', {
+                "room": clientId,
+                "clientId": "agent"
+            }); 
+
+            this.multiWindowList.push(entity);
+        },
+
+        removeClientFromWindow: function removeClientFromWindow (clientId) {
+            let index = _.findIndex(this.multiWindowList, (w) => { return w.clientId == clientId });
+            if (index >= 0) {
+                this.multiWindowList.splice(index, 1);
+            }
+        },
+
+        sendMessageFromMultiChat: function sendMessageFromMultiChat(w) {
+            var _this = this;
+            var sendApi = `/api/message/send`;
+            
+            if (w.body == ""){
+                return;
+            }
+
+            var msg = {
+                "clientId": w.clientId,
+				"body": w.body ?? "",
+				"senderId": _this.agent.agentId,
+				"isWhisper": 'false',
+				"isAgent": 'true',
+                "attachmentId": '0',
+                "attachmentId": '0',
+                'fileName': '',
+                "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
+			}; 
+
+            _this.allMessages.push(msg);
+            w.messages.push(msg);
+            socket.emit('send-message', msg);
+            w.body = "";
+            
+            scrollToBottom();
+
+            return axios.post(sendApi, {
+                clientId: msg.clientId,
+                body: msg.body,          
+                senderId: msg.senderId,
+                isWhisper: msg.isWhisper,
+                isAgent: msg.isAgent,
+                attachmentId: '0'
+            }).then(function(response) {
+                _this.$forceUpdate();
+            })["catch"](function(error) {
+                handleError(error);
+            });
+        },
 
         // ************************ File Helper ************************ //
 
@@ -538,17 +691,51 @@ const socket = io(socketioUrl);
 			window.open(`/api/message/download?id=${id}`, '_blank');
 		},
 
+        formatBytes: function formatBytes(bytes) {
+            if (!(bytes || bytes > 0)) return '0 Bytes';    
+                                  
+            const k = 1024;
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
+        },
+
 
 		// ************************ Utility Functions ************************ //
 
 
-		getUserInput: function getUserInput() {
+		TimeTrigger: function TimeTrigger() {
 			var _this = this;
 			setInterval(function() { 
                  inp = $("#chat-input").val(); 
                 _this.chatbox = inp;
+                _this.currentTime = new Date().toLocaleTimeString();
 			}, 200);
+
+            setInterval(function() { 
+                var allowUpload = document.getElementById("allow-client-upload")?.checked ?? false;
+                var count = _this.allowedClientUpload.length;
+                let newCount = _this.allowedClientUpload.length;
+
+                if (_this.selectedClientId != 0) {
+                    var ind = _this.allowedClientUpload.indexOf(_this.selectedClientId);
+
+                    if (allowUpload && ind == -1) {
+                        _this.allowedClientUpload.push(_this.selectedClientId);
+                    }
+                    else if (!allowUpload && ind >=0 ) {
+                        _this.allowedClientUpload.splice(ind, 1);
+                    }
+
+                    newCount = _this.allowedClientUpload.length;
+                    if (newCount != count) {
+                        socket.emit('allow-upload', { willAllow: allowUpload, clientId: _this.selectedClientId});
+                    }
+               }
+           }, 2000);
 		},
+
+        // 
 	}
 });
 
@@ -563,6 +750,18 @@ function showLoader(willShow = true) {
     }
 }
 
+function alertTitle(){
+    var c = 1;
+    var i = setInterval(function(){
+        document.title =  c % 2 == 0 ? "New Message!" : "Reach App";
+        c ++;
+    } ,1000);
+    setTimeout(function( ) { 
+        clearInterval(i); 
+        document.title = "Reach App";
+    }, 10000);
+}
+
 function handleError(e) {
     console.log(e);
     showLoader(false);
@@ -575,6 +774,13 @@ function scrollToBottom() {
             parentContainer.style.overflowX = 'hidden';
             parentContainer.style.overflowY = 'auto';
             $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
+        }
+
+        var multiWindow = $(".chat-history");
+        if (multiWindow){
+            $(".chat-history").stop().animate({
+                scrollTop: $(".chat-history")[0]?.scrollHeight
+            }, 1000);
         }
     }, 200);
 }
@@ -602,6 +808,7 @@ function requestNotificationPermission() {
         })
     }
 }
+
 
 // request permission for notification
 requestNotificationPermission();

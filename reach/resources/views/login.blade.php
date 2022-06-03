@@ -58,7 +58,7 @@
     
                                      <!-- Login Button -->
                                     <div class="text-center mt-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Click to login">
-                                        <button class="btn btn-primary w-100" type=" button" @click="login()" >Log In</button>
+                                        <button class="btn btn-primary w-100" type="button" @click="login()" >Log In</button>
                                     </div>
     
                                     <div class="mt-4 text-center">

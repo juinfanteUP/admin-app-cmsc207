@@ -23,7 +23,7 @@
     --bs-gray-900: #212529;
     --bs-primary: #4eac6d;
     --bs-secondary: #797c8c;
-    --bs-success: #06d6a0;
+    --bs-success: #32a959;
     --bs-info: #50a5f1;
     --bs-warning: #ffd166;
     --bs-danger: #ef476f;
@@ -580,7 +580,7 @@ progress {
 }
 
 .list-unstyled {
-    padding-left: 0;
+    padding-left: 10px;
     list-style: none;
 }
 
@@ -3466,8 +3466,8 @@ fieldset:disabled .btn {
 
 .btn-danger {
     color: #fff;
-    background-color: #ea3131;
-    border-color: #ea3131;
+    background-color: #ce0202 !important;
+    border-color: #ce0202 !important;
 }
 .btn-danger:hover {
     color: #fff;
@@ -9192,7 +9192,7 @@ fieldset:disabled .btn {
 
 .text-success {
     --bs-text-opacity: 1;
-    color: rgba(var(--bs-success-rgb), var(--bs-text-opacity)) !important;
+    color: #32a959 !important;
 }
 
 .text-info {
@@ -9207,7 +9207,7 @@ fieldset:disabled .btn {
 
 .text-danger {
     --bs-text-opacity: 1;
-    color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
+    color: #ce0202 !important
 }
 
 .text-purple {
@@ -13755,7 +13755,7 @@ body[data-layout-mode="dark"] .table > :not(:last-child) > :last-child > * {
 .btn-group-xs > .btn,
 .btn-xs {
     padding: 0.35rem 0.4rem 0.25rem 0.4rem;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     line-height: 0.5;
     border-radius: 0.2rem;
 }
@@ -13894,12 +13894,12 @@ body[data-layout-mode="dark"] .table > :not(:last-child) > :last-child > * {
     padding-left: 1rem;
 }
 .toggle.btn-xs {
-    min-width: 2.19rem;
+    min-width: 2.5rem;
     min-height: 1.375rem;
 }
 .toggle-on.btn-xs {
-    padding-right: 0.8rem;
+    padding-right: 0.7rem;
 }
 .toggle-off.btn-xs {
-    padding-left: 0.8rem;
+    padding-left: 0.7rem;
 }

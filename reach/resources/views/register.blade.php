@@ -123,6 +123,12 @@
                                     </div>
 
 
+                                    <!-- Error Message -->
+                                    <div class="text-center text-danger small pb-3">
+                                        @{{ errorMessage }}
+                                    </div>
+
+
                                     <!-- Register Button -->
                                     <div title="Click to create new account">
                                         <button class="btn btn-primary w-100 waves-effect waves-light" type="button" @click="register()"

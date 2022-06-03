@@ -31710,6 +31710,8 @@ var __webpack_exports__ = {};
 /*!************************************!*\
   !*** ./resources/assets/js/app.js ***!
   \************************************/
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -31739,7 +31741,8 @@ var app = new Vue({
       isActive: true,
       startTime: '',
       endTime: '',
-      script: ''
+      script: '',
+      img_src: 'assets/images/widget-icon.png'
     },
     reports: {
       clientCount: 0,
@@ -31790,12 +31793,17 @@ var app = new Vue({
     messages: [],
     allMessages: [],
     typingmsg: [],
+    // Multiwindow
+    multiWindowList: [],
     // Clients
     clients: [],
     onlineClientIds: [],
     searchClient: '',
     selectedClientId: 0,
-    viewClient: {}
+    viewClient: {},
+    allowedClientUpload: [],
+    // Utilities
+    currentTime: ''
   },
   mounted: function mounted() {
     this.getProfile();
@@ -31803,7 +31811,7 @@ var app = new Vue({
 
     this.getReports();
     this.getMessages();
-    this.getUserInput();
+    this.TimeTrigger();
     this.getWidgetSettings();
     this.registerSocketServer();
   },
@@ -31849,11 +31857,28 @@ var app = new Vue({
         console.log(msg);
         _this.reports.messageVolumeCount++;
         msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        msg.isSeen = false;
 
         _this.allMessages.push(msg);
 
         if (msg.clientId === _this.selectedClientId) {
           _this.messages.push(msg);
+        }
+
+        var windowIndex = _.findIndex(_this.multiWindowList, function (w) {
+          return w.clientId == msg.clientId;
+        });
+
+        if (windowIndex >= 0) {
+          _this.multiWindowList[windowIndex].messages.push(msg);
+        }
+
+        var clientIndex = _.findIndex(_this.clients, function (c) {
+          return c.clientId == msg.clientId;
+        });
+
+        if (clientIndex >= 0 && _this.selectedClientId != msg.clientId) {
+          _this.clients[clientIndex].missedCount++;
         }
 
         _this.$forceUpdate();
@@ -31865,14 +31890,18 @@ var app = new Vue({
         if (checkNotificationCompatibility() && Notification.permission === 'granted') {
           console.log('incoming message, creating notification');
           notify = new Notification("REACH", {
-            body: msg
+            icon: 'assets/images/brand/reach-64.png',
+            body: msg.body
           });
         }
+
+        alertTitle();
       });
       socket.on('listen-client-type', function (msg) {
-        console.log(msg.body);
-        $("#istyping").text("Client is typing this: ");
-        $("#typing-client").text(msg.body);
+        if (_this.selectedClientId == msg.isWhisper) {
+          $("#istyping").text("Client is typing this: ");
+          $("#typing-client").text(msg.body);
+        }
       });
     },
     isClientOnline: function isClientOnline(cid) {
@@ -31888,6 +31917,7 @@ var app = new Vue({
         _this.agent = response.data;
       })["catch"](function (error) {
         handleError(error);
+        window.location.href = "/login";
       });
     },
     getAgents: function getAgents() {
@@ -31919,7 +31949,12 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
-        _this.clients = response.data;
+        _this.clients = [];
+        response.data.forEach(function (c) {
+          c.missedCount = 0;
+
+          _this.clients.push(c);
+        });
         _this.reports.clientCount = _this.clients.length;
 
         _this.$forceUpdate();
@@ -31932,6 +31967,9 @@ var app = new Vue({
 
       this.selectedClientId = client.clientId;
       this.messages = [];
+
+      var _this = this;
+
       socket.emit('join-room', {
         "room": this.selectedClientId,
         "clientId": "agent" //replace with agent id
@@ -31939,8 +31977,25 @@ var app = new Vue({
       });
       this.allMessages.forEach(function (msg) {
         if (msg.clientId == _this2.selectedClientId) {
+          msg.isSeen = true;
+
           _this2.messages.push(msg);
         }
+      });
+
+      var clientIndex = _.findIndex(_this.clients, function (c) {
+        return c.clientId == client.clientId;
+      });
+
+      if (clientIndex >= 0) {
+        _this.clients[clientIndex].missedCount = 0;
+      }
+
+      var api = "/api/message/setSeen";
+      axios.post(api, {
+        clientId: client.clientId
+      }).then(function () {})["catch"](function (error) {
+        handleError(error);
       });
       this.$forceUpdate();
       scrollToBottom();
@@ -31955,6 +32010,31 @@ var app = new Vue({
         createddtm: client === null || client === void 0 ? void 0 : client.createddtm
       };
       $('#view-client-modal').modal('show');
+    },
+    endClientSession: function endClientSession(clientId) {
+      var api = "/api/client/endSession";
+
+      var _this = this;
+
+      if (confirm('Are you sure you want to end the session for this client?')) {
+        socket.emit('end-session', clientId);
+
+        var ind = _.findIndex(_this.clients, function (c) {
+          return c.clientId == clientId;
+        });
+
+        var windowInd = _.findIndex(_this.multiWindowList, function (c) {
+          return c.clientId == clientId;
+        });
+
+        if (windowInd >= 0) _this.multiWindowList.splice(windowInd, 1);
+        if (ind >= 0) _this.clients.splice(ind, 1);
+        axios.post(api, {
+          clientId: clientId
+        }).then(function () {})["catch"](function (error) {
+          handleError(error);
+        });
+      }
     },
     // ************************ Widget Helper ************************ //
     getWidgetSettings: function getWidgetSettings() {
@@ -32015,6 +32095,7 @@ var app = new Vue({
             value: white
           });
         })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
+        $('#color-picker').val(_this.widget.color);
       })["catch"](function (error) {
         handleError(error);
       });
@@ -32107,10 +32188,11 @@ var app = new Vue({
             break;
         }
 
+        var rgb = document.getElementById("color-picker").value;
         var dataParams = {
           name: _this.widget.name,
           isActive: _this.widget.isActive,
-          color: _this.widget.color,
+          color: rgb,
           img_src: _this.widget.img_src,
           starttime: _this.widget.starttime,
           endtime: _this.widget.endtime,
@@ -32147,7 +32229,6 @@ var app = new Vue({
         _this.selectedBanKey = '';
         axios.put(api, dataParams).then(function (response) {
           showLoader(false);
-          alert('Settings has been updated successfully.');
         })["catch"](function (error) {
           handleError(error);
         });
@@ -32175,10 +32256,10 @@ var app = new Vue({
         _this.selectedWhiteKey = '';
         axios.put(api, dataParams).then(function (response) {
           showLoader(false);
-          alert('Settings has been updated successfully.');
         })["catch"](function (error) {
           handleError(error);
         });
+        alert('Settings has been updated successfully.');
       }
     },
     copyWidgetScript: function copyWidgetScript() {
@@ -32199,6 +32280,7 @@ var app = new Vue({
       showLoader();
       axios.get(api).then(function (response) {
         _this.allMessages = response.data;
+        console.log(response.data);
 
         _this.allMessages.forEach(function (m) {
           m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
@@ -32210,78 +32292,160 @@ var app = new Vue({
       });
     },
     postMessage: function postMessage() {
-      var _document$getElementB, _document$getElementB2, _this$file2, _this$file3;
+      var _document$getElementB, _document$getElementB2, _this$file2, _this$chatbox, _this$file3;
 
       var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
       var sendApi = "/api/message/send";
 
       var _this = this;
 
-      if (this.isSubmitting || !(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "")) {
+      if (!(this.chatbox && this.chatbox != "" || ((_this$file2 = this.file) === null || _this$file2 === void 0 ? void 0 : _this$file2.name) != "") || this.isSubmitting) {
+        console.log('Disabled');
         return;
       }
 
       var msg = {
         "clientId": this.selectedClientId,
-        "body": this.chatbox,
+        "body": (_this$chatbox = this.chatbox) !== null && _this$chatbox !== void 0 ? _this$chatbox : "",
         "senderId": this.agent.agentId,
         "isWhisper": isWhisperChecked.toString(),
         "isAgent": 'true',
-        "attachmentId": '',
+        "attachmentId": '0',
+        'fileName': '',
+        'fileSize': 0,
         "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
       }; // Handle plain message
 
-      if (!(_this.file && ((_this$file3 = _this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "")) {
-        _this.chatbox = "";
-
-        _this.allMessages.push(msg);
-
-        _this.messages.push(msg);
-
-        scrollToBottom();
-        socket.emit('send-message', msg);
+      if (_this.file && ((_this$file3 = _this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "") {
+        // Handle message with attachment
+        var formData = new FormData();
+        formData.append('file', _this.file);
+        formData.append('document', JSON.stringify(msg));
         _this.isSubmitting = true;
-        return axios.post(sendApi, {
-          clientId: msg.clientId,
-          body: msg.body,
-          senderId: msg.senderId,
-          isWhisper: msg.isWhisper,
-          isAgent: msg.isAgent
-        }).then(function (response) {
-          _this.isSubmitting = true;
 
-          _this.$forceUpdate();
+        _this.$forceUpdate();
+
+        return axios.post(sendApi, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }).then(function (response) {
+          var newMsg = response.data;
+          console.log(newMsg);
+          msg.attachmentId = newMsg.attachmentId;
+          msg.fileName = newMsg.fileName;
+          msg.fileSize = newMsg.fileSize;
+          socket.emit('send-message', msg);
+          _this.isSubmitting = false;
+          _this.chatbox = "";
+
+          _this.messages.push(msg);
+
+          _this.allMessages.push(msg);
+
+          _this.cancelUpload();
+
+          scrollToBottom();
         })["catch"](function (error) {
           handleError(error);
         });
-      } // Handle message with attachment
+      }
 
+      _this.chatbox = "";
 
-      var formData = new FormData();
-      formData.append('file', _this.file);
-      formData.append('document', JSON.stringify(msg));
+      _this.allMessages.push(msg);
+
+      _this.messages.push(msg);
+
+      scrollToBottom();
+      socket.emit('send-message', msg);
       _this.isSubmitting = true;
-
-      _this.$forceUpdate();
-
-      axios.post(sendApi, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      return axios.post(sendApi, {
+        clientId: msg.clientId,
+        body: msg.body,
+        senderId: msg.senderId,
+        isWhisper: msg.isWhisper,
+        isAgent: msg.isAgent,
+        attachmentId: '0'
       }).then(function (response) {
-        var newMsg = response.data;
-        msg.attachmentId = newMsg.attachmentId;
-        socket.emit('send-message', msg);
         _this.isSubmitting = false;
-        _this.chatbox = "";
 
-        _this.messages.push(msg);
+        _this.$forceUpdate();
+      })["catch"](function (error) {
+        handleError(error);
+      });
+    },
+    // ***************************** UI Component Controls ***************************** //
+    addClientToMultiWindow: function addClientToMultiWindow(clientId) {
+      var index = _.findIndex(this.multiWindowList, function (w) {
+        return w.clientId == clientId;
+      });
 
-        _this.allMessages.push(msg);
+      if (index >= 0) {
+        return;
+      }
 
-        _this.cancelUpload();
+      var msgs = _.filter(this.allMessages, function (m) {
+        return m.clientId == clientId;
+      });
 
-        scrollToBottom();
+      var entity = {
+        windowId: "mw-".concat(clientId),
+        label: clientId,
+        clientId: clientId,
+        body: '',
+        messages: msgs
+      };
+      socket.emit('join-room', {
+        "room": clientId,
+        "clientId": "agent"
+      });
+      this.multiWindowList.push(entity);
+    },
+    removeClientFromWindow: function removeClientFromWindow(clientId) {
+      var index = _.findIndex(this.multiWindowList, function (w) {
+        return w.clientId == clientId;
+      });
+
+      if (index >= 0) {
+        this.multiWindowList.splice(index, 1);
+      }
+    },
+    sendMessageFromMultiChat: function sendMessageFromMultiChat(w) {
+      var _w$body, _msg;
+
+      var _this = this;
+
+      var sendApi = "/api/message/send";
+
+      if (w.body == "") {
+        return;
+      }
+
+      var msg = (_msg = {
+        "clientId": w.clientId,
+        "body": (_w$body = w.body) !== null && _w$body !== void 0 ? _w$body : "",
+        "senderId": _this.agent.agentId,
+        "isWhisper": 'false',
+        "isAgent": 'true',
+        "attachmentId": '0'
+      }, _defineProperty(_msg, "attachmentId", '0'), _defineProperty(_msg, 'fileName', ''), _defineProperty(_msg, "created_at", new Date().toISOString().slice(0, 19).replace('T', ' ')), _msg);
+
+      _this.allMessages.push(msg);
+
+      w.messages.push(msg);
+      socket.emit('send-message', msg);
+      w.body = "";
+      scrollToBottom();
+      return axios.post(sendApi, {
+        clientId: msg.clientId,
+        body: msg.body,
+        senderId: msg.senderId,
+        isWhisper: msg.isWhisper,
+        isAgent: msg.isAgent,
+        attachmentId: '0'
+      }).then(function (response) {
+        _this.$forceUpdate();
       })["catch"](function (error) {
         handleError(error);
       });
@@ -32299,15 +32463,49 @@ var app = new Vue({
     downloadAttachment: function downloadAttachment(id) {
       window.open("/api/message/download?id=".concat(id), '_blank');
     },
+    formatBytes: function formatBytes(bytes) {
+      if (!(bytes || bytes > 0)) return '0 Bytes';
+      var k = 1024;
+      var i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
+    },
     // ************************ Utility Functions ************************ //
-    getUserInput: function getUserInput() {
+    TimeTrigger: function TimeTrigger() {
       var _this = this;
 
       setInterval(function () {
         inp = $("#chat-input").val();
         _this.chatbox = inp;
+        _this.currentTime = new Date().toLocaleTimeString();
       }, 200);
-    }
+      setInterval(function () {
+        var _document$getElementB3, _document$getElementB4;
+
+        var allowUpload = (_document$getElementB3 = (_document$getElementB4 = document.getElementById("allow-client-upload")) === null || _document$getElementB4 === void 0 ? void 0 : _document$getElementB4.checked) !== null && _document$getElementB3 !== void 0 ? _document$getElementB3 : false;
+        var count = _this.allowedClientUpload.length;
+        var newCount = _this.allowedClientUpload.length;
+
+        if (_this.selectedClientId != 0) {
+          var ind = _this.allowedClientUpload.indexOf(_this.selectedClientId);
+
+          if (allowUpload && ind == -1) {
+            _this.allowedClientUpload.push(_this.selectedClientId);
+          } else if (!allowUpload && ind >= 0) {
+            _this.allowedClientUpload.splice(ind, 1);
+          }
+
+          newCount = _this.allowedClientUpload.length;
+
+          if (newCount != count) {
+            socket.emit('allow-upload', {
+              willAllow: allowUpload,
+              clientId: _this.selectedClientId
+            });
+          }
+        }
+      }, 2000);
+    } // 
+
   }
 }); // *********** Helper Methods *********** //
 
@@ -32320,6 +32518,18 @@ function showLoader() {
   }
 }
 
+function alertTitle() {
+  var c = 1;
+  var i = setInterval(function () {
+    document.title = c % 2 == 0 ? "New Message!" : "Reach App";
+    c++;
+  }, 1000);
+  setTimeout(function () {
+    clearInterval(i);
+    document.title = "Reach App";
+  }, 10000);
+}
+
 function handleError(e) {
   console.log(e);
   showLoader(false);
@@ -32327,14 +32537,24 @@ function handleError(e) {
 
 function scrollToBottom() {
   setTimeout(function () {
-    var _document$getElementB3;
+    var _document$getElementB5;
 
-    var parentContainer = (_document$getElementB3 = document.getElementById("users-conversation")) === null || _document$getElementB3 === void 0 ? void 0 : _document$getElementB3.parentNode;
+    var parentContainer = (_document$getElementB5 = document.getElementById("users-conversation")) === null || _document$getElementB5 === void 0 ? void 0 : _document$getElementB5.parentNode;
 
     if (parentContainer) {
       parentContainer.style.overflowX = 'hidden';
       parentContainer.style.overflowY = 'auto';
       $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
+    }
+
+    var multiWindow = $(".chat-history");
+
+    if (multiWindow) {
+      var _$$;
+
+      $(".chat-history").stop().animate({
+        scrollTop: (_$$ = $(".chat-history")[0]) === null || _$$ === void 0 ? void 0 : _$$.scrollHeight
+      }, 1000);
     }
   }, 200);
 }

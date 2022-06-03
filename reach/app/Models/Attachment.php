@@ -11,9 +11,9 @@ class Attachment extends Model
     protected $collection = 'attachments';
     protected $fillable = [
         'id',
-        'path',
-        'name', 
-        'size'
+        'filePath',
+        'fileName', 
+        'fileSize'
     ]; 
 
     protected $dates = ['created_at'];

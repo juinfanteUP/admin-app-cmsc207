@@ -18,21 +18,55 @@
                                     Widget Settings
                                 </h4>
   
-                                <div class="row mt-4">
+                                <div class="row mt-4">        
+                                    <div class="col-sm-12 col-md-6" title="Widget name">
 
-                                    <!-- Name -->
-                                    <div class="col-sm-12 mb-3" title="Widget name">
-                                        <label class="form-label small">Widget Name</label>
-                                        <input v-model="widget.name" type="text" name="widgetName" class="form-control" 
-                                        placeholder="Enter widget name" title="Enter widget name">
+                                        <!-- Name -->
+                                        <div class="mb-3">
+                                            <label class="form-label small">Widget Name</label>
+                                            <input v-model="widget.name" type="text" name="widgetName" class="form-control" 
+                                            placeholder="Enter widget name" title="Enter widget name">
+                                        </div>
+
+                                        <!-- Color -->
+                                        <div class="mb-3">
+                                            <label class="form-label small">Widget Color</label>
+                                            <input id="color-picker" type="color" class="form-control" value='#276cb8' v-model="widget.color"
+                                                name="widgetColor" placeholder="Enter RGB color" title="Enter RGB color">
+                                        </div> 
+                                        
+                                        <!-- Custom Logo -->
+                                        <div class="mb-3">
+                                            <label class="form-label small">Built-in Logo</small></label>
+                                            <select v-model="widget.img_src" name="img_src" class="form-select">
+                                                @foreach($widget_icons as $icon)
+                                                {{-- <option value="1" >Leaves</option> --}}
+                                                <option value="{{ $icon->img_src }}" >{{ $icon->name }}</option>
+                                                @endforeach
+                                                <option value="">Custom</option>
+                                            </select>
+                                        </div>  
+
+                                    </div>           
+                                    <div class="col-sm-12 col-md-6 text-center pt-3">
+
+                                        <img id="widget-icon" :src="widget.img_src" width="150" height="150" alt="Logo"
+                                            :style="{'background-color': widget.color }">
+
+                                        <div class="mt-4" hidden>
+                                            <button type="button" class="btn btn-success btn-sm mx-2">
+                                                Upload
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm mx-2">
+                                                Reset
+                                            </button>                        
+                                        </div>
                                     </div>
 
 
-                                    <!-- Color -->
+                                    <!-- Status -->
                                     <div class="col-sm-12 mb-3">
-                                        <label class="form-label small">Widget Color <small>(e.g. #000)</small></label>
-                                        <input id="color-picker" class="form-control" value='#276cb8' v-model="widget.color"
-                                            name="widgetColor" placeholder="Enter RGB color" title="Enter RGB color">
+                                        <hr>
                                     </div>
 
 
@@ -42,8 +76,8 @@
                                             Widget Status
                                         </label>
                                         <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
-                                            <option value="1" selected >Active</option>
-                                            <option value="0" >Disabled</option>
+                                            <option value="true" selected >Active</option>
+                                            <option value="false" >Disabled</option>
                                         </select>
                                     </div>
 
@@ -54,18 +88,6 @@
                                         <input v-model="socketServerUrl" type="text" class="form-control" disabled>
                                     </div>
                                     
-                                    <!-- Socket Server -->
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label">
-                                            Widget Icon
-                                        </label>
-                                        <select v-model="widget.img_src" name="img_src" class="form-select">
-                                            @foreach($widget_icons as $icon)
-                                            {{-- <option value="1" >Leaves</option> --}}
-                                            <option value="{{ $icon->img_src }}" >{{ $icon->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
 
                                     <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">

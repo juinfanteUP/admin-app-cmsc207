@@ -19,9 +19,6 @@ class MessageController extends Controller
     // Send message
     public function send(Request $req)
     {
-        $attachmentId = 0;
-
-        // Send message with attachment - TODO
         if($req->file())
         {
             $file = request()->file('uploadFile');
@@ -33,37 +30,63 @@ class MessageController extends Controller
 
             $attachment = new Attachment;
             $attachment->id =  $uid;
-            $attachment->path =  'public/' . $filePath;
-            $attachment->name = $req->file->getClientOriginalName();
-            $attachment->path = $req->file->getSize();
+            $attachment->filePath =  'public/' . $filePath;
+            $attachment->fileName = $req->file->getClientOriginalName();
+            $attachment->fileSize = $req->file->getSize();
             $attachment->save();
             $attachmentId = $uid;
+
+            $jsonReq = json_decode($req->document);
+
+            // Send plain message
+            $message = new Message;
+            $message->clientId =  $jsonReq->clientId;
+            $message->senderId = $jsonReq->senderId;
+            $message->body = $jsonReq->body;
+            $message->isAgent = $jsonReq->isAgent;
+            $message->isWhisper = $jsonReq->isWhisper;
+            $message->isSeen = false;
+            $message->attachmentId = $attachmentId;
+            $message->fileName = $attachment->fileName;
+            $message->fileSize = $attachment->fileSize;
+            $res = $message->save();
+
+            if($res)
+            {
+                return response()->json($message, 201);
+            }
+
+            return response()->json("An error has occurred during saving", 400);
         }
-
-        // Send plain message
-        $message = new Message;
-        $message->clientId =  $req->clientId;
-        $message->senderId = $req->senderId;
-        $message->body = $req->body;
-        $message->isAgent = $req->isAgent;
-        $message->isWhisper = $req->isWhisper;
-        $message->attachmentId = $attachmentUrl;
-        
-        $res = $message->save();
-
-        if($res)
+        else 
         {
-            return response()->json($message, 201);
-        } 
+            // Send plain message
+            $message = new Message;
+            $message->clientId =  $req->clientId;
+            $message->senderId = $req->senderId;
+            $message->body = $req->body;
+            $message->isAgent = $req->isAgent;
+            $message->isWhisper = $req->isWhisper;
+            $message->isSeen = false;
+            $message->attachmentId = '0';
+            $message->fileName = '';
+            $message->fileSize = 0;
+            $res = $message->save();
 
-        return response()->json("An error has occurred during saving", 400);
+            if($res)
+            {
+                return response()->json($message, 201);
+            }
+
+            return response()->json("An error has occurred during saving", 400);
+        }
     }
 
 
     // Get message list
     public function getMessages(Request $req)
     {
-        $messages = Message::get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
+        $messages = Message::leftJoin("attachments", "attachments.id", "=", "messages.attachmentId")->get();
         return response()->json($messages, 200);
     }
 
@@ -109,9 +132,19 @@ class MessageController extends Controller
 
         if($att)
         {
-            return Response::download($att->path, $att->name);
+            return Response::download($att->filePath, $att->fileName);
         }
         
         return response()->json("Attachment not found.", 404);
+    }
+
+
+    // Set messages seen by client
+    public function setMessagesSeen(Request $req)
+    {
+        $item = Message::where("clientId", $req->clientId)
+                        ->update([ 'isSeen' => false ]);
+
+        return response()->json("Updated successfully!", 200);
     }
 }

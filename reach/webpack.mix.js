@@ -33,8 +33,7 @@ mix
     [
             'resources/assets/css/app.css',
             'resources/assets/css/bootstrap.css',
-            'resources/assets/css/icons.css',
-            'resources/assets/css/spectrum.css',
+            'resources/assets/css/icons.css'
         ], 
     'public/assets/css/app.css'
     );

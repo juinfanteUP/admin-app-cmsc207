@@ -74,6 +74,7 @@ class ClientController extends Controller
             $client->domain = $req->domain ?? "";      
             $client->country = $data->country ?? "";
             $client->city = $data->cityName ?? "";
+            $client->isActive = true;
             // $client->timezone = $data->timezone;
             $client->save();
             $isNewClient = true;
@@ -90,14 +91,11 @@ class ClientController extends Controller
 
         // Update widget component based on settings
         $component = strval(View('widget.component'));
-        $component = str_replace("%DOMAIN%",  env('APP_URL'), $component);
-        $component = str_replace("%NAME%",  $widget->name ?? "Reach App", $component);   
-        $component = str_replace("%COLOR%",  $widget->color ?? "#CC9900", $component);
-        $component = str_replace("%IMG_SRC%",  $widget->img_src ?? "assets/images/widget-icon.png", $component);
         $client->ipaddress = $data->ip;
 
         // Retrieve messages if client exist
         return response()->json([
+            'settings' => $widget,
             'widget' => $component,
             'client' => $client,
             'isNew' => $isNewClient,
@@ -110,7 +108,7 @@ class ClientController extends Controller
     // Get all existing clients
     public function getClients()
     {
-        $clients = Client::get();
+        $clients = Client::where("isActive", true)->get();
         return response()->json($clients, 200);
     }
 
@@ -126,5 +124,15 @@ class ClientController extends Controller
         }
 
         return response()->json(['ip' =>  $ip, 'data' =>  $data], 200);
+    }
+
+
+    // End Session Client
+    public function endClientSession(Request $req)
+    {
+        $item = Client::where("clientId", $req->clientId)
+                        ->update([ 'isActive' => false ]);
+
+        return response()->json("Updated successfully!", 200);
     }
 }

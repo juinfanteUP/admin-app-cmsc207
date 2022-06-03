@@ -27,11 +27,11 @@ class AgentController extends Controller
             {
                 unset($agent->password);
                 Session::put('user', $agent->email);
-                return redirect('/');
+                return response()->json("Login successful", 200);
             }
         }   
     
-        return back()->with('failed', 'Email or password is invalid');
+        return response()->json("Username or password is incorrect", 401);
     }
 
 
@@ -41,7 +41,7 @@ class AgentController extends Controller
         $agent = Agent::where('email', $req->email)->first();
 
         if(!is_null($agent)) {
-            return back()->with('failed', 'Email already exists');
+            return response()->json("Email already exists", 400);
         }
 
         $agent = new Agent;
@@ -55,10 +55,10 @@ class AgentController extends Controller
 
         if($res)
         {
-            return redirect('login')->with('success', 'Agent has been registered successfully!');
+            return response()->json("Registration successful", 200);
         }
         
-        return back()->with('failed', 'An error has occurred');
+        return response()->json("An error has occurred during saving", 400);
     }
 
 

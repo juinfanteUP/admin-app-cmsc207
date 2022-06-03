@@ -30,13 +30,15 @@ Route::put('/widget/update', [WidgetController::class, 'update']);
 
 // Message API
 Route::post('/message/send', [MessageController::class, 'send']);
+Route::post('/message/setSeen', [MessageController::class, 'setMessagesSeen']);
 Route::get('/message/list', [MessageController::class, 'getMessages']);
 Route::get('/message/report', [MessageController::class, 'getReport']);
-Route::get('/message/download', [AgentController::class, 'download']);
+Route::get('/message/download', [MessageController::class, 'download']);
 
 
 // Client API
 Route::post('/client/validate', [ClientController::class, 'validateClient']);
+Route::post('/client/endSession', [ClientController::class, 'endClientSession']);
 Route::get('/client/list', [ClientController::class, 'getClients']);
 Route::get('/client/getIP', [ClientController::class, 'getIP']);
 

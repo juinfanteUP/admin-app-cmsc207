@@ -18,7 +18,7 @@
         @yield('content')
     </body>
       
-    <script src="{{ asset('assets/libs/spectrum/app.js') }}">
+    
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/libs/fg-emoji-picker/fgEmojiPicker.js') }}"></script>
     <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>

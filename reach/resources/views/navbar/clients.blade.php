@@ -5,7 +5,7 @@
             <div class="d-flex align-items-start">
                 <div class="flex-grow-1">
                     <h4 class="mb-4">
-                        Client Chat page
+                        Client chat page
                     </h4>
                 </div>
             </div>
@@ -36,12 +36,22 @@
                         <a href="javascript:" >   
                             <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
                             <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
-                            @{{ client.domain }} - @{{ client.ipaddress }}          
+                            @{{ client.domain }} - @{{ client.ipaddress }} 
+                            <span class="badge missed-count" v-show="client.missedCount>0">@{{ client.missedCount }}</span>         
                         </a>  
 
-                        <a href="javascript:" class="client-info" @click="viewClientInfo(client)" title="Click to view client details">
-                            <i class="ri-information-line"></i> 
-                        </a>
+                        
+                        <span style="padding-top: 3px;">
+                            <a href="javascript:" class="client-info" @click="viewClientInfo(client)" 
+                            title="Click to view client details">
+                                <i class="ri-information-line"></i> 
+                            </a>
+
+                            <a href="javascript:" class="client-info" @click="endClientSession(client.clientId)" 
+                            title="Click to end the chatting session">
+                                <i class="ri-close-circle-line text-danger"></i> 
+                            </a>
+                        </span>
                     </li>
 
                     <li class="text-center" v-show="resultClientSearch.length == 0">
@@ -55,72 +65,3 @@
 </div>
 
 
-
-<!-- View client Info -->
-<div class="modal fade" id="view-client-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content modal-header-colored border-0">
-            <div class="modal-header">
-                <h5 class="modal-title text-white fs-16">
-                    Info - @{{ viewClient.domain }} / @{{ viewClient.ipaddress }} 
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" ></button>
-            </div>
-
-            <div class="modal-body p-4">
-                <div class="table-responsive mt-3">
-                    <table class="table table-editable table-nowrap align-middle table-edits">
-                        <tbody>
-                            <tr>
-                                <th>Client Id</th>
-                                <td>@{{ viewClient.clientId }} </td>
-                            </tr>   
-                            <tr>
-                                <th>IP Address</th>
-                                <td>@{{ viewClient.ipaddress }} </td>
-                            </tr>
-                            <tr>
-                                <th>Domain</th>
-                                <td>@{{ viewClient.domain }} </td>
-                            </tr>
-                            <tr>
-                                <th>Country</th>
-                                <td>@{{ viewClient.country }} </td>
-                            </tr>
-                            <tr>
-                                <th>City</th>
-                                <td>@{{ viewClient.city }} </td>
-                            </tr>              
-                        </tbody>
-                    </table>
-
-                    <div class="row">
-                        <div class="col-sm-6">
-                            Allow Client Upload
-                        </div>
-                        <div class="col-sm-6">
-
-                        </div>
-
-                        <div class="col-sm-6">
-                            Block Client IP
-                        </div>
-                        <div class="col-sm-6">
-
-                        </div>
-
-                        <div class="col-sm-6">
-                            End Session
-                        </div>
-                        <div class="col-sm-6">
-
-                        </div>
-                    </div>
-
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>

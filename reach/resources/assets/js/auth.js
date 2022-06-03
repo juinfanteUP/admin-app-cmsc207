@@ -46,7 +46,7 @@ new Vue({
                 window.location.href = '/';
 
 			})["catch"](function(error) {
-                _this.errorMessage.error = "Email or password is incorrect";
+                _this.errorMessage = error.response.data;
 				console.log(error);
 			});
 		},
@@ -79,7 +79,7 @@ new Vue({
                     window.location.href = '/login';
 
                 })["catch"](function(error) {
-                    _this.errorMessage.error = "An error has occurred";
+                    _this.errorMessage = error.response.data;
                     console.log(error);
                 });
            }

@@ -13,7 +13,7 @@
 
             <!-- Home -->
             <li class="nav-item" title="Go to home">
-                <a class="nav-link active" id="nav-item-home" data-bs-toggle="pill" href="#pills-profile" role="tab">
+                <a class="nav-link active" id="nav-item-home" data-bs-toggle="pill" href="javascript:" role="tab">
                     <i class="ri-home-5-line"></i>
                 </a>
             </li>
@@ -21,7 +21,7 @@
 
             <!-- Chats -->
             <li class="nav-item" title="Go to client chats">
-                <a class="nav-link" id="nav-item-chat" data-bs-toggle="pill" href="#pills-chat" role="tab">
+                <a class="nav-link" id="nav-item-chat" data-bs-toggle="pill" href="javascript:" role="tab">
                     <i class="ri-discuss-line"></i>
                 </a>
             </li>
@@ -29,16 +29,8 @@
             
             <!-- Multi Chats -->
             <li class="nav-item" title="Go to multi chats">
-                <a class="nav-link" id="nav-item-multichat" data-bs-toggle="pill" href="#pills-chat" role="tab">
+                <a class="nav-link" id="nav-item-multichat" data-bs-toggle="pill" href="javascript:" role="tab">
                     <i class="ri-checkbox-multiple-blank-line"></i>
-                </a>
-            </li>
-
-
-            <!-- Reports -->
-            <li class="nav-item" title="Go to reports">
-                <a class="nav-link" id="nav-item-reports" data-bs-toggle="pill" href="#pills-chat" role="tab">
-                    <i class="ri-file-chart-line"></i>
                 </a>
             </li>
 

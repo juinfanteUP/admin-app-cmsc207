@@ -36,7 +36,7 @@
                                         <div>
                                             <h6>Current Time</h6>
                                             <h4>
-                                                10:00 <small>AM</small> 
+                                                @{{ currentTime }}
                                             </h4> 
                                         </div>
                                         <div>                                 
@@ -60,9 +60,11 @@
                                     Welcome to Reach!
                                 </h3>
                                 <p class="text-muted justify mt-3 mb-4">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, 
-                                    sed do eiusmod tempor incididunt ut labore et dolore magna 
-                                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                                    REACH or Residents Engagement Assistance Community Helper is a 
+                                    chat application dedicated to help residents of a community to 
+                                    connect with each other.  Send and receive messages between neighbors, 
+                                    get to know your fellow residents, seek assistance, and build a friendly, 
+                                    sociable, and supportive community with REACH app. REACH out now.
                                 </p>
 
                                 <b>Contributors:</b>
@@ -126,7 +128,7 @@
                                         <div>
                                             <h6>Client Volume</h6>
                                             <h3>
-                                                @{{ reports.messageVolumeCount }}
+                                                @{{ reports.clientCount }}
                                             </h3> 
                                         </div>
                                         <div>                                 

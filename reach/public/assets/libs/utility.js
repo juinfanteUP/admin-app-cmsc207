@@ -57,17 +57,20 @@
         var nav_home = document.getElementById("nav-item-home");
         var nav_chat = document.getElementById("nav-item-chat");      
         var nav_widget = document.getElementById("nav-item-widget");
+        var nav_multichat = document.getElementById("nav-item-multichat");      
         var nav_logout = document.getElementById("nav-item-logout");
   
         var inner_navbar = document.getElementById("inner-navbar");
         var pane_home = document.getElementById("home-pane");
         var pane_chat = document.getElementById("chat-pane");
         var pane_widget = document.getElementById("widget-pane");
+        var pane_multichat = document.getElementById("multichat-pane");
   
         inner_navbar.style.display = 'none';
         pane_home.style.display = 'block';
         pane_chat.style.display = 'none';
         pane_widget.style.display = 'none';
+        pane_multichat.style.display = 'none';
         pane_home.classList.add("active");
 
         nav_home.addEventListener("click", function() {
@@ -75,10 +78,12 @@
           pane_home.style.display = 'block';
           pane_chat.style.display = 'none';
           pane_widget.style.display = 'none';
+          pane_multichat.style.display = 'none';
 
           nav_home.classList.add("active");
           nav_chat.classList.remove("active");
           nav_widget.classList.remove("active");
+          nav_multichat.classList.remove("active");
         });
   
 
@@ -87,10 +92,12 @@
           pane_home.style.display = 'none';
           pane_chat.style.display = 'block';
           pane_widget.style.display = 'none';
+          pane_multichat.style.display = 'none';
 
           nav_home.classList.remove("active");
           nav_chat.classList.add("active");
           nav_widget.classList.remove("active");
+          nav_multichat.classList.remove("active");
         });
   
         
@@ -99,12 +106,39 @@
           pane_home.style.display = 'none';
           pane_chat.style.display = 'none';
           pane_widget.style.display = 'block';
+          pane_multichat.style.display = 'none';
 
           nav_home.classList.remove("active");
           nav_chat.classList.remove("active");
           nav_widget.classList.add("active");
+          nav_multichat.classList.remove("active");
         });
+
+        nav_widget.addEventListener("click", function() {
+            inner_navbar.style.display = 'none';
+            pane_home.style.display = 'none';
+            pane_chat.style.display = 'none';
+            pane_widget.style.display = 'block';
+            pane_multichat.style.display = 'none';
   
+            nav_home.classList.remove("active");
+            nav_chat.classList.remove("active");
+            nav_widget.classList.add("active");
+            nav_multichat.classList.remove("active");
+          });
+
+        nav_multichat.addEventListener("click", function() {
+            inner_navbar.style.display = 'none';
+            pane_home.style.display = 'none';
+            pane_chat.style.display = 'none';
+            pane_widget.style.display = 'none';
+            pane_multichat.style.display = 'block';
+  
+            nav_home.classList.remove("active");
+            nav_chat.classList.remove("active");
+            nav_widget.classList.remove("active");
+            nav_multichat.classList.add("active");
+        });
 
         nav_logout.addEventListener("click", function() {
           if(confirm('Are you sure you want to logout?')){
@@ -114,24 +148,7 @@
     }
 
 
-    // Spectrum color picker
-    $('#color-picker').spectrum({
-        type: "component",
-        showAlpha: false,
-        showButtons: false,
-        allowEmpty: false
-    });
-
-
-
     console.log('App has been initiated...');
   
   })();
 
-  
-  function showConfirm(msg) {
-      if(confirm(msg)) 
-          return true;
-      return false;
-  }
-  
