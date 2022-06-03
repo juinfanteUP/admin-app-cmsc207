@@ -1,4 +1,4 @@
-@extends('layout.layout')
+@extends('layout.main-layout')
 @section('content')
 
     <div id="app" class="chat-bg">
@@ -21,6 +21,8 @@
                 @include('pages.home')
                 @include('pages.chat')
                 @include('pages.widget')
+                @include('pages.multichat')
+                @include('pages.clientconfig')
             </div>
         </div>
     </div>

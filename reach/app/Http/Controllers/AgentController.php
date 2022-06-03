@@ -19,11 +19,6 @@ class AgentController extends Controller
     // Login a User
     public function login(Request $req) 
     {
-        $req->validate([
-            'email'=>'required|email|max:100',
-            'password'=>'required|max:100'
-        ]);
-
         $agent = Agent::where('email', $req->email)->first();
 
         if($agent)
@@ -31,31 +26,22 @@ class AgentController extends Controller
             if(Hash::check($req->password, $agent->password))
             {
                 unset($agent->password);
-                $req->session()->put('user', $agent->email);
-                $req->session()->put('loginId', $agent->id);
-                return redirect('/');
+                Session::put('user', $agent->email);
+                return response()->json("Login successful", 200);
             }
         }   
     
-        return back()->with('failed', 'Email or password is invalid');
+        return response()->json("Username or password is incorrect", 401);
     }
 
 
     // Register a new agent
     public function register(Request $req)
     {
-        $req->validate([
-            'email'=>'required|max:100|email', 
-            'password'=>'required|min:8|max:100|confirmed',
-            'firstname'=>'required|max:50',
-            'lastname'=>'required|max:50',
-            'nickname'=>'required|max:50'
-        ]);
-
         $agent = Agent::where('email', $req->email)->first();
 
         if(!is_null($agent)) {
-            return back()->with('failed', 'Email already exists');
+            return response()->json("Email already exists", 400);
         }
 
         $agent = new Agent;
@@ -69,20 +55,18 @@ class AgentController extends Controller
 
         if($res)
         {
-            return redirect('login')->with('success', 'Agent has been registered successfully!');
+            return response()->json("Registration successful", 200);
         }
         
-        return back()->with('failed', 'An error has occurred');
+        return response()->json("An error has occurred during saving", 400);
     }
 
 
     // Clear session and redirect to login page
     public function logout(Request $req)
     {
-        $req->session()->forget('loginId');
-        $req->session()->forget('user');
+        Session::forget('user');
         $req->session()->flush();
-   
         return redirect('login');
     }
 

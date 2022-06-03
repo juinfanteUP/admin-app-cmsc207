@@ -15,6 +15,8 @@ class Message extends Model
         'body',
         'isAgent',
         'isWhisper',
+        'isSeen',
+        'attachmentId',
         'created_at'
     ]; 
 

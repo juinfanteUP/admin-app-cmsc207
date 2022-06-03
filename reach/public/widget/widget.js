@@ -5,15 +5,17 @@ var __webpack_exports__ = {};
   \***************************************/
 // ***************** Update these Properties ***************** //
 var sourceDomain = "http://127.0.0.1:8000";
-var socketioUrl = "http://localhost:3002";
+var socketioUrl = "http://localhost:5000";
 var socketioLib = "https://socketio.erickdelrey.rocks/socket.io/socket.io.js"; // *********************************************************** //
 
 var localStorageName = 'reachapp_clientid';
 var lurl = sourceDomain + '/widget/style.css';
 var jurl = sourceDomain + '/widget/vendor.js';
+var fileDownloadUri = sourceDomain + "/api/message/download?id=";
 var sendMessageApi = sourceDomain + "/api/message/send";
-var validateClientApi = sourceDomain + "/api/client/validate"; // ***************** Services ***************** //
-// Send message 
+var validateClientApi = sourceDomain + "/api/client/validate"; // ***************** Endpoint Services ***************** //
+
+var themeColor = "#111"; // Send message 
 
 function sendMessage(msg) {
   $.ajax({
@@ -21,10 +23,7 @@ function sendMessage(msg) {
     url: sendMessageApi,
     dataType: 'json',
     data: msg,
-    success: function success(result) {
-      // Do something
-      console.log(result);
-    }
+    success: function success(result) {}
   });
 } // Checks the website and client id to proceed
 
@@ -59,12 +58,18 @@ var setLocalClientData = function setLocalClientData() {
 }; // ***************** Chat Widget ***************** //
 
 
-var generateComponent = function generateComponent(widget, client, messages) {
+var generateComponent = function generateComponent(widget, client, messages, settings) {
   var INDEX = 0;
   document.body.innerHTML += widget;
+  UpdateWidgetSettings(settings);
   var socket = io(socketioUrl);
-  var room = getLocalClientData();
-  console.log(client); // If new user, jump in and join the 
+  var room = getLocalClientData(); // Generate message history
+
+  for (var i = 0; i < messages.length; i++) {
+    generateMessage(messages[i], messages[i].isAgent == 'false', messages[i].created_at, i == messages.length - 1);
+  } // ***************************** Socket Support ***************************** //
+  // If new user, jump in and join the 
+
 
   socket.emit('join-room', {
     "room": client.clientId,
@@ -72,20 +77,26 @@ var generateComponent = function generateComponent(widget, client, messages) {
   }); // Message from server. If messaged is whispered, do not generate the line
 
   socket.on('message', function (msg) {
-    if (msg.isWhisper == 'false') {
-      console.log(msg);
-      generateMessage(msg.body, msg.isAgent == 'false', msg.created_at);
+    if (msg.isWhisper == 'false' && msg.clientId == room) {
+      generateMessage(msg, msg.isAgent == 'false', msg.created_at);
     }
+  }); // Listen to end session
 
-    console.log(msg);
-  }); // Generate message history
+  socket.on('end-session', function (clientId) {
+    if (room == clientId) {
+      alert('You session with the agent has ended.');
+      $("#chat-body").remove();
+      setLocalClientData();
+    }
+  }); // Listen to end session
 
-  messages.forEach(function (msg) {
-    generateMessage(msg.body, msg.isAgent == 'false', msg.created_at, true);
-  }); // Send message
+  socket.on('allow-upload', function (conf) {
+    if (conf.clientId == room) {
+      if (conf.willAllow) $("#file-upload").show();else $("#file-upload").hide();
+    }
+  }); // ***************************** UI Component Controls ***************************** //
 
-  $("#chat-submit").click(function (e) {
-    e.preventDefault();
+  function initiateMessageSending() {
     var msg = $("#chat-input").val();
 
     if (msg.trim() == '') {
@@ -98,12 +109,57 @@ var generateComponent = function generateComponent(widget, client, messages) {
       'isAgent': false,
       'senderId': room,
       'clientId': room,
+      'attachmentId': '0',
+      'fileSize': 0,
+      'fileName': '',
       'createddtm': Date.now()
     };
     sendMessage(message);
     socket.emit('send-message', message);
-    generateMessage(msg);
-  });
+    generateMessage(message);
+  } // Render chat message
+
+
+  function generateMessage(msg) {
+    var isSelf = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+    var sentDate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
+    var willScroll = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+    INDEX++;
+    var dtm = new Date(sentDate).toISOString().slice(0, 19).replace('T', ' ');
+    var type = isSelf ? 'self' : 'user';
+    var sender = isSelf ? "You sent this on ".concat(dtm) : "Sent by an agent on ".concat(dtm);
+    var str = "";
+
+    if (msg.attachmentId == '0' || msg.attachmentId == '' || msg.attachmentId == null) {
+      str = "<div id='cm-msg-".concat(INDEX, "' class=\"chat-msg ").concat(type, "\"><div class=\"cm-msg-text\"> ").concat(msg.body, " </div><small>").concat(sender, "</small></div>");
+    } else {
+      var uri = fileDownloadUri + msg.attachmentId;
+      var label = "".concat(msg.fileName, " (").concat(formatBytes(msg.fileSize), ")");
+      str = "<div id='cm-msg-".concat(INDEX, "' class=\"chat-msg ").concat(type, "\"><div class=\"cm-msg-text\"><span class=\"file-name\">").concat(label, "</span><a class=\"chat-download-link ").concat(type, "\" href=\"").concat(uri, "\" target=\"_blank\"><span title=\"Click to download\" class=\"material-icons chat-download\">download</span></a></div><small>").concat(sender, "</small></div>");
+    }
+
+    $(".chat-logs").append(str);
+    $(".chat-msg.self>.cm-msg-text").css("background-color", themeColor);
+    $("#cm-msg-" + INDEX).hide().fadeIn(300);
+
+    if (isSelf) {
+      $("#chat-input").val('');
+    }
+
+    if (willScroll) {
+      $(".chat-logs").stop().animate({
+        scrollTop: $(".chat-logs")[0].scrollHeight
+      }, 1000);
+    }
+  } // ***************************** UI Component Controls ***************************** //
+  // Send message
+
+
+  $("#chat-submit").click(function (e) {
+    e.preventDefault();
+    initiateMessageSending();
+  }); // User typing
+
   $("#chat-input").keyup(function () {
     var msg = $("#chat-input").val();
     var message = {
@@ -113,6 +169,12 @@ var generateComponent = function generateComponent(widget, client, messages) {
       'createddtm': Date.now()
     };
     socket.emit("client-typing", message);
+  }); // User press enter
+
+  $('#chat-input').keypress(function (e) {
+    if (e.which == '13') {
+      initiateMessageSending();
+    }
   }); // User opened the widget
 
   $("#chat-circle").click(function () {
@@ -123,27 +185,63 @@ var generateComponent = function generateComponent(widget, client, messages) {
   $(".chat-box-toggle").click(function () {
     $("#chat-circle").toggle('scale');
     $(".chat-box").toggle('scale');
-  }); // Render chat message
+  }); // User clicked header to close
 
-  function generateMessage(msg) {
-    var isSelf = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    var sentDate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new Date();
-    var isChatHistory = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-    INDEX++;
-    var dtm = new Date(sentDate).toISOString().slice(0, 19).replace('T', ' ');
-    var type = isSelf ? 'self' : 'user';
-    var sender = isSelf ? "You sent this on ".concat(dtm) : "Sent by an agent on ".concat(dtm);
-    var str = "<div id='cm-msg-".concat(INDEX, "' class=\"chat-msg ").concat(type, "\"><div class=\"cm-msg-text\"> ").concat(msg, " </div><small>").concat(sender, "</small></div>");
-    $(".chat-logs").append(str);
-    $("#cm-msg-" + INDEX).hide().fadeIn(isChatHistory ? 0 : 300);
+  $(".chat-box-header").click(function () {
+    $("#chat-circle").toggle('scale');
+    $(".chat-box").toggle('scale');
+  }); // Add attachment and immediately sendjs
 
-    if (isSelf) {
-      $("#chat-input").val('');
+  $("#file-uploader").change(function () {
+    var input = document.getElementById('file-uploader');
+
+    if (!input || !input.files) {
+      return;
     }
 
-    $(".chat-logs").stop().animate({
-      scrollTop: $(".chat-logs")[0].scrollHeight
-    }, isChatHistory ? 0 : 1000);
+    var msg = {
+      'body': "",
+      'isWhisper': false,
+      'isAgent': false,
+      'senderId': room,
+      'clientId': room,
+      'attachmentId': '0',
+      'fileSize': 0,
+      'fileName': '',
+      'createddtm': Date.now()
+    };
+    var file = input.files[0];
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('document', JSON.stringify(msg));
+    $.ajax({
+      url: sendMessageApi,
+      type: 'post',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function success(response) {
+        $("#file-uploader").val('');
+        msg.attachmentId = response.attachmentId;
+        msg.fileName = response.fileName;
+        msg.fileSize = response.fileSize;
+        socket.emit('send-message', msg);
+        generateMessage(msg);
+      },
+      fail: function fail(xhr, textStatus, errorThrown) {
+        console.log(errorThrown);
+      }
+    });
+  }); // ***************************** Apply Settings ***************************** //
+
+  function UpdateWidgetSettings(settings) {
+    themeColor = settings.color;
+    $("#file-upload").hide();
+    $("#chat-circle").css("background-color", settings.color);
+    $(".chat-submit").css("background-color", settings.color);
+    $(".chat-box-header").css("background-color", settings.color);
+    $("#widget-title").text(settings.name);
+    $("#widget-icon").attr("src", "".concat(sourceDomain, "/").concat(settings.img_src));
   }
 }; // ***************** App Setup ***************** //
 // Run app upon page load
@@ -183,8 +281,8 @@ var generateComponent = function generateComponent(widget, client, messages) {
           setLocalClientData(result.client.clientId);
         }
 
-        console.log(result.messages);
-        generateComponent(result.widget, result.client, result.messages);
+        console.log(result.settings);
+        generateComponent(result.widget, result.client, result.messages, result.settings);
       }
     });
   }, 1000);
@@ -195,6 +293,13 @@ function scrollToBottom() {
     var div = document.getElementById("chat-body");
     div.scrollTop = div.scrollHeight;
   }, 200);
+}
+
+function formatBytes(bytes) {
+  if (!(bytes || bytes > 0)) return '0 Bytes';
+  var k = 1024;
+  var i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
 }
 /******/ })()
 ;

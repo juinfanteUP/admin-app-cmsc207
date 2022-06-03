@@ -15,12 +15,19 @@
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="d-flex align-items-center">
-                                        <div class="flex-grow-1 overflow-hidden">
+                                        <div class="flex-grow-1 overflow-hidden chat-header">
                                             <h6 class="text-truncate mb-0 fs- px-4">
                                                 <a href="javascript:" class="user-profile-show text-reset" v-show="selectedClientId != 0">
                                                     Client Id - @{{ selectedClientId }}
                                                 </a>
                                             </h6>
+
+                                            <div class="text-small mx-4" v-show="selectedClientId != 0">
+                                                <small class="mx-2">Allow Client File Upload </small>
+                                                <input id="allow-client-upload" @click="allowClientUpload()" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
+                                                    title="Click to allow/disable file upload" data-onstyle="success" data-offstyle="secondary" data-size="xs">  
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -45,8 +52,37 @@
                                     <div class="ctext-wrap">
 
                                         <!-- Plain Message -->
-                                        <div class="ctext-wrap-content">
+                                        <div class="ctext-wrap-content" v-show ="message.attachmentId == '0'">
                                             <p class="mb-0 ctext-content">@{{ message.body }}</p>
+                                        </div>
+
+                                        <!-- Message with Attachment -->
+                                        <div class="ctext-wrap-content" v-show ="message.attachmentId != '0'">
+                                            <p class="ctext-content" v-show ="message.body != ''">@{{ message.body }}</p>
+                                            <div class="p-1 rounded-1">
+                                                <div class="d-flex align-items-center attached-file">
+                                                <div class="flex-shrink-0 avatar-sm me-3 ms-0 attached-file-avatar">
+                                                    <div class="avatar-title rounded-circle fs-20 bg-soft-dark">
+                                                    <i class="ri-attachment-2"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 overflow-hidden">
+                                                    <div class="text-start">
+                                                    <h6 class="fs-14 mb-1">@{{ message.fileName }}</h6>
+                                                    <p class="text-truncate fs-13 mb-0">@{{ formatBytes(message.fileSize) }}</p>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-shrink-0 ms-4">
+                                                    <div class="d-flex gap-2 fs-20 d-flex align-items-start">
+                                                    <div>
+                                                        <a @click="downloadAttachment(message.attachmentId)" href="javascript:" title="Click to download file" class="text-dark">
+                                                            <i class="bx bxs-download"></i>
+                                                        </a>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -96,8 +132,9 @@
                 <!-- start chat input section -->
                 <div class="position-relative">
                     <div class="chat-input-section p-4 border-top">
-                    <span id="istyping" class="text-mute small"></span>
-                    <span id="typing-client" class="text-purple small fst-italic"></span>
+                        <span id="istyping" class="text-mute small"></span>
+                        <span id="typing-client" class="text-success small fst-italic"></span>
+                        
                         <div class="row g-0 align-items-center">
                             
                             <div class="col-auto text-center px-4">

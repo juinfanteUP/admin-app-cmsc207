@@ -1,4 +1,4 @@
-@extends('layout.layout')
+@extends('layout.auth-layout')
 
 @section('content')
 <div class="auth-bg">
@@ -25,49 +25,40 @@
                                     <h3 class="mb-1">Welcome to REACH!</h3>
                                     <small class="text-muted">Login to start reaching with your clients</small>
                                 </div>
-                                <form action="{{route('login')}}" method="post">
-    
-                                    @if(Session::has('success'))
-                                        <div class="alert alert-success">
-                                            {{ Session::get('success') }}
-                                        </div>
-                                    @endif
-                                    @if(Session::has('failed'))
-                                        <div class="alert alert-danger">
-                                            {{ Session::get('failed') }}
-                                        </div>
-                                    @endif
-    
-                                    @csrf             
-                                    
+                                
+                                <div>
+                                  
                                     <!-- Email -->
                                     <div class="mb-3">
                                         <label for="txtEmail" class="form-label">Email</label>
-                                        <input type="email" name="email" value="{{ old('email') }}" class="form-control" id="txtEmail" placeholder="Enter your email" title="Enter your email">
-                                        <small class="text-danger">
-                                            @error('email') {{ $message }} @enderror
-                                        </small>   
+                                        <input type="email" name="email"  class="form-control" v-model="email.value"
+                                            placeholder="Enter your email" title="Enter your email">
                                     </div>
                     
                                     
                                     <!-- Password -->
-                                    <div class="mb-3">
+                                    <div class="mb-2">
                                         <label for="txtPassword" class="form-label">Password</label>
                                         <div class="position-relative auth-pass-inputgroup mb-3">
-                                            <input type="password" name="password" class="form-control pe-5" placeholder="Enter your password" id="txtPassword" title="Enter your password">
-                                            <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted" type="button" id="password-addon">
+                                            <input type="password" name="password" class="form-control pe-5" v-model="password.value"
+                                                    placeholder="Enter your password" title="Enter your password" id="txtPassword">
+                                            <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted" 
+                                                    type="button" id="password-addon">
                                                 <i class="ri-eye-fill align-middle"></i>
                                             </button>
-                                            <small class="text-danger">
-                                                @error('password') {{ $message }} @enderror
-                                            </small>  
                                         </div> 
+                                    </div>
+
+
+                                    <!-- Error Message -->
+                                    <div class="text-center text-danger small pb-3">
+                                        @{{ errorMessage }}
                                     </div>
     
     
                                      <!-- Login Button -->
                                     <div class="text-center mt-4" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Click to login">
-                                        <button class="btn btn-primary w-100" type="submit">Log In</button>
+                                        <button class="btn btn-primary w-100" type="button" @click="login()" >Log In</button>
                                     </div>
     
                                     <div class="mt-4 text-center">
@@ -75,13 +66,15 @@
                                             <h5 class="font-size-14 mb-4 title">or</h5>
                                         </div>
                                     </div>
-                                </form>
+
+                                </div>
     
     
                                  <!-- Go to Register -->
                                 <div class="text-center text-muted">
                                     <p>Don't have an account ? 
-                                        <a href="/register" class="fw-medium text-decoration-underline" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Click to register new account"> Register</a>
+                                        <a href="javascript:"  class="fw-medium text-decoration-underline" @click="redirect('register')"
+                                         data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="bottom" title="Click to register new account"> Register</a>
                                     </p>
                                 </div>
                             </div>
@@ -92,7 +85,7 @@
                      <footer class="row">
                         <div class="col-xl-12">
                             <div class="text-center text-muted p-4">
-                                <small class="mb-0">&copy; <script>document.write(new Date().getFullYear())</script> A project by Team REACH for the UPOU-CMSC207 SY-2022</small>
+                                <small class="mb-0">© 2022 A project by Team REACH for the UPOU-CMSC207 SY-2022</small>
                             </div>
                         </div>
                     </footer>

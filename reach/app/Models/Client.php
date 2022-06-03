@@ -14,6 +14,7 @@ class Client extends Model
         'ipaddress', 
         'country',
         'timezone',
+        'isActive',
         'domain'
     ]; 
 
