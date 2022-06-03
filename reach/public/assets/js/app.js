@@ -31719,7 +31719,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
-var socketioUrl = "http://localhost:3002";
+var socketioUrl = "http://localhost:5000";
 var socket = io(socketioUrl); // ***************** Update these Properties ***************** //
 
 var app = new Vue({
@@ -31739,7 +31739,10 @@ var app = new Vue({
       isActive: true,
       startTime: '',
       endTime: '',
-      script: ''
+      script: '',
+      banListEnabled: 'false',
+      whiteListEnabled: 'false',
+      scheduleEnabled: 'false'
     },
     reports: {
       clientCount: 0,
@@ -31781,6 +31784,8 @@ var app = new Vue({
     }],
     whiteInput: '',
     selectedWhiteKey: 'domain',
+    // Schedule
+    schedule: [],
     // Message Inputs
     chatbox: '',
     file: {
@@ -31963,7 +31968,7 @@ var app = new Vue({
       var _this = this;
 
       axios.get(api).then(function (response) {
-        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2;
+        var _this$widget$domainBa, _this$widget$domainBa2, _this$widget$ipBanLis, _this$widget$ipBanLis2, _this$widget$countryB, _this$widget$countryB2, _this$widget$cityBanL, _this$widget$cityBanL2, _this$widget$domainWh, _this$widget$domainWh2, _this$widget$ipWhiteL, _this$widget$ipWhiteL2, _this$widget$countryW, _this$widget$countryW2, _this$widget$cityWhit, _this$widget$cityWhit2, _this$widget$schedule, _this$widget$schedule2;
 
         _this.widget = response.data.widget;
         _this.widget.script = response.data.script;
@@ -32015,6 +32020,11 @@ var app = new Vue({
             value: white
           });
         })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
+        (_this$widget$schedule = (_this$widget$schedule2 = _this.widget.schedule) === null || _this$widget$schedule2 === void 0 ? void 0 : _this$widget$schedule2.forEach(function (sched) {
+          return _this.schedule.push({
+            value: sched
+          });
+        })) !== null && _this$widget$schedule !== void 0 ? _this$widget$schedule : [];
       })["catch"](function (error) {
         handleError(error);
       });
@@ -32121,7 +32131,11 @@ var app = new Vue({
           domainWhiteList: [],
           cityWhiteList: [],
           ipWhiteList: [],
-          countryWhiteList: []
+          countryWhiteList: [],
+          banListEnabled: _this.widget.banListEnabled,
+          whiteListEnabled: _this.widget.whiteListEnabled,
+          scheduleEnabled: _this.widget.scheduleEnabled,
+          schedule: _this.widget.schedule
         };
 
         _this.banList.forEach(function (ban) {
