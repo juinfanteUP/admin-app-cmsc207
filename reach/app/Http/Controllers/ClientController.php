@@ -21,6 +21,7 @@ class ClientController extends Controller
         $isNewClient = false;
         $messages = [];
 
+
         $ip = $req->ip();
         $data = \Location::get($ip);    
         
@@ -38,9 +39,82 @@ class ClientController extends Controller
         //                      ->orWhere('city', '=', $data->city ?? "")
         //                      ->orWhere('country', '=', $data->country ?? ""); 
 
-
+        $whitelisted = false;
+        $banlisted = false;
+        $isScheduled = false;
+        
         // Check if widget settings is enabled
         if($widget->isActive == false) 
+        {
+            return response()->json([
+                'widget' => "", 
+                'client' => null, 
+                'isNew' => false,
+                'messages' => $messages,
+                'status' => 'widget disabled'
+            ], 200);
+        }
+        else{
+            if ($widget->whiteListEnabled == true){
+                if(in_array($data->ip  ?? "", $widget->ipWhiteList) || 
+                    in_array($req->domain ?? "", $widget->domainWhiteList) || 
+                    in_array($data->country ?? "", $widget->countryWhiteList) || 
+                    in_array($data->cityName  ?? "", $widget->cityWhiteList)){
+                        $whitelisted = true; 
+                }
+                else{
+                    $whitelisted = false;
+                }
+            }
+            else{
+                $whitelisted = true;
+            }
+
+            if($widget->banListEnabled == true){
+                if(in_array($data->ip  ?? "", $widget->IpBanList) || 
+                    in_array($req->domain  ?? "", $widget->domainBanList) || 
+                    in_array($data->country  ?? "", $widget->countryBanList) || 
+                    in_array($data->cityName  ?? "", $widget->cityBanList)){
+                        $banlisted = true;    
+                }
+                else{
+                    $banlisted = false;
+                }
+                //$whitelisted = true;
+            }
+            else{
+                $banlisted = false;
+            }
+            
+            if($widget->scheduleEnabled == true){
+                $sched = $widget->schedule;
+                
+                $day = date('l');
+                $time = date("H:i");
+          
+                foreach ($sched as $s){
+                    
+                    if($s['day'] == $day){
+                        if($s['enabled'] == true){
+                            if($time >= $s['start_time'] && $time <= $s['end_time']){
+                                $isScheduled = true;
+                            }
+                            else{
+                                $isScheduled = false;
+                            }
+                        }
+                        else{
+                            $isScheduled = true;
+                        }
+                    }
+                }
+            }
+            else{
+                $isScheduled = true;
+            }
+        }
+
+        if($whitelisted == false || $banlisted == true || $isScheduled == false) 
         {
             return response()->json([
                 'widget' => "", 

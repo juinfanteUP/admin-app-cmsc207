@@ -35,10 +35,14 @@ const socket = io(socketioUrl);
             name: 'Reach App',
             color: '#4eac6d',
             isActive: true,
-            startTime: '',
-            endTime: '',
+            img_src: 'assets/images/widget-icon.png',
+            hasSchedule: false,
+            starttime: '',
+            endtime: '',
             script: '',
-            img_src: 'assets/images/widget-icon.png'
+            banListEnabled: 'false',
+            whiteListEnabled: 'false',
+            scheduleEnabled: 'false'
         },
         reports: {
             clientCount: 0,
@@ -65,12 +69,16 @@ const socket = io(socketioUrl);
         whiteInput: '',
         selectedWhiteKey: 'domain',
 
+        // Schedule
+        schedule: [],
+
         // Message Inputs
 		chatbox: '',
 		file: { name: '' },
 		isSubmitting: false,
         messages: [],
         allMessages: [],
+        unseenMessages: {},
         typingmsg: [],
 
         // Multiwindow
@@ -102,6 +110,10 @@ const socket = io(socketioUrl);
 	},
 
 	computed: {
+        unseenMessagesCount: function unseenMessagesCount() {
+            return this.unseenMessages;
+        },
+
 		resultClientSearch: function resultClientSearch() {
 			var _this = this;
 
@@ -151,6 +163,17 @@ const socket = io(socketioUrl);
 
                 if (msg.clientId === _this.selectedClientId) {
                     _this.messages.push(msg);
+                } else {
+                    var ctr = 0;
+
+                    if (isNaN(_this.unseenMessages.unseenCount)) {
+                        _this.unseenMessages.unseenCount = 0;
+                    }
+                    _this.unseenMessages.unseenCount += 1;
+                    _this.unseenMessages = {
+                        "clientId": msg.clientId,
+                        "unseenCount": _this.unseenMessages.unseenCount
+                    };
                 }
 
                 let windowIndex = _.findIndex(_this.multiWindowList, (w) => { return w.clientId == msg.clientId });
@@ -258,6 +281,7 @@ const socket = io(socketioUrl);
             this.selectedClientId = client.clientId;   
             this.messages = [];
             var _this = this;
+            this.unseenMessages.unseenCount = 0;
 
             socket.emit('join-room', {
                 "room": this.selectedClientId,
@@ -339,6 +363,7 @@ const socket = io(socketioUrl);
                 _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
                 $('#color-picker').val(_this.widget.color); 
                 
+                _this.widget.schedule?.forEach(sched => _this.schedule.push({ value: sched })) ?? [];
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -416,6 +441,7 @@ const socket = io(socketioUrl);
 					isActive: _this.widget.isActive,
 					color: rgb,
                     img_src: _this.widget.img_src,
+					hasSchedule: _this.widget.hasSchedule, 
 					starttime: _this.widget.starttime, 
 					endtime: _this.widget.endtime,
                     domainBanList: [],
@@ -425,7 +451,11 @@ const socket = io(socketioUrl);
                     domainWhiteList: [],
                     cityWhiteList: [],
                     ipWhiteList: [],
-                    countryWhiteList: []
+                    countryWhiteList: [],
+                    banListEnabled: _this.widget.banListEnabled,
+                    whiteListEnabled: _this.widget.whiteListEnabled,
+                    scheduleEnabled: _this.widget.scheduleEnabled,
+                    schedule: _this.widget.schedule
 				};
           
                 _this.banList.forEach(ban => {
@@ -469,7 +499,8 @@ const socket = io(socketioUrl);
                     }
                 });
 				
-                _this.selectedWhiteKey = '';        
+                _this.selectedWhiteKey = '';     
+
 				axios.put(api, dataParams).then(function(response) {
 					showLoader(false);
 					
@@ -493,7 +524,6 @@ const socket = io(socketioUrl);
 
 
 		// ************************ Message Helper ************************ //
-
 
 		getMessages: function getMessages() {
 			var _this = this;

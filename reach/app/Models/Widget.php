@@ -14,6 +14,7 @@ class Widget extends Model
         'isActive',
         'color',
         'timezone',
+        'hasSchedule',
         'starttime',
         'endtime',
         'domainBanList',
