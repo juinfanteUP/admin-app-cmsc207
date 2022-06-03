@@ -36,7 +36,8 @@
                         <a href="javascript:" >   
                             <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
                             <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
-                            @{{ client.domain }} - @{{ client.ipaddress }}          
+                            @{{ client.domain }} - @{{ client.ipaddress }}
+                            <span class="mx-3" v-bind:value="unseenMessages.clientId" v-if="unseenMessages.clientId == client.clientId && unseenMessages.unseenCount > 0"><i class="alert alert-danger">@{{ unseenMessages.unseenCount }}</i></span>
                         </a>  
 
                         <a href="javascript:" class="client-info" @click="viewClientInfo(client)" title="Click to view client details">
