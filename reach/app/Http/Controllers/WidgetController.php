@@ -29,13 +29,12 @@ class WidgetController extends Controller
             $widget->IpBanList = [];
             $widget->countryBanList = [];
             $widget->cityBanList = [];
-            $widget->img_src = "%DOMAIN%/assets/images/widget-icon.png";
+            $widget->img_src = "assets/images/widget-icon.png";
             $widget->save();
         }
 
         $script = str_replace("%URL%",  env('APP_URL'), strval(View('widget.script')));
-        $widget->isActive = $widget->isActive == true ? 1 : 0;
-        $widget->hasSchedule = $widget->hasSchedule == true ? 1 : 0;
+        // $widget->hasSchedule = $widget->hasSchedule == true ? 1 : 0;
         return response()->json(['widget'=> $widget, 'script'=> $script], 200);
     }
 

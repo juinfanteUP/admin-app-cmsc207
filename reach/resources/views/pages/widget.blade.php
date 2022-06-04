@@ -69,48 +69,6 @@
                                         <hr>
                                     </div>
 
-
-                                    <!-- Status -->
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label">
-                                            Widget Status
-                                        </label>
-                                        <select v-model="widget.isActive" class="form-select" placeholder="Show Weekly Report">
-                                            <option value="true" selected >Active</option>
-                                            <option value="false" >Disabled</option>
-                                        </select>
-                                    </div>
-
-                                    
-                                    <!-- Schedule -->
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label">
-                                            Enable Schedule
-                                        </label>
-                                        <select v-model="widget.hasSchedule" class="form-select" placeholder="Select">
-                                            <option value="1" selected >Yes</option>
-                                            <option value="0" >No</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Start time -->
-                                    <div class="col-sm-12 mb-3">
-                                        <label class="form-label small">Availability Start Time</label>
-                                        
-                                        <input type="time" step="1" 
-                                        v-model="widget.starttime" id="starttime"
-                                        name="starttime" class="form-control" title="Select availability start time">
-                                    </div>
-
-
-                                     <!-- End time -->
-                                     <div class="col-sm-12 mb-3">
-                                        <label class="form-label small">Availability End Time</label>
-                                        <input  type="time" step="1" 
-                                        v-model="widget.endtime" id="endtime"
-                                        name="endtime" class="form-control" title="Select availability end time">
-                                    </div>
-
                             
                                       <!-- Socket Server -->
                                       <div class="col-sm-12 mb-3">
@@ -119,32 +77,63 @@
                                     </div>
                                     
 
+                                    <hr>
+
+                                    <!-- Widget Status Toggle-->
+                                    <div class="col-sm-6 mb-3 widget-config">
+                                        <label class="form-label">
+                                            Widget Status
+                                        </label>
+                                        <button type="button" 
+                                            v-bind:class="[widget.isActive ? 'btn-success' : 'btn-danger']"
+                                            class="btn btn-success btn-sm mx-2 btoggleButton" 
+                                            @click="widget.isActive = !widget.isActive">
+                                            @{{ widget.isActive ? 'Enabled' : 'Disabled' }}
+                                        </button>
+                                    </div>
+
+
                                     <!-- White List Toggle-->
-                                    <div class="col-sm-6 mb-3">
+                                    <div class="col-sm-6 mb-3 widget-config">
                                         <label class="form-label">
                                             White List
                                         </label>
-                                        <input type="button" v-model="widget.whiteListEnabled" 
-                                            class="toggleButton" 
+                                        <button type="button"
+                                            v-bind:class="[widget.whiteListEnabled ? 'btn-success' : 'btn-danger']"
+                                            class="btn btn-success btn-sm mx-2 btoggleButton" 
                                             @click="widget.whiteListEnabled = !widget.whiteListEnabled">
+                                            @{{ widget.whiteListEnabled ? 'Enabled' : 'Disabled' }}
+                                        </button>
                                     </div>
+
                                     <!-- Ban List Toggle -->
-                                    <div class="col-sm-6 mb-3">
+                                    <div class="col-sm-6 mb-3 widget-config">
                                         <label class="form-label">
                                             Ban List
                                         </label>
-                                        <input type="button" v-model="widget.banListEnabled" 
+                                        <button type="button"
+                                            v-bind:class="[widget.banListEnabled ? 'btn-success' : 'btn-danger']"
+                                            class="btn btn-success btn-sm mx-2 "
                                             @click="widget.banListEnabled = !widget.banListEnabled">
+                                            @{{ widget.banListEnabled ? 'Enabled' : 'Disabled' }}
+                                        </button>
                                     </div>
 
                                     <!-- Schedule Toggle-->
-                                    <div class="col-sm-6 mb-3">
+                                    <div class="col-sm-6 mb-3 widget-config">
                                         <label class="form-label">
                                             Schedule
                                         </label>
-                                        <input type="button" v-model="widget.scheduleEnabled" 
+                                        <button type="button" 
+                                            v-bind:class="[widget.scheduleEnabled ? 'btn-success' : 'btn-danger']"
+                                            class="btn btn-success btn-sm mx-2 "
                                             @click="widget.scheduleEnabled = !widget.scheduleEnabled">
+                                            @{{ widget.scheduleEnabled ? 'Enabled' : 'Disabled' }}
+                                        </button>
                                     </div>
+
+                                    <hr>
+
                                     <div class="col-sm-12 text-center my-1 mt-3">
                                         <button class="btn btn-success" type="button" @click="updateSettings()">
                                             Save Changes
@@ -355,9 +344,10 @@
                                                     <td><input type="time" v-model="schedItem.start_time"></td>
                                                     <td><input type="time" v-model="schedItem.end_time"></td>
                                                     <td class="ban-remove-button">
-                                                        <button class="btn btn-sm btn-secondary" type="button" :value="schedItem.enabled"
+                                                        <button class="btn btn-sm btn-secondary" type="button" 
+                                                        v-bind:class="[schedItem.enabled ? 'btn-success' : 'btn-danger']"
                                                          @click="schedItem.enabled = !schedItem.enabled">
-                                                            @{{ schedItem.enabled }}
+                                                            @{{ schedItem.enabled ? 'Enabled' : 'Disabled' }}
                                                         </button>
                                                     </td>
                                                 </tr>
@@ -365,6 +355,14 @@
                                         </table>
                                     </div>
                                 </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="col-sm-12 text-center my-1 mt-3">
+                                <button class="btn btn-success" type="button" @click="updateSettings()">
+                                    Save Changes
+                                </button>
                             </div>
                             
                         </div>

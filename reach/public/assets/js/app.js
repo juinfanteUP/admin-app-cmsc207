@@ -31739,12 +31739,7 @@ var app = new Vue({
       name: 'Reach App',
       color: '#4eac6d',
       isActive: true,
-<<<<<<< HEAD
-      startTime: '',
-      endTime: '',
-      script: '',
-      img_src: 'assets/images/widget-icon.png'
-=======
+      img_src: 'assets/images/widget-icon.png',
       hasSchedule: false,
       starttime: '',
       endtime: '',
@@ -31752,7 +31747,6 @@ var app = new Vue({
       banListEnabled: 'false',
       whiteListEnabled: 'false',
       scheduleEnabled: 'false'
->>>>>>> main
     },
     reports: {
       clientCount: 0,
@@ -31804,6 +31798,7 @@ var app = new Vue({
     isSubmitting: false,
     messages: [],
     allMessages: [],
+    unseenMessages: {},
     typingmsg: [],
     // Multiwindow
     multiWindowList: [],
@@ -31828,6 +31823,9 @@ var app = new Vue({
     this.registerSocketServer();
   },
   computed: {
+    unseenMessagesCount: function unseenMessagesCount() {
+      return this.unseenMessages;
+    },
     resultClientSearch: function resultClientSearch() {
       var _this = this;
 
@@ -31875,6 +31873,18 @@ var app = new Vue({
 
         if (msg.clientId === _this.selectedClientId) {
           _this.messages.push(msg);
+        } else {
+          var ctr = 0;
+
+          if (isNaN(_this.unseenMessages.unseenCount)) {
+            _this.unseenMessages.unseenCount = 0;
+          }
+
+          _this.unseenMessages.unseenCount += 1;
+          _this.unseenMessages = {
+            "clientId": msg.clientId,
+            "unseenCount": _this.unseenMessages.unseenCount
+          };
         }
 
         var windowIndex = _.findIndex(_this.multiWindowList, function (w) {
@@ -31965,9 +31975,15 @@ var app = new Vue({
         response.data.forEach(function (c) {
           c.missedCount = 0;
 
+          _this.selectClient(c);
+
           _this.clients.push(c);
         });
         _this.reports.clientCount = _this.clients.length;
+
+        if (_this.clients.length > 0) {
+          _this.selectClient(_this.clients[0]);
+        }
 
         _this.$forceUpdate();
       })["catch"](function (error) {
@@ -31982,6 +31998,7 @@ var app = new Vue({
 
       var _this = this;
 
+      this.unseenMessages.unseenCount = 0;
       socket.emit('join-room', {
         "room": this.selectedClientId,
         "clientId": "agent" //replace with agent id
@@ -32107,15 +32124,12 @@ var app = new Vue({
             value: white
           });
         })) !== null && _this$widget$cityWhit !== void 0 ? _this$widget$cityWhit : [];
-<<<<<<< HEAD
         $('#color-picker').val(_this.widget.color);
-=======
         (_this$widget$schedule = (_this$widget$schedule2 = _this.widget.schedule) === null || _this$widget$schedule2 === void 0 ? void 0 : _this$widget$schedule2.forEach(function (sched) {
           return _this.schedule.push({
             value: sched
           });
         })) !== null && _this$widget$schedule !== void 0 ? _this$widget$schedule : [];
->>>>>>> main
       })["catch"](function (error) {
         handleError(error);
       });

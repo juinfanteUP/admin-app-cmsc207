@@ -267,10 +267,17 @@ const socket = io(socketioUrl);
                 _this.clients = [];
                 response.data.forEach(c => {
                     c.missedCount = 0;
-                    _this.clients.push(c)
+
+                    _this.selectClient(c);
+                    _this.clients.push(c);
                 });
 
                 _this.reports.clientCount = _this.clients.length;
+
+                if(_this.clients.length>0){
+                   _this.selectClient(_this.clients[0]);
+                }
+
                 _this.$forceUpdate();
 			})["catch"](function(error) {
 				handleError(error);
