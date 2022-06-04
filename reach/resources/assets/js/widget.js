@@ -79,6 +79,7 @@ var generateComponent = (widget, client, messages, settings) => {
         generateMessage(messages[i], messages[i].isAgent == 'false', messages[i].created_at, i == messages.length-1);  
     }
 
+    
     // ***************************** Socket Support ***************************** //
 
 

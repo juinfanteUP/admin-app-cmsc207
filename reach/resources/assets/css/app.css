@@ -2907,3 +2907,8 @@ a.client-info:hover {
     height: 225px;
     overflow-y: auto;
 }
+
+.widget-config {
+    display: flex;
+    justify-content: space-between;
+}
