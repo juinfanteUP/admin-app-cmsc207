@@ -146,7 +146,7 @@
                 
                                         <!-- Header and Search -->
                                         <h6 class="card-title pt-1 text-muted">
-                                            Chat History Report
+                                            History Report
                                         </h6>
                 
                                         <div class="my-4">
