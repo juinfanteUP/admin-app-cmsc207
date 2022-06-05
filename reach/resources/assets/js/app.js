@@ -60,6 +60,15 @@ const socket = io(socketioUrl);
         selectedBanKey: 'domain',
         socketServerUrl: socketioUrl, 
 
+
+        // Client Ban
+        clientBanList: [],
+        searchClientBan: '',
+        currentClientBanPage: 1,
+        totalClientBanPage: 0, 
+        totalClientBanRecord: 0,     
+        skipCountClientBan: 10,
+
         // Allow components
         whiteList: [],
         whiteSelectionList: [
@@ -93,20 +102,34 @@ const socket = io(socketioUrl);
         allowedClientUpload: [],
 
         // Utilities
-        currentTime: ''
-
+        currentTime: '',
+        searchMessage: '',
+        currentHistoryPage: 1,
+        totalHistoryPage: 0, 
+        totalHistoryRecord: 0,     
+        skipCountHistory: 10,
 	},
 
 	mounted: function mounted() {
-        this.getProfile();
-		this.getClients();
-		// this.getAgents();
-        this.getReports();
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        
+        this.getProfile();	
         this.getMessages();
         this.TimeTrigger();
-		this.getWidgetSettings();
-       
-        this.registerSocketServer();        
+        this.registerSocketServer();  
+        
+        let clientId = params.id; 
+        if (clientId) {
+            this.getClients(clientId);
+        }
+        else {
+            this.getClients();
+            this.getWidgetSettings();
+            this.getReports();
+            this.getClientBanList();   
+        }
 	},
 
 	computed: {
@@ -114,13 +137,55 @@ const socket = io(socketioUrl);
             return this.unseenMessages;
         },
 
+        resultMessageHistory: function resultMessageHistory() {
+            var _this = this;
+            let messages = this.allMessages;     
+
+			if (this.searchMessage) {
+                _this.currentHistoryPage= 1;
+				messages = this.allMessages.filter((i)=>{
+					return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
+						return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
+					});
+				});
+			}
+
+            _this.totalHistoryPage = Math.ceil(messages.length / _this.skipCountHistory);
+            _this.totalHistoryPage = _this.totalHistoryPage <= 0 ? 1 : _this.totalHistoryPage;
+            _this.totalHistoryRecord = messages.length;
+
+            return  _.take(_.drop(messages, _this.skipCountHistory * ( _this.currentHistoryPage -1 )), _this.skipCountHistory);
+        },
+
+
+        resultClientBanList: function resultClientBanList() {
+            var _this = this;
+            let banList = this.clientBanList;     
+
+			if (this.searchClientBan) {
+                _this.currentClientBanPage= 1;
+				banList = this.clientBanList.filter((i)=>{
+					return _this.searchClientBan.toLowerCase().split(' ').every(function(v) {
+						return i.clientId.toLowerCase().includes(v) || i.domain.toLowerCase().includes(v);
+					});
+				});
+			}
+
+            _this.totalClientBanPage = Math.ceil(banList.length / _this.skipCountClientBan);
+            _this.totalClientBanPage = _this.totalClientBanPage <= 0 ? 1 : _this.totalClientBanPage;
+            _this.totalClientBanRecord = banList.length;
+
+            return  _.take(_.drop(banList, _this.skipCountClientBan * ( _this.currentClientBanPage -1 )), _this.skipCountClientBan);
+        },
+
+
 		resultClientSearch: function resultClientSearch() {
 			var _this = this;
 
 			if (this.searchClient) {
 				return this.clients.filter((i)=>{
 					return _this.searchClient.toLowerCase().split(' ').every(function(v) {
-						return i.clientId.toLowerCase().includes(v);
+						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
 					});
 				});
 			}
@@ -139,14 +204,15 @@ const socket = io(socketioUrl);
 	},
 	methods: {
 		
+      
         // ************************ Subscribe to Socket Server ************************ //
-		
+	
+        
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
            
             socket.on('client-join-room', (clientId) => {
-                console.log(`client join room ${clientId}`);
-                _this.onlineClientIds.push(clientId);
+                _this.onlineClientIds.push({ clientId: clientId, willRemove: false });
                 _this.reports.clientCount++;
                 _this.getClients();
             });
@@ -154,7 +220,6 @@ const socket = io(socketioUrl);
 
             // Message from server
             socket.on('message', (msg) => {
-                console.log(msg);
                 _this.reports.messageVolumeCount++;
                 msg.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
                 msg.isSeen = false;
@@ -181,9 +246,11 @@ const socket = io(socketioUrl);
                     _this.multiWindowList[windowIndex].messages.push(msg);
                 }
 
+                let isMute = false;
                 let clientIndex = _.findIndex(_this.clients, (c) => { return c.clientId == msg.clientId });
-                if(clientIndex>=0 && _this.selectedClientId != msg.clientId){
+                if(clientIndex>=0){
                     _this.clients[clientIndex].missedCount++;
+                    isMute =  _this.clients[clientIndex].isMute;
                 }
 
                 _this.$forceUpdate();
@@ -191,30 +258,36 @@ const socket = io(socketioUrl);
 
                 $("#typing-client").text("");
                 $("#istyping").text("");
-
-
             
-                if (checkNotificationCompatibility() && Notification.permission === 'granted') {
-                    console.log('incoming message, creating notification')
-                    notify = new Notification("REACH", {
-                        icon: 'assets/images/brand/reach-64.png',
-                        body: msg.body
-                    });
-                }
-
-                alertTitle();
+                if (!isMute) {
+                    alertTitle(msg.body);
+                }        
             });
 
             socket.on('listen-client-type', (msg) => {   
-                if (_this.selectedClientId == msg.isWhisper) {  
+                if (_this.selectedClientId == msg.clientId) {  
                     $("#istyping").text("Client is typing this: ");
                     $("#typing-client").text(msg.body);
                 }
+
+                if (!msg.isAgent) {
+                    _this.addClientAsOnline(msg.clientId);
+                }     
             });
 		},
 
+        addClientAsOnline: function (cid) {
+            if (!this.isClientOnline(cid)) {
+                this.onlineClientIds.push({ clientId: cid, willRemove: false });
+                return
+            }
+
+            var ind = _.findIndex(this.onlineClientIds, (c)=> { return c.clientId == cid })
+            this.onlineClientIds[ind].willRemove = false;
+        },
+
         isClientOnline: function (cid) {
-            return this.onlineClientIds.indexOf(cid) >= 0;
+            return _.find(this.onlineClientIds, (c)=> { return c.clientId == cid }) != null;
         },
 
 
@@ -259,26 +332,39 @@ const socket = io(socketioUrl);
         // ************************ Client Helper ************************ //
 
 
-		getClients: function getClients() {		
+		getClients: function getClients(defaultId=null) {		
             var api = `/api/client/list`;
             var _this = this;
-        
+            _this.clients = [];
+
 			axios.get(api).then(function(response) {        
-                _this.clients = [];
-                response.data.forEach(c => {
-                    c.missedCount = 0;
-
-                    _this.selectClient(c);
-                    _this.clients.push(c);
-                });
-
-                _this.reports.clientCount = _this.clients.length;
-
-                if(_this.clients.length>0){
-                   _this.selectClient(_this.clients[0]);
-                }
-
-                _this.$forceUpdate();
+                $.getJSON( "/assets/js/flag.json", ( flags ) => { 
+                    response.data.forEach(c => {
+                        c.missedCount = 0;
+                        c.flag  = _.find(flags, (f)=> { return f.keywords.indexOf(c.country.toLowerCase()) >= 0 })?.emoji ?? "🚩";
+                        _this.selectClient(c);
+                        _this.clients.push(c);
+                    });
+    
+                    if (defaultId == null) {
+                        _this.reports.clientCount = _this.clients.length;
+                        if(_this.clients.length>0){
+                           _this.selectClient(_this.clients[0]);
+                        }
+                    }
+                    else {
+                        var ind = _.findIndex(_this.clients, (c)=> { return c.clientId == defaultId});
+                        if(ind >= 0){
+                            _this.selectClient(_this.clients[ind]);
+                        }  
+                        else {
+                            alert('Client does not exist. Window will now close.');
+                            window.close();
+                        }
+                    }       
+    
+                    _this.$forceUpdate();
+                });             
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -320,29 +406,132 @@ const socket = io(socketioUrl);
 		viewClientInfo: function viewClientInfo(client) {
 			this.viewClient = {
 				ipaddress: client?.ipaddress,
+                source: client?.source,
 				domain: client?.domain,
                 country: client?.country,
                 clientId: client?.clientId,
 				city: client?.city,
-                createddtm: client?.createddtm
+                flag: client?.flag,
+                createddtm: client?.createddtm,
+                label: client?.label,
+                notes: client?.notes
 			};
             
 			$('#view-client-modal').modal('show');
 		},
 
-        endClientSession: function endClientSession(clientId){
+        openChatWindow: function openChatWindow(client) {
+            var url = `/chat?id=${client.clientId}`;
+            window.open(url, "_blank");
+        },
+
+        updateClient: function updateClient() {
+            var api = `/api/client/update`
+            var _this = this;
+
+            if(confirm('Are you sure you want to update this client?')) {
+                axios.put(api, _this.viewClient).then(function() {
+
+                    let ind = _.findIndex(_this.clients, (c) => { return c.clientId == _this.viewClient.clientId });   
+                    if (ind>=0) {
+                        _this.clients[ind].label = _this.viewClient.label;
+                        _this.clients[ind].notes = _this.viewClient.notes;
+                    }
+
+                    alert('Client has been updated successfully!');
+				})["catch"](function(error) {
+					handleError(error);
+				});
+            }
+        },
+
+        controlClientMute: function controlClientMute (client) {
+            var api = `/api/client/update`
+            client.isMute = !client.isMute;
+
+            axios.put(api, client).then(function() { })["catch"](function(error) {
+                handleError(error);
+            });
+        },
+
+        endClientSession: function endClientSession(client){
             var api = `/api/client/endSession`;
             var _this = this;
             
             if(confirm('Are you sure you want to end the session for this client?')) {
-                socket.emit('end-session', clientId);
+                socket.emit('end-session', client.clientId);
 
-                let ind = _.findIndex(_this.clients, (c) => { return c.clientId == clientId });    
-                let windowInd = _.findIndex(_this.multiWindowList, (c) => { return c.clientId == clientId });
+                let ind = _.findIndex(_this.clients, (c) => { return c.clientId == client.clientId });    
+                let windowInd = _.findIndex(_this.multiWindowList, (c) => { return c.clientId == client.clientId });
                 if(windowInd>=0) _this.multiWindowList.splice(windowInd, 1);
                 if (ind>=0) _this.clients.splice(ind, 1);
 
-                axios.post(api, { clientId: clientId }).then(function() {
+                axios.put(api, { clientId: client.clientId }).then(function() {
+                    _this.selectedClientId = 0;
+                    _this.messages = [];
+                    _this.allMessages = _.filter(_this.allMessages, function (c) { return c.clientiD != client.clientId; });
+                    _this.$forceUpdate();
+				})["catch"](function(error) {
+					handleError(error);
+				});
+            }
+        },
+
+
+        // ************************ Client Ban Helper ************************ //
+
+
+        getClientBanList: function getClientBanList () {
+            var api = `/api/client/ban`;
+            var _this = this;
+            _this.clientBanList = [];
+
+            axios.get(api).then(function(response) {
+                response.data.forEach(c => {
+                    c.created_at = new Date(c.created_at).toISOString().slice(0, 19).replace('T', ' ');
+                    _this.clientBanList.push(c);
+                });
+            })["catch"](function(error) {
+                handleError(error);
+            });
+        },
+
+        banClient: function banClient(client) {
+            var api = `/api/client/ban`
+            var _this = this;
+
+            if(confirm(`Are you sure you want to ban this client? The client's IP address, domain and country will be banned for future usage of the widget app.`)) {              
+                axios.post(api, client).then(function() {
+                    socket.emit('end-session', client.clientId);
+
+                    let ind = _.findIndex(_this.clients, (c) => { return c.clientId == client.clientId });    
+                    let windowInd = _.findIndex(_this.multiWindowList, (c) => { return c.clientId == client.clientId });
+                    if(windowInd>=0) _this.multiWindowList.splice(windowInd, 1);
+                    if (ind>=0) _this.clients.splice(ind, 1);
+
+                    _this.selectedClientId = 0;
+                    _this.messages = [];
+                    _this.allMessages = _.filter(_this.allMessages, function (c) { return c.clientiD != client.clientId; });
+                    _this.$forceUpdate();
+
+                    _this.getClientBanList();
+                    
+                    alert('Client has been banned successfully!');        
+				})["catch"](function(error) {
+					handleError(error);
+				});
+            }
+        },
+
+        removeClientBan: function removeClientBan(clientId) {
+            var api = `/api/client/ban`
+            var _this = this;
+
+            if(confirm('Are you sure you want to remove this client from the ban list?')) {
+                axios.put(api, { clientId: clientId }).then(function() {
+
+                    _this.getClientBanList();
+                    alert('Client has been removed from the ban list.');        
 				})["catch"](function(error) {
 					handleError(error);
 				});
@@ -532,6 +721,7 @@ const socket = io(socketioUrl);
 
 		// ************************ Message Helper ************************ //
 
+
 		getMessages: function getMessages() {
 			var _this = this;
             let api = '/api/message/list';
@@ -540,7 +730,6 @@ const socket = io(socketioUrl);
 			showLoader();
 			axios.get(api).then(function(response) {    
 				_this.allMessages = response.data;
-                console.log(response.data);
 
                 _this.allMessages.forEach(m => {
                     m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
@@ -587,9 +776,6 @@ const socket = io(socketioUrl);
                 return axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
                 .then(function(response) {
                     let newMsg = response.data;
-
-                    console.log(newMsg);
-
                     msg.attachmentId = newMsg.attachmentId;
                     msg.fileName = newMsg.fileName;
                     msg.fileSize = newMsg.fileSize;
@@ -639,25 +825,25 @@ const socket = io(socketioUrl);
         // ***************************** UI Component Controls ***************************** //
 
 
-        addClientToMultiWindow: function addClientToMultiWindow (clientId) {
-            let index = _.findIndex(this.multiWindowList, (w) => { return w.clientId == clientId });
+        addClientToMultiWindow: function addClientToMultiWindow (client) {
+            let index = _.findIndex(this.multiWindowList, (w) => { return w.clientId == client.clientId });
 
             if (index >= 0) {
                 return;
             }
 
-            let msgs = _.filter(this.allMessages, (m) => { return m.clientId == clientId });
+            let msgs = _.filter(this.allMessages, (m) => { return m.clientId == client.clientId });
 
             let entity = {
-                windowId: `mw-${clientId}`,
-                label: clientId,
-                clientId: clientId,
+                windowId: `mw-${client.clientId}`,
+                label: `${client.flag}  ${client.label ? client.label : client.clientId}`,
+                clientId: client.clientId,
                 body: '',
                 messages: msgs
             }
       
             socket.emit('join-room', {
-                "room": clientId,
+                "room": client.clientId,
                 "clientId": "agent"
             }); 
 
@@ -743,13 +929,14 @@ const socket = io(socketioUrl);
 
 		TimeTrigger: function TimeTrigger() {
 			var _this = this;
-			setInterval(function() { 
+
+			setInterval(() => { 
                  inp = $("#chat-input").val(); 
                 _this.chatbox = inp;
                 _this.currentTime = new Date().toLocaleTimeString();
 			}, 200);
 
-            setInterval(function() { 
+            setInterval(() => { 
                 var allowUpload = document.getElementById("allow-client-upload")?.checked ?? false;
                 var count = _this.allowedClientUpload.length;
                 let newCount = _this.allowedClientUpload.length;
@@ -770,6 +957,26 @@ const socket = io(socketioUrl);
                     }
                }
            }, 2000);
+
+           setInterval(() => {
+               let cidToDelete = [];
+
+                _this.onlineClientIds.forEach(c => {
+                    if (!c.willRemove) {
+                        c.willRemove = true;
+                    }
+                    else {
+                        cidToDelete.push(c.clientId);
+                    }
+                });  
+                
+                cidToDelete.forEach(id => {
+                    let ind = _.findIndex(_this.onlineClientIds, (c)=> { return c.clientId == id });
+                    if(ind >= 0) {
+                        _this.onlineClientIds.splice(ind, 1);
+                    }
+                });
+           }, 10000);
 		},
 
         // 
@@ -787,7 +994,16 @@ function showLoader(willShow = true) {
     }
 }
 
-function alertTitle(){
+function alertTitle(msg){
+
+    if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+        console.log('incoming message, creating notification')
+        notify = new Notification("REACH", {
+            icon: 'assets/images/brand/reach-64.png',
+            body: msg
+        });
+    }
+
     var c = 1;
     var i = setInterval(function(){
         document.title =  c % 2 == 0 ? "New Message!" : "Reach App";

@@ -30,6 +30,12 @@ const FgEmojiPicker = function (options) {
         this.options && this.options.preFetch && this.functions.fetchEmojiData();
     }
 
+    this.list = () => {
+        return fetch(`${this.variable.dir}full-emoji-list.json`)
+            .then(response => response.json())
+            .then(object => { this.emojiJson = object });
+    },
+
     this.lib = (el = undefined) => {
         return {
             el: document.querySelectorAll(el),

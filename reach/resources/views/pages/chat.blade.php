@@ -16,9 +16,9 @@
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="d-flex align-items-center">
                                         <div class="flex-grow-1 overflow-hidden chat-header">
-                                            <h6 class="text-truncate mb-0 fs- px-4">
+                                            <h6 class="text-truncate text-muted mb-0 fs- px-4 pt-2">
                                                 <a href="javascript:" class="user-profile-show text-reset" v-show="selectedClientId != 0">
-                                                    Client Id - @{{ selectedClientId }}
+                                                    @{{ selectedClientId }}
                                                 </a>
                                             </h6>
 
@@ -38,7 +38,7 @@
                 
 
                 <!-- Chat Conversation -->
-                <div class="chat-conversation p-3 p-lg-4 " id="chat-conversation" data-simplebar>
+                <div class="chat-conversation admin-chat p-3 p-lg-4 " id="chat-conversation" data-simplebar>
                     <ul class="list-unstyled chat-conversation-list" id="users-conversation">
 
 
@@ -131,7 +131,7 @@
 
                 <!-- start chat input section -->
                 <div class="position-relative">
-                    <div class="chat-input-section p-4 border-top">
+                    <div class="chat-input-section admin-window p-4 border-top">
                         <span id="istyping" class="text-mute small"></span>
                         <span id="typing-client" class="text-success small fst-italic"></span>
                         

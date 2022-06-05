@@ -35,7 +35,6 @@ class MessageController extends Controller
             $attachment->fileSize = $req->file->getSize();
             $attachment->save();
             $attachmentId = $uid;
-
             $jsonReq = json_decode($req->document);
 
             // Send plain message
@@ -99,7 +98,6 @@ class MessageController extends Controller
         $clientCount = Client::get(['id','created_at'])->count();  
 
         // HistoryList
-
         $messages = Message::get(['created_at','clientId','id'])
                         ->groupBy(function($item) {
                             return Carbon::parse($item->created_at)->format("Y-m-d");

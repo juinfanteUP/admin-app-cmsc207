@@ -1744,8 +1744,13 @@ body[data-layout-mode="dark"] .chat-bookmark-list li {
     height: calc(100vh - 175px);
 }
 @media (max-width: 991.98px) {
-    .chat-conversation {
+    .chat-conversation .admin-chat {
         height: calc(100vh - 80px);
+        margin-bottom: 78px;
+    }
+
+    .chat-conversation .window-chat {
+        height: calc(100vh - 150px);
         margin-bottom: 78px;
     }
 }
@@ -2738,7 +2743,7 @@ a.client-info:hover {
         max-width: none;
     }
 
-    .chat-input-section {
+    .chat-input-section .admin-window {
         bottom: 60px !important;
     }
 
@@ -2911,4 +2916,46 @@ a.client-info:hover {
 .widget-config {
     display: flex;
     justify-content: space-between;
+}
+  
+.dropdown {
+    margin-top: 0.65rem;
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown>button {
+    vertical-align: middle;
+    display: flex;
+}
+
+.dropdown>button>i {
+    position: relative;
+    bottom: 2px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 220px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0.1rem;
+}
+
+.dropdown-content a {
+    font-size: 10px;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
 }

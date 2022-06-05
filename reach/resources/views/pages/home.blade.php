@@ -12,7 +12,7 @@
                         <div class="row">
 
                             <!-- Active User -->
-                            <div class="col-sm-6">
+                            <div class="col-sm-12 col-md-6">
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>
@@ -30,14 +30,14 @@
 
 
                             <!-- Message Volume Count -->
-                            <div class="col-sm-6">
+                            <div class="col-sm-12 col-md-6">
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>
                                             <h6>Current Time</h6>
-                                            <h4>
+                                            <h5>
                                                 @{{ currentTime }}
-                                            </h4> 
+                                            </h5> 
                                         </div>
                                         <div>                                 
                                             <i class="ri-sun-line"></i>
@@ -105,7 +105,7 @@
                         <div class="row">
 
                               <!-- Message Volume Count -->
-                              <div class="col-sm-6">
+                              <div class="col-sm-12 col-md-6">
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>
@@ -122,7 +122,7 @@
                             </div>
 
                              <!-- Message Volume Count -->
-                            <div class="col-sm-6">
+                            <div class="col-sm-12 col-md-6">
                                 <div class="card mt-3">
                                     <div class="card-body py-4 dashboard-meter">
                                         <div>

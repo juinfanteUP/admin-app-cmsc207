@@ -18,7 +18,8 @@ const validateClientApi = sourceDomain + "/api/client/validate";
 // ***************** Endpoint Services ***************** //
 
 var themeColor = "#111";
-
+var isWidgetOpen = false;
+var missedCount = 0;
 
 
 // Send message 
@@ -69,6 +70,13 @@ var setLocalClientData = (cid = null) => {
 var generateComponent = (widget, client, messages, settings) => {
 	var INDEX = 0;
 	document.body.innerHTML += widget;
+    $("#missed-counter").hide();
+
+    if (checkNotificationCompatibility()) {
+        Notification.requestPermission(function(permission){
+            console.log('notification permission: '+permission);
+        })
+    }
 
     UpdateWidgetSettings(settings);
 	const socket = io(socketioUrl);
@@ -93,6 +101,19 @@ var generateComponent = (widget, client, messages, settings) => {
 	socket.on('message', (msg) => {
         if(msg.isWhisper == 'false' && msg.clientId == room){
             generateMessage(msg, msg.isAgent == 'false', msg.created_at);
+
+            if (!isWidgetOpen){
+                missedCount++;
+                $("#missed-counter").show();
+                $("#missed-counter").text(missedCount);
+            }
+            
+            if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+                notify = new Notification("REACH", {
+                    icon: `${sourceDomain}/assets/images/brand/reach-64.png`,
+                    body: msg.body
+                });
+            }
         }	
 	});
 
@@ -207,18 +228,21 @@ var generateComponent = (widget, client, messages, settings) => {
 	$("#chat-circle").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
-	});
-
-	// User closed the widget
-	$(".chat-box-toggle").click(() => {
-		$("#chat-circle").toggle('scale');
-		$(".chat-box").toggle('scale');
+        isWidgetOpen = true;
+        missedCount = 0;
+        $("#missed-counter").hide();
 	});
 
     // User clicked header to close
 	$(".chat-box-header").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
+        isWidgetOpen = false;
+        
+        if(missedCount > 0){
+            $("#missed-counter").text(missedCount);
+            $("#missed-counter").show();
+        }
 	});
 
     // Add attachment and immediately sendjs
@@ -281,6 +305,14 @@ var generateComponent = (widget, client, messages, settings) => {
         $("#widget-title").text(settings.name);
         $("#widget-icon").attr("src", `${sourceDomain}/${settings.img_src}`);
     }
+
+    function checkNotificationCompatibility() {
+        if (typeof Notification === 'undefined') {
+            console.log("Notification is not supported by this browser");
+            return false;
+        }
+        return true;
+    }
 };
 
 
@@ -313,12 +345,14 @@ var generateComponent = (widget, client, messages, settings) => {
     // Send client id from local storage.
 	setTimeout(() => {	 
         let domain = window.location.hostname;
+        let source = window.location.href;
+
         let params = {
             clientId: getLocalClientData(),
-            domain: domain ?? "Unknown Site"
+            domain: domain ?? "Unknown Domain",
+            source: source ?? "Unknown Site",
         }
   
-        console.log(`ClientId: ${params.clientId}`);
 		validateClientAndGetWidget(params).then((result) => {
 
             // If widget is empty, widget may be unavailable or the client is banned
@@ -327,9 +361,7 @@ var generateComponent = (widget, client, messages, settings) => {
                     setLocalClientData(result.client.clientId);
                 }
     
-                console.log(result.settings);
                 generateComponent(result.widget, result.client, result.messages, result.settings);
-
 			}
 		});
 	}, 1000)

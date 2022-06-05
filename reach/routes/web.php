@@ -17,6 +17,7 @@ use App\Http\Controllers\ViewController;
 
 // Home page
 Route::get('/', [ViewController::class, 'showHome'])->middleware('redirectIfAnonymous'); 
+Route::get('/chat', [ViewController::class, 'showChatWindow'])->middleware('redirectIfAnonymous'); 
 
 
 // Authentication page

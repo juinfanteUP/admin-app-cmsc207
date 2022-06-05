@@ -38,9 +38,13 @@ Route::get('/message/download', [MessageController::class, 'download']);
 
 // Client API
 Route::post('/client/validate', [ClientController::class, 'validateClient']);
-Route::post('/client/endSession', [ClientController::class, 'endClientSession']);
+Route::put('/client/endSession', [ClientController::class, 'endSession']);
+Route::put('/client/update', [ClientController::class, 'update']);
 Route::get('/client/list', [ClientController::class, 'getClients']);
 Route::get('/client/getIP', [ClientController::class, 'getIP']);
+Route::get('/client/ban', [ClientController::class, 'getBanList']);
+Route::post('/client/ban', [ClientController::class, 'addClientInBanList']);
+Route::put('/client/ban', [ClientController::class, 'removeClientFromBanList']);
 
 
 // Agent API

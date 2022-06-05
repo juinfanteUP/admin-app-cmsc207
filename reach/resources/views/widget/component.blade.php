@@ -8,10 +8,15 @@
 <div id="chat-body">
 
     <!-- Chat icon collapsed -->
+
+    
     <div id="chat-circle" class="btn btn-raised" title="Click to chat">  
+        <div id="missed-counter" class="badge-counter">5</div>
         <div id="chat-overlay"></div>
         <img id="widget-icon" src="assets/images/widget-icon.png" width="40"> 
     </div>
+
+
     <div class="chat-box">
 
         <!-- Chat header -->
