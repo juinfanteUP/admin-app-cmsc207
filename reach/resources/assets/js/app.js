@@ -323,8 +323,11 @@ const socket = io(socketioUrl);
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
-                var ctx = document.getElementById("reportCanvas").getContext("2d");
-                window.myLine = new Chart(ctx, getChartConfig(_this.reports.historyList));
+                var canvas = document.getElementById("reportCanvas");
+                if(canvas != null){
+                    var ctx = document.getElementById("reportCanvas").getContext("2d");
+                    window.myLine = new Chart(ctx, getChartConfig(_this.reports.historyList));
+                }
 			})["catch"](function(error) {
 				handleError(error);
 			});
