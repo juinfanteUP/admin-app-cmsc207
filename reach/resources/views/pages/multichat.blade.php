@@ -10,7 +10,7 @@
 
                     <div class="input-group search-panel mb-3">
                         <input type="text" class="form-control bg-light border-0" id="searchChatUser" v-model="searchClient"
-                            title="Enter something to search a client" placeholder="Enter client Id to search" autocomplete="off">
+                            title="Enter something to search a client" placeholder="Enter a text to search a client" autocomplete="off">
                         <button class="btn btn-light p-0" type="button" id="searchbtn-addon"><i
                                 class='bx bx-search align-middle'></i></button>
                     </div>
@@ -20,26 +20,65 @@
                     
                     <ul class="list-unstyled chat-list chat-user-list multichat-clients">
         
-                        <li class="chat-message-item pb-1 small"  @click="addClientToMultiWindow(client.clientId)" v-for="client in resultClientSearch" 
+                        <li class="chat-message-item pb-1 small"  @click="addClientToMultiWindow(client)" v-for="client in resultClientSearch" 
                         v-bind:id="client.clientId">  
                                       
+                            
                             <a href="javascript:" >   
                                 <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
                                 <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
-                                @{{ client.domain }} - @{{ client.ipaddress }}          
+
+                                <span>
+                                    @{{ client.flag }}
+                                        
+                                    <small class="mx-2">
+                                        @{{ client.label ? client.label + ' - (' + client.clientId + ')' : client.domain + ' - (' + client.clientId + ')' }}
+                                    </small>
+
+                                    <span class="text-danger mx-3" v-show="client.isMute">
+                                        <i class="ri-volume-mute-line"></i>
+                                    </span>
+                                </span>
+                                
+                                <span class="mx-3" v-bind:value="unseenMessages.clientId" v-if="unseenMessages.clientId == client.clientId && unseenMessages.unseenCount > 0">
+                                    <i class="alert alert-danger">@{{ unseenMessages.unseenCount }}</i>
+                                </span>
                             </a>  
+
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm px-3">
+                                    <small class="mx-2">Options</small> <i class="ri-settings-5-line"></i> 
+                                </button>
+                                <div class="dropdown-content">
+                                <a href="javascript:" class="px-3" @click="viewClientInfo(client)" >Client Info</a>
+                                <a href="javascript:" class="px-3" @click="controlClientMute(client)" >@{{ client.isMute ? 'Unmute Client' : 'Mute Client' }}</a>
+                                <a href="javascript:" class="px-3 text-danger" @click="banClient(client)" >Ban Client</a>
+                                <a href="javascript:" class="px-3 text-danger" @click="endClientSession(client)" >End Session</a>
+                                </div>
+                            </div>
                             
-                            <span style="padding-top: 3px;">
-                                <a href="javascript:" class="client-info" @click="viewClientInfo(client)" 
-                                title="Click to view client details">
+
+                            <span style="padding-top: 3px;" hidden>
+                                <a href="javascript:" class="client-info" style="font-size: 12px" @click="viewClientInfo(client)" 
+                                    title="Click to view client details">
                                     <i class="ri-information-line"></i> 
                                 </a>
-    
-                                <a href="javascript:" class="client-info" @click="endClientSession(client.clientId)" 
-                                title="Click to end the chatting session">
-                                    <i class="ri-close-circle-line text-danger"></i> 
-                                </a>
+
+                                <button class="btn btn-danger btn-xs mx-2" type="button" @click="banClient(client)" 
+                                    title="Click to ban the client based from the website and IP">
+                                    Ban <i class="ri-forbid-line text-danger"></i>
+                                </button>
+
+
+                                <button class="btn btn-danger btn-xs mx-2" type="button" @click="endClientSession(client.clientId)" 
+                                    title="Click to end the chatting session">
+                                    Close <i class="ri-close-circle-line text-danger"></i> 
+                                </button>
                             </span>
+
+
+
                         </li>
                         
     

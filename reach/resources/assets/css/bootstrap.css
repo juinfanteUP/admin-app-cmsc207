@@ -580,7 +580,7 @@ progress {
 }
 
 .list-unstyled {
-    padding-left: 10px;
+    padding-left: 0;
     list-style: none;
 }
 
@@ -3376,8 +3376,8 @@ fieldset:disabled .btn {
 .btn-success:disabled,
 .btn-success.disabled {
     color: #fff;
-    background-color: #06d6a0;
-    border-color: #06d6a0;
+    background-color: #464747;
+    border-color: #464747 !important;
 }
 
 .btn-info {

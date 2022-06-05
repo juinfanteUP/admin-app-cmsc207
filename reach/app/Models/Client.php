@@ -15,7 +15,11 @@ class Client extends Model
         'country',
         'timezone',
         'isActive',
-        'domain'
+        'isMute',
+        'domain',
+        'source',
+        'notes',
+        'label'
     ]; 
 
     protected $dates = ['created_at', 'updated_at', 'datetime'];

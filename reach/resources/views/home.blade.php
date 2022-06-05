@@ -22,6 +22,8 @@
                 @include('pages.chat')
                 @include('pages.widget')
                 @include('pages.multichat')
+                @include('pages.history')
+                @include('pages.clientBan')
                 @include('pages.clientconfig')
             </div>
         </div>

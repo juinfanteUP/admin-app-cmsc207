@@ -33,4 +33,10 @@ class ViewController extends Controller
         $user = Agent::where('email', '=', Session::get('user'))->first();
         return view('home', ['user' => $user, 'widget_icons' => $widget_icons]);
     }
+
+    // Show chat window
+    public function showChatWindow()
+    {
+        return view('chat');
+    }
 }

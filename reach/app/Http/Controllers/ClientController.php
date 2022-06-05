@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Services\PayUService\Exception;
+use App\Models\ClientBan;
 use App\Models\Client;
 use App\Models\Widget;
 use App\Models\Message;
@@ -126,18 +127,23 @@ class ClientController extends Controller
         }
 
 
-        // Check if client is included in ban list
-        // if(!($bannedClient->first())) 
-        // {
-        //     $client->ipaddress = $data->ip;
-        //     return response()->json([
-        //         'widget' => "",
-        //         'client' => 0,
-        //         'isNew' => false,
-        //         'messages' => $messages,
-        //         'status' => 'banned'
-        //     ], 200);
-        // }
+        // Validat if client is banned
+        $clientBan = ClientBan::where('domain', strval($req->domain))
+                                ->where('country', strval($data->countryName))
+                                ->where('ipaddress', strval($data->ip))
+                                ->first();
+                                
+        if(!is_null($clientBan)) 
+        {
+            return response()->json([
+                'widget' => "", 
+                'client' => null, 
+                'isNew' => false,
+                'messages' => $messages,
+                'status' => 'domain/country/ip address banned'
+            ], 403);
+         }
+        
 
         // Create new client record if client data is empty. Otherwise, retrieve messages
         if(is_null($client)) 
@@ -146,10 +152,11 @@ class ClientController extends Controller
             $client->clientId = substr(md5(uniqid(rand(), true)), 16);
             $client->ipaddress = $data->ip;
             $client->domain = $req->domain ?? "";      
-            $client->country = $data->country ?? "";
+            $client->source = $req->source ?? "";  
+            $client->country = $data->countryName ?? "";
             $client->city = $data->cityName ?? "";
             $client->isActive = true;
-            // $client->timezone = $data->timezone;
+            $client->isMute = false;
             $client->save();
             $isNewClient = true;
         }
@@ -159,9 +166,6 @@ class ClientController extends Controller
                         ->where('isWhisper', 'false')
                         ->get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
         }
-
-       // return response()->json($messages);
-
 
         // Update widget component based on settings
         $component = strval(View('widget.component'));
@@ -186,7 +190,6 @@ class ClientController extends Controller
         return response()->json($clients, 200);
     }
 
-
     // Get IP details of the client
     public function getIP(Request $req)
     {
@@ -200,13 +203,61 @@ class ClientController extends Controller
         return response()->json(['ip' =>  $ip, 'data' =>  $data], 200);
     }
 
+    // update client info
+    public function update(Request $req)
+    {
+        $item = Client::where("clientId", $req->clientId)
+                        ->update([ 
+                            'isMute' => $req->isMute, 
+                            'notes' => $req->notes, 
+                            'label' => $req->label
+                        ]);
+
+        return response()->json("Updated successfully!", 200);
+    }
+
 
     // End Session Client
-    public function endClientSession(Request $req)
+    public function endSession(Request $req)
     {
         $item = Client::where("clientId", $req->clientId)
                         ->update([ 'isActive' => false ]);
 
         return response()->json("Updated successfully!", 200);
+    }
+    
+    
+    // Get Ban List 
+    public function getBanList()
+    {
+        $clients = ClientBan::get();
+        return response()->json($clients, 200);
+    }
+
+
+    // Ban client by ip and domain
+    public function addClientInBanList(Request $req)
+    {
+        $email = Session::get('user');
+        $item = Client::where("clientId", $req->clientId)
+                        ->update([ 'isActive' => false ]);
+              
+        $clientBan = new ClientBan();
+        $clientBan->clientId = $req->clientId;
+        $clientBan->ipaddress = $req->ipaddress;
+        $clientBan->domain = $req->domain;
+        $clientBan->country = $req->country;
+        $clientBan->bannedBy = $email;
+        $clientBan->save();
+
+        return response()->json("Client has been banned successfully!", 200);
+    }
+
+
+    // Get Ban List 
+    public function removeClientFromBanList(Request $req)
+    {
+        $item = ClientBan::where("clientId", $req->clientId)->delete();
+        return response()->json("Client has been removed from the ban list successfully!", 200);
     }
 }

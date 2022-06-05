@@ -37,13 +37,11 @@
                                         
                                         <!-- Custom Logo -->
                                         <div class="mb-3">
-                                            <label class="form-label small">Built-in Logo</small></label>
+                                            <label class="form-label small">Widget Logo</small></label>
                                             <select v-model="widget.img_src" name="img_src" class="form-select">
                                                 @foreach($widget_icons as $icon)
-                                                {{-- <option value="1" >Leaves</option> --}}
                                                 <option value="{{ $icon->img_src }}" >{{ $icon->name }}</option>
                                                 @endforeach
-                                                <option value="">Custom</option>
                                             </select>
                                         </div>  
 
@@ -322,9 +320,7 @@
 
 
                                 <div class="col-md-12">
-
                                     <div class="table-responsive mt-3">
-                                        {{-- <div>@{{ widget }}</div> --}}
                                         <table class="table table-editable table-nowrap align-middle table-edits">
                                             <thead>
                                                 <tr>
@@ -341,8 +337,8 @@
                                                 </tr>
                                                 <tr v-for="(schedItem, index) in widget.schedule">
                                                     <td>@{{ schedItem.day }}</td>
-                                                    <td><input type="time" v-model="schedItem.start_time"></td>
-                                                    <td><input type="time" v-model="schedItem.end_time"></td>
+                                                    <td><input type="time" class="form-control" v-model="schedItem.start_time"></td>
+                                                    <td><input type="time" class="form-control" v-model="schedItem.end_time"></td>
                                                     <td class="ban-remove-button">
                                                         <button class="btn btn-sm btn-secondary" type="button" 
                                                         v-bind:class="[schedItem.enabled ? 'btn-success' : 'btn-danger']"

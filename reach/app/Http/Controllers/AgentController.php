@@ -20,7 +20,6 @@ class AgentController extends Controller
     public function login(Request $req) 
     {
         $agent = Agent::where('email', $req->email)->first();
-
         if($agent)
         {
             if(Hash::check($req->password, $agent->password))

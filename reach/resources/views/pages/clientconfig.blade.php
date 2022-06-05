@@ -18,8 +18,24 @@
                                 <td>@{{ viewClient.clientId }} </td>
                             </tr>   
                             <tr>
+                                <th>Client label</th>
+                                <td>
+                                    <input type="text" v-model="viewClient.label" class="form-control" placeholder="Enter to provide client label" />
+                                </td>
+                            </tr>  
+                            <tr>
+                                <th>Agent Notes</th>
+                                <td>
+                                    <textarea class="form-control" v-model="viewClient.notes" rows=3 placeholder="Enter to provide notes"></textarea>
+                                </td>
+                            </tr>  
+                            <tr>
                                 <th>IP Address</th>
                                 <td>@{{ viewClient.ipaddress }} </td>
+                            </tr>
+                            <tr>
+                                <th>Site Source</th>
+                                <td>@{{ viewClient.source }} </td>
                             </tr>
                             <tr>
                                 <th>Domain</th>
@@ -27,7 +43,7 @@
                             </tr>
                             <tr>
                                 <th>Country</th>
-                                <td>@{{ viewClient.country }} </td>
+                                <td>@{{ viewClient.country }} <span class="mx-2">@{{ viewClient.flag }}</span></td>
                             </tr>
                             <tr>
                                 <th>City</th>
@@ -35,7 +51,13 @@
                             </tr>              
                         </tbody>
                     </table>
+
+                    <div class="text-center mt-2">
+                        <button class="btn btn-success px-3" type="button" @click="updateClient()">Save Changes</button>
+                    </div>
+
                 </div>
+
             </div>
         </div>
     </div>

@@ -35,6 +35,23 @@
             </li>
 
 
+            <!-- History Chats -->
+            <li class="nav-item" title="Go to history chats">
+                <a class="nav-link" id="nav-item-history" data-bs-toggle="pill" href="javascript:" role="tab">
+                    <i class="ri-archive-line"></i>
+                </a>
+            </li>
+
+
+            <!-- Client Ban List -->
+            <li class="nav-item" title="Go to client ban list">
+                <a class="nav-link" id="nav-item-clientban" data-bs-toggle="pill" href="javascript:" role="tab">
+                    <i class="ri-spam-line"></i>
+                </a>
+            </li>
+            
+            
+
             <!-- Widget -->
             <li class="nav-item" title="Go to chat widget">
                 <a class="nav-link" id="nav-item-widget" data-bs-toggle="pill" href="javascript:" role="tab">
