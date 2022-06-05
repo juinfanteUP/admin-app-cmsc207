@@ -327,11 +327,12 @@
                                                     <th>Day</th>
                                                     <th>Start Time</th>
                                                     <th>End Time</th>
+                                                    <th></th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <tr v-show ="widget.schedule.length == 0">
-                                                    <td class="text-center" colspan="3">
+                                                    <td class="text-center" colspan="4">
                                                         --- Allow list is empty ---
                                                     </td>
                                                 </tr>

@@ -28,20 +28,26 @@
                                 <thead>
                                     <tr>
                                         <th>Client Id</th>
-                                        <th>Client Label</th>
                                         <th>Sender</th>
                                         <th>Is Whisper</th>
-                                        <th>Message Body</th>
+                                        <th style="width: 300px">Message Body</th>
+                                        <th>Attachment</th>
                                         <th>Sent Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="message in resultMessageHistory">                                                     
                                         <td>@{{ message.clientId }}</td>
-                                        <td>@{{ message.label ? message.label : '---' }}</td>
-                                        <td>@{{ message.isAgent ? 'Agent' : 'Client' }}</td>
-                                        <td>@{{ message.isWhisper ? 'Yes' : 'No' }}</td>
-                                        <td>@{{ message.body }}</td>
+                                        <td>@{{ message.isAgent == 'true' ? 'Agent' : 'Client' }}</td>
+                                        <td>@{{ message.isWhisper == 'true' ? 'Yes' : 'No' }}</td>
+                                        <td>@{{ message.body ? message.body : '---' }}</td>
+                                        <td>
+                                            @{{ message.attachmentId == '0' ? 'N/A' : '' }}
+                                            <button class="btn btn-success btn-sm" type="button" title="Click to download"
+                                                v-show="message.attachmentId != '0'" @click="downloadAttachment(message.attachmentId)">
+                                                Download
+                                            </button>
+                                        </td>
                                         <td>@{{ message.created_at }}</td>
                                     </tr>
                                     <tr v-show ="resultMessageHistory.length == 0">
