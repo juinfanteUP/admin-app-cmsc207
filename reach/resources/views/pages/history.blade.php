@@ -38,7 +38,7 @@
                                 <tbody>
                                     <tr v-for="message in resultMessageHistory">                                                     
                                         <td>@{{ message.clientId }}</td>
-                                        <td>@{{ message.label ? message.label ? '---' }}</td>
+                                        <td>@{{ message.label ? message.label : '---' }}</td>
                                         <td>@{{ message.isAgent ? 'Agent' : 'Client' }}</td>
                                         <td>@{{ message.isWhisper ? 'Yes' : 'No' }}</td>
                                         <td>@{{ message.body }}</td>
