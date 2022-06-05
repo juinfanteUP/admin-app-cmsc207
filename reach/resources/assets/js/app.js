@@ -323,6 +323,8 @@ const socket = io(socketioUrl);
 
 			axios.get(api).then(function(response) {
 				_this.reports = response.data;
+                var ctx = document.getElementById("reportCanvas").getContext("2d");
+                window.myLine = new Chart(ctx, getChartConfig(_this.reports.historyList));
 			})["catch"](function(error) {
 				handleError(error);
 			});
@@ -1060,6 +1062,65 @@ function requestNotificationPermission() {
             console.log('notification permission: '+permission);
         })
     }
+}
+
+
+function getChartConfig(reportList) {
+    let dateList = [0];
+    let messageCountList = [0];
+    let clientCountList = [0];
+    
+    reportList.forEach(c => {
+        dateList.push(c.date);
+        messageCountList.push(c.messageVolumeCount);
+        clientCountList.push(c.clientCount);
+    });
+
+    return {
+        type: 'line',
+        data: {
+            labels: dateList,
+            datasets: [{
+                label: "Client Engagement Count",
+                backgroundColor: "#4eac6d99",
+                borderColor: "#4eac6d",
+                data: clientCountList,
+                fill: true,
+            }, {
+                label: "Message Volume",
+                fill: false,
+                backgroundColor: "#aaa",
+                borderColor: "#aaa",
+                data: messageCountList,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                    }
+                }]
+            }
+        }
+    };
 }
 
 

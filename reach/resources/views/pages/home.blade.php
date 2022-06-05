@@ -52,14 +52,14 @@
                         <div class="card mt-3">
                             <div class="card-body">
 
-                                <div class="text-center my-3">
-                                    <img src="assets/images/brand/reach-128.png" width="128">
+                                <div class="text-center my-2">
+                                    <img src="assets/images/brand/reach-128.png" width="110">
                                 </div>
         
-                                <h3 class="text-center my-4">
+                                <h3 class="text-center mt-3 mb-4">
                                     Welcome to Reach!
                                 </h3>
-                                <p class="text-muted justify mt-3 mb-4">
+                                <p class="text-muted text-justify mt-3 mb-4 small">
                                     REACH or Residents Engagement Assistance Community Helper is a 
                                     chat application dedicated to help residents of a community to 
                                     connect with each other.  Send and receive messages between neighbors, 
@@ -91,7 +91,7 @@
                                     </div>
                                 </div>
 
-                                <p class="small text-center text-muted m-0 mt-5">
+                                <p class="small text-center text-muted m-0 mt-1">
                                     A project for CMSC207 - UPOU SY 2022
                                 </p>
                             </div>
@@ -145,64 +145,12 @@
                                     <div class="card-body">
                 
                                         <!-- Header and Search -->
-                                        <h4 class="card-title pt-1">
+                                        <h6 class="card-title pt-1 text-muted">
                                             Chat History Report
-                                        </h4>
+                                        </h6>
                 
-                                        <!-- Data History Report -->
-                                        <div class="table-responsive mt-4">
-                                            <table class="table table-editable table-nowrap align-middle table-edits">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Date</th>
-                                                        <th>Message Volume Count</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="summary in reports.historyList">                                                     
-                                                        <td>@{{ summary.date }}</td>
-                                                        <td>@{{ summary.messageVolumeCount }}</td>
-                                                    </tr>
-                                                    <tr v-show ="reports.historyList.length == 0">
-                                                        <td class="text-center" colspan="2">--- Data not available ---</td>
-                                                    </tr>                    
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <!-- Client Volume -->
-                            <div class="col-md-12">          
-                                <div class="card mt-3">
-                                    <div class="card-body">
-                
-                                        <!-- Header and Search -->
-                                        <h4 class="card-title pt-1">
-                                            Client Volume Report
-                                        </h4>
-                
-                                        <!-- Data History Report -->
-                                        <div class="table-responsive mt-4">
-                                            <table class="table table-editable table-nowrap align-middle table-edits">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Date</th>
-                                                        <th>Client Count</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="summary in reports.historyList">
-                                                        <td>@{{ summary.date }}</td>
-                                                        <td>@{{ summary.clientCount }}</td>                                                    
-                                                    </tr>
-                                                    <tr v-show ="reports.historyList.length == 0">
-                                                        <td class="text-center" colspan="2">--- Data not available ---</td>
-                                                    </tr>                    
-                                                </tbody>
-                                            </table>
+                                        <div class="my-4">
+                                            <canvas id="reportCanvas" style="display: block; height: 400px" height="400"></canvas>
                                         </div>
                                     </div>
                                 </div>
