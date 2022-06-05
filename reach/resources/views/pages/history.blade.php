@@ -32,13 +32,13 @@
                                         <th>Sender</th>
                                         <th>Is Whisper</th>
                                         <th>Message Body</th>
-                                        <th>Created Date</th>
+                                        <th>Sent Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="message in resultMessageHistory">                                                     
                                         <td>@{{ message.clientId }}</td>
-                                        <td>@{{ message.clientId }}</td>
+                                        <td>@{{ message.label ? message.label ? '---' }}</td>
                                         <td>@{{ message.isAgent ? 'Agent' : 'Client' }}</td>
                                         <td>@{{ message.isWhisper ? 'Yes' : 'No' }}</td>
                                         <td>@{{ message.body }}</td>
