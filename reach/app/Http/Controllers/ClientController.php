@@ -171,6 +171,13 @@ class ClientController extends Controller
         $component = strval(View('widget.component'));
         $client->ipaddress = $data->ip;
 
+        // Get URL links
+        $links = [
+            'sourceDomain' => env('APP_URL'),
+            'socketioLib' => env('SOCKET_LIB_URL'),
+            'socketurl' => env('SOCKET_SERVER_URL'),
+        ];
+
         // Retrieve messages if client exist
         return response()->json([
             'settings' => $widget,
@@ -178,6 +185,7 @@ class ClientController extends Controller
             'client' => $client,
             'isNew' => $isNewClient,
             'messages' => $messages,
+            'links' => $links,
             'status' => 'successful'
         ], 200);
     }

@@ -1,32 +1,17 @@
-// ***************** Update these Properties ***************** //
-
-const sourceDomain = process.env.APP_URL;
-const socketioUrl = process.env.SOCKET_SERVER_URL;
-const socketioLib = process.env.SOCKET_LIB_URL;
-
 // *********************************************************** //
 
 const localStorageName = 'reachapp_clientid';
-const lurl = sourceDomain + '/widget/style.css';
-const jurl = sourceDomain + '/widget/vendor.js';
-
-const fileDownloadUri = sourceDomain + "/api/message/download?id=";
-const sendMessageApi = sourceDomain + "/api/message/send";
-const validateClientApi = sourceDomain + "/api/client/validate";
-
+const sourceUrl = (new URL(document.currentScript.src)).origin;
+var themeColor = "#111";
 
 // ***************** Endpoint Services ***************** //
-
-var themeColor = "#111";
-var isWidgetOpen = false;
-var missedCount = 0;
 
 
 // Send message 
 function sendMessage (msg) {
 	$.ajax({
 		type: "POST",
-		url: sendMessageApi,
+		url: `${sourceUrl}/api/message/send`,
 		dataType: 'json',
 		data: msg,
 		success: function(result) {
@@ -39,7 +24,7 @@ function sendMessage (msg) {
 function validateClientAndGetWidget (cid) {
 	return $.ajax({
 		type: "POST",
-		url: validateClientApi,
+		url: `${sourceUrl}/api/client/validate`,
 		dataType: 'json',
 		data: cid,
 		success: function(data) {
@@ -67,19 +52,20 @@ var setLocalClientData = (cid = null) => {
 // ***************** Chat Widget ***************** //
 
 
-var generateComponent = (widget, client, messages, settings) => {
-	var INDEX = 0;
-	document.body.innerHTML += widget;
-    $("#missed-counter").hide();
+var generateComponent = (widget) => {
+    console.log('Widget component generated.');
+    var client = widget.client;
+    var messages = widget.messages;
+    var settings = widget.settings;
+    const links = widget.links;
 
-    if (checkNotificationCompatibility()) {
-        Notification.requestPermission(function(permission){
-            console.log('notification permission: '+permission);
-        })
-    }
+    
+
+	var INDEX = 0;
+	document.body.innerHTML += widget.widget;
 
     UpdateWidgetSettings(settings);
-	const socket = io(socketioUrl);
+	const socket = io(links.socketurl);
 	const room = getLocalClientData();
 
     // Generate message history
@@ -87,7 +73,6 @@ var generateComponent = (widget, client, messages, settings) => {
         generateMessage(messages[i], messages[i].isAgent == 'false', messages[i].created_at, i == messages.length-1);  
     }
 
-    
     // ***************************** Socket Support ***************************** //
 
 
@@ -101,19 +86,6 @@ var generateComponent = (widget, client, messages, settings) => {
 	socket.on('message', (msg) => {
         if(msg.isWhisper == 'false' && msg.clientId == room){
             generateMessage(msg, msg.isAgent == 'false', msg.created_at);
-
-            if (!isWidgetOpen){
-                missedCount++;
-                $("#missed-counter").show();
-                $("#missed-counter").text(missedCount);
-            }
-            
-            if (checkNotificationCompatibility() && Notification.permission === 'granted') {
-                notify = new Notification("REACH", {
-                    icon: `${sourceDomain}/assets/images/brand/reach-64.png`,
-                    body: msg.body
-                });
-            }
         }	
 	});
 
@@ -175,7 +147,7 @@ var generateComponent = (widget, client, messages, settings) => {
             str = `<div id='cm-msg-${INDEX}' class="chat-msg ${type}"><div class="cm-msg-text"> ${msg.body} </div><small>${sender}</small></div>`;
         }
         else {
-            let uri =  fileDownloadUri + msg.attachmentId;
+            let uri =  `${sourceUrl}/api/message/download?id=${msg.attachmentId}`;
             let label = `${msg.fileName} (${formatBytes(msg.fileSize)})`;
             str = `<div id='cm-msg-${INDEX}' class="chat-msg ${type}"><div class="cm-msg-text"><span class="file-name">${label}</span><a class="chat-download-link ${type}" href="${uri}" target="_blank"><span title="Click to download" class="material-icons chat-download">download</span></a></div><small>${sender}</small></div>`;
         }
@@ -228,21 +200,12 @@ var generateComponent = (widget, client, messages, settings) => {
 	$("#chat-circle").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
-        isWidgetOpen = true;
-        missedCount = 0;
-        $("#missed-counter").hide();
 	});
 
     // User clicked header to close
 	$(".chat-box-header").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
-        isWidgetOpen = false;
-        
-        if(missedCount > 0){
-            $("#missed-counter").text(missedCount);
-            $("#missed-counter").show();
-        }
 	});
 
     // Add attachment and immediately sendjs
@@ -272,7 +235,7 @@ var generateComponent = (widget, client, messages, settings) => {
         formData.append('document', JSON.stringify(msg));
     
         $.ajax({
-            url: sendMessageApi,
+            url: `${sourceUrl}/api/message/send`,
             type: 'post',
             data: formData,
             contentType: false,
@@ -303,15 +266,7 @@ var generateComponent = (widget, client, messages, settings) => {
         $(".chat-submit").css("background-color", settings.color);
         $(".chat-box-header").css("background-color", settings.color);
         $("#widget-title").text(settings.name);
-        $("#widget-icon").attr("src", `${sourceDomain}/${settings.img_src}`);
-    }
-
-    function checkNotificationCompatibility() {
-        if (typeof Notification === 'undefined') {
-            console.log("Notification is not supported by this browser");
-            return false;
-        }
-        return true;
+        $("#widget-icon").attr("src", `${sourceUrl}/${settings.img_src}`);
     }
 };
 
@@ -322,51 +277,56 @@ var generateComponent = (widget, client, messages, settings) => {
 // Run app upon page load
 (function() {
 
-    // Add css style dependency
-	var c = document.createElement('link');
-	c.rel = 'stylesheet';
-	c.type = 'text/css';
-	c.href = lurl;
-	c.media = 'all';
-	document.head.appendChild(c);
-
-	// Add socket.io js dependency
-	var socketio = document.createElement("script");
-	socketio.src = socketioLib;
-	document.head.appendChild(socketio);
+     // Add css style dependency
+     var c = document.createElement('link');
+     c.rel = 'stylesheet';
+     c.type = 'text/css';
+     c.href = `${sourceUrl}/widget/style.css`;
+     c.media = 'all';
+     document.head.appendChild(c);
 
 	// Add jquery and other dependencies
 	if (!window.jQuery) {
 		var s = document.createElement("script");
-		s.src = jurl;
+		s.src = `${sourceUrl}/widget/vendor.js`;
 		document.head.appendChild(s);
 	}
 
     // Send client id from local storage.
 	setTimeout(() => {	 
-        let domain = window.location.hostname;
-        let source = window.location.href;
 
+        let domain = window.location.hostname;
         let params = {
             clientId: getLocalClientData(),
-            domain: domain ?? "Unknown Domain",
-            source: source ?? "Unknown Site",
+            domain: domain ?? "Unknown Site"
         }
   
+        console.log(`ClientId: ${params.clientId}`);
 		validateClientAndGetWidget(params).then((result) => {
 
             // If widget is empty, widget may be unavailable or the client is banned
 			if (result && result?.widget && result?.clientId != 0) {
+
                 if(result.isNew) {
                     setLocalClientData(result.client.clientId);
                 }
-    
-                generateComponent(result.widget, result.client, result.messages, result.settings);
+
+                // Add socket.io js dependency
+                var socketio = document.createElement("script");
+                socketio.src = result.links.socketioLib;
+                document.head.appendChild(socketio);
+
+                // Generate Component
+                setTimeout(() => {
+                    generateComponent(result);
+                }, 500);
 			}
+            else {
+                console.log(result.status)
+            }
 		});
 	}, 1000)
 })();
-
 
 
 function scrollToBottom() {
