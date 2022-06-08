@@ -33,59 +33,43 @@
                     <li class="chat-message-item pb-3"  @click="selectClient(client)" v-for="client in resultClientSearch" 
                     v-bind:id="client.clientId" :class="[client.clientId == selectedClientId ? 'selected-client' : '']">  
                                   
-                        <a href="javascript:" >   
-                            <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
-                            <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
-
-                            <span>
-                                @{{ client.flag }}
-                                    
-                                <small class="mx-2">
-                                    @{{ client.label ? client.label + ' - (' + client.clientId + ')' : client.domain + ' - (' + client.clientId + ')' }}
-                                </small>
-
-                                <span class="text-danger mx-3" v-show="client.isMute">
-                                    <i class="ri-volume-mute-line"></i>
-                                </span>
-                            </span>
-                            
-                            <span class="mx-3" v-bind:value="unseenMessages.clientId" v-if="unseenMessages.clientId == client.clientId && unseenMessages.unseenCount > 0">
-                                <i class="alert alert-danger">@{{ unseenMessages.unseenCount }}</i>
-                            </span>
-                        </a>  
-
-
-                        <div class="dropdown">
-                            <button class="btn btn-sm px-3">
-                                <small class="mx-2">Options</small> <i class="ri-settings-5-line"></i> 
-                            </button>
-                            <div class="dropdown-content">
-                              <a href="javascript:" class="px-3" @click="viewClientInfo(client)" >Client Info</a>
-                              <a href="javascript:" class="px-3" @click="openChatWindow(client)" >Open in new window</a>
-                              <a href="javascript:" class="px-3" @click="controlClientMute(client)" >@{{ client.isMute ? 'Unmute Client' : 'Mute Client' }}</a>
-                              <a href="javascript:" class="px-3 text-danger" @click="banClient(client)" >Ban Client</a>
-                              <a href="javascript:" class="px-3 text-danger" @click="endClientSession(client)" >End Session</a>
+                        <div class="client-selection">   
+                            <div class="client-status">
+                                <img src="/assets/images/online.png" width="16" class="mx-3" v-show="isClientOnline(client.clientId)">                   
+                                <img src="/assets/images/offline.png" width="16" class="mx-3" v-show="!isClientOnline(client.clientId)"> 
+                                @{{ client.flag }}               
                             </div>
-                        </div>
+
+
+                            <div class="mx-2 client-label">
+                                @{{ client.label ? client.label : client.domain }}
+                                <br>
+                                @{{ client.clientId }}
+                            </div>
+             
+                            
+                            <div class="mx-3" v-bind:value="unseenMessages.clientId" v-if="unseenMessages.clientId == client.clientId && unseenMessages.unseenCount > 0">
+                                <i class="alert alert-danger">@{{ unseenMessages.unseenCount }}</i>
+                            </div>
+
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm px-3">
+                                    <small class="mx-2">Options</small> <i class="ri-settings-5-line"></i> 
+                                </button>
+                                <div class="dropdown-content">
+                                  <a href="javascript:" class="px-3" @click="viewClientInfo(client)" >Client Info</a>
+                                  <a href="javascript:" class="px-3" @click="openChatWindow(client)" >Open in new window</a>
+                                  <a href="javascript:" class="px-3" @click="controlClientMute(client)" >@{{ client.isMute ? 'Unmute Client' : 'Mute Client' }}</a>
+                                  <a href="javascript:" class="px-3 text-danger" @click="banClient(client)" >Ban Client</a>
+                                  <a href="javascript:" class="px-3 text-danger" @click="endClientSession(client)" >End Session</a>
+                                </div>
+                            </div>
+                        </div> 
                         
-
-                        <span style="padding-top: 3px;" hidden>
-                            <a href="javascript:" class="client-info" style="font-size: 12px" @click="viewClientInfo(client)" 
-                                title="Click to view client details">
-                                <i class="ri-information-line"></i> 
-                            </a>
-
-                            <button class="btn btn-danger btn-xs mx-2" type="button" @click="banClient(client)" 
-                                title="Click to ban the client based from the website and IP">
-                                Ban <i class="ri-forbid-line text-danger"></i>
-                            </button>
-
-
-                            <button class="btn btn-danger btn-xs mx-2" type="button" @click="endClientSession(client.clientId)" 
-                                title="Click to end the chatting session">
-                                Close <i class="ri-close-circle-line text-danger"></i> 
-                            </button>
-                        </span>
+                        <div class="text-danger mx-3 client-mute" >
+                            <i v-show="client.isMute" class="ri-volume-mute-line"></i>
+                        </div>
 
                     </li>
 

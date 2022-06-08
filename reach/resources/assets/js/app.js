@@ -10,10 +10,8 @@ window.Vue = require('vue').default;
 
 // ***************** Update these Properties ***************** //
 
-
-const socketioUrl = process.env.SOCKET_SERVER_URL;
-const socket = io(socketioUrl);
-
+var socketioUrl = "";
+var socket = "";
 
 // ***************** Update these Properties ***************** //
 
@@ -58,7 +56,7 @@ const socket = io(socketioUrl);
         ],
         banInput: '',
         selectedBanKey: 'domain',
-        socketServerUrl: socketioUrl, 
+        socketServerUrl: "", 
 
 
         // Client Ban
@@ -114,22 +112,30 @@ const socket = io(socketioUrl);
         const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
         });
-        
-        this.getProfile();	
-        this.getMessages();
-        this.TimeTrigger();
-        this.registerSocketServer();  
-        
-        let clientId = params.id; 
-        if (clientId) {
-            this.getClients(clientId);
-        }
-        else {
-            this.getClients();
-            this.getWidgetSettings();
-            this.getReports();
-            this.getClientBanList();   
-        }
+        var api = `/api/widget/settings`;
+        var _this = this;
+
+        axios.get(api).then(function(response) {   
+            socketioUrl = response.data.socket;
+            socket = io(socketioUrl);
+
+            _this.getProfile();	
+            _this.getMessages();
+            _this.TimeTrigger();
+            _this.registerSocketServer();  
+            
+            if (params.id) {
+                _this.getClients(params.id);
+            }
+            else {
+                _this.setWidgetSettings(response.data);
+                _this.getClients();               
+                _this.getReports();
+                _this.getClientBanList();   
+            }
+        })["catch"](function(error) {
+            handleError(error);
+        });
 	},
 
 	computed: {
@@ -210,6 +216,13 @@ const socket = io(socketioUrl);
         
         registerSocketServer: function registerSocketServer() {
 			var _this = this;
+
+
+
+
+
+
+            
            
             socket.on('client-join-room', (clientId) => {
                 _this.onlineClientIds.push({ clientId: clientId, willRemove: false });
@@ -547,29 +560,24 @@ const socket = io(socketioUrl);
 		// ************************ Widget Helper ************************ //
 
 
-		getWidgetSettings: function getWidgetSettings() {
-            var api = `/api/widget/settings`;
-			var _this = this;
+        setWidgetSettings: function setWidgetSettings(result) {
+            let _this = this;
 
-			axios.get(api).then(function(response) {
-                _this.widget = response.data.widget;
-                _this.widget.script = response.data.script;
-                _this.widget.domainBanList?.forEach(ban => _this.banList.push({ type: 'domain', value: ban })) ?? [];
-                _this.widget.ipBanList?.forEach(ban => _this.banList.push({ type: 'ipaddress', value: ban })) ?? [];
-                _this.widget.countryBanList?.forEach(ban => _this.banList.push({ type: 'country', value: ban })) ?? [];
-                _this.widget.cityBanList?.forEach(ban => _this.banList.push({ type: 'city', value: ban })) ?? [];
-                _this.widget.domainWhiteList?.forEach(white => _this.whiteList.push({ type: 'domain', value: white })) ?? [];
-                _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
-                _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
-                _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
-                $('#color-picker').val(_this.widget.color); 
-                
-                _this.widget.schedule?.forEach(sched => _this.schedule.push({ value: sched })) ?? [];
-			})["catch"](function(error) {
-				handleError(error);
-			});
-		},
+            _this.socketServerUrl = result.socket;
+            _this.widget = result.widget;
+            _this.widget.script = result.script;
+            _this.widget.domainBanList?.forEach(ban => _this.banList.push({ type: 'domain', value: ban })) ?? [];
+            _this.widget.ipBanList?.forEach(ban => _this.banList.push({ type: 'ipaddress', value: ban })) ?? [];
+            _this.widget.countryBanList?.forEach(ban => _this.banList.push({ type: 'country', value: ban })) ?? [];
+            _this.widget.cityBanList?.forEach(ban => _this.banList.push({ type: 'city', value: ban })) ?? [];
+            _this.widget.domainWhiteList?.forEach(white => _this.whiteList.push({ type: 'domain', value: white })) ?? [];
+            _this.widget.ipWhiteList?.forEach(white => _this.whiteList.push({ type: 'ipaddress', value: white })) ?? [];
+            _this.widget.countryWhiteList?.forEach(white => _this.whiteList.push({ type: 'country', value: white })) ?? [];
+            _this.widget.cityWhiteList?.forEach(white => _this.whiteList.push({ type: 'city', value: white })) ?? [];
+            _this.widget.schedule?.forEach(sched => _this.schedule.push({ value: sched })) ?? [];
+            $('#color-picker').val(_this.widget.color); 
 
+        },
 
 		updateSettings: function updateSettings(action='', removeByIndex=-1) {
             var api = `/api/widget/update`;

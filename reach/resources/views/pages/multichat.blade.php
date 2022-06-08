@@ -76,9 +76,6 @@
                                     Close <i class="ri-close-circle-line text-danger"></i> 
                                 </button>
                             </span>
-
-
-
                         </li>
                         
     

@@ -39,6 +39,10 @@
     font-weight: 700;
 }
 
+body {
+    cursor: default !important;
+ }
+
 .waves-effect {
     position: relative;
     cursor: pointer;
@@ -2959,3 +2963,33 @@ a.client-info:hover {
 .dropdown:hover .dropdown-content {
     display: block;
 }
+
+.client-selection {
+    display: table;
+    width: 100%;
+    line-height: 1.5;
+    padding-top:6px;
+}
+
+.client-selection>div {
+    padding-top: 2px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.client-selection>div.client-status {
+    width: 150px;
+    padding-right: 20px;
+}
+
+.client-selection>div.client-label {
+    font-size: 12px;
+    width: 400px;
+}
+
+.client-mute {
+    width: 30px;
+    font-size: 12px;
+    padding-top: 5px;
+}
+
