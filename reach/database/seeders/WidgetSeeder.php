@@ -19,7 +19,7 @@ class WidgetSeeder extends Seeder
         DB::collection('widgets')->insert([
             "widgetId" => 1,
             "IpBanList" => [ ],
-            "color" => "#2dadd2",
+            "color" => "#05b688",
             "countryBanList" => [ ],
             "domainBanList" => [ ],
             "isActive" => true,
@@ -27,7 +27,7 @@ class WidgetSeeder extends Seeder
             "cityBanList" => [ ],
             "banListEnabled" => false,
             "hasSchedule" => false,
-            "scheduleEnabled" => true,
+            "scheduleEnabled" => false,
             "whiteListEnabled" => false,
             "cityWhiteList" => [ ],
             "countryWhiteList" => [ ],
