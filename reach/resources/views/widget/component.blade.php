@@ -1,15 +1,5 @@
-<!-- Note:   
-    - Color should be set on API. Use style tag to enforce color changes depending on widget setting.
-    - Logo URL should be hard-coded and must be set from API
-    - Remove agent chat
--->
-
-
 <div id="chat-body">
 
-    <!-- Chat icon collapsed -->
-
-    
     <div id="chat-circle" class="btn btn-raised" title="Click to chat">  
         <div id="missed-counter" class="badge-counter">5</div>
         <div id="chat-overlay"></div>

@@ -37,7 +37,7 @@ class WidgetController extends Controller
         $widget->isActive = $widget->isActive == true ? 1 : 0;
         $widget->hasSchedule = $widget->hasSchedule == true ? 1 : 0;
 
-        return response()->json(['widget'=> $widget, 'script'=> $script], 200);
+        return response()->json(['widget'=> $widget, 'script'=> $script, 'socket'=> env('SOCKET_SERVER_URL') ], 200);
     }
 
 

@@ -76,6 +76,7 @@
         pane_widget.style.display = 'none';
         pane_multichat.style.display = 'none';
         pane_history.style.display = 'none';
+        pane_clientBan.style.display = 'none';      
         pane_home.classList.add("active");
 
         nav_home.addEventListener("click", function() {
