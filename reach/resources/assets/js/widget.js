@@ -59,6 +59,12 @@ var generateComponent = (widget) => {
     console.log('Widget component generated.');
     $("#missed-counter").hide();
 
+    if (checkNotificationCompatibility()) {
+        Notification.requestPermission(function(permission){
+            console.log('notification permission: '+permission);
+        })
+    }
+
     var client = widget.client;
     var messages = widget.messages;
     var settings = widget.settings;
@@ -297,6 +303,15 @@ var generateComponent = (widget) => {
         $("#widget-title").text(settings.name);
         $("#widget-icon").attr("src", `${sourceUrl}/${settings.img_src}`);
     }
+
+    function checkNotificationCompatibility() {
+        if (typeof Notification === 'undefined') {
+            console.log("Notification is not supported by this browser");
+            return false;
+        }
+        return true;
+    }
+
 };
 
 
