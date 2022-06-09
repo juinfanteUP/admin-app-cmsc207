@@ -6,7 +6,9 @@ var __webpack_exports__ = {};
 // *********************************************************** //
 var localStorageName = 'reachapp_clientid';
 var sourceUrl = new URL(document.currentScript.src).origin;
-var themeColor = "#111"; // ***************** Endpoint Services ***************** //
+var themeColor = "#111";
+var isWidgetOpen = false;
+var missedCount = 0; // ***************** Endpoint Services ***************** //
 // Send message 
 
 function sendMessage(msg) {
@@ -52,6 +54,7 @@ var setLocalClientData = function setLocalClientData() {
 
 var generateComponent = function generateComponent(widget) {
   console.log('Widget component generated.');
+  $("#missed-counter").hide();
   var client = widget.client;
   var messages = widget.messages;
   var settings = widget.settings;
@@ -76,6 +79,19 @@ var generateComponent = function generateComponent(widget) {
   socket.on('message', function (msg) {
     if (msg.isWhisper == 'false' && msg.clientId == room) {
       generateMessage(msg, msg.isAgent == 'false', msg.created_at);
+
+      if (!isWidgetOpen) {
+        missedCount++;
+        $("#missed-counter").show();
+        $("#missed-counter").text(missedCount);
+      }
+
+      if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+        notify = new Notification("REACH", {
+          icon: "".concat(sourceDomain, "/assets/images/brand/reach-64.png"),
+          body: msg.body
+        });
+      }
     }
   }); // Listen to end session
 
@@ -177,11 +193,20 @@ var generateComponent = function generateComponent(widget) {
   $("#chat-circle").click(function () {
     $("#chat-circle").toggle('scale');
     $(".chat-box").toggle('scale');
+    isWidgetOpen = true;
+    missedCount = 0;
+    $("#missed-counter").hide();
   }); // User clicked header to close
 
   $(".chat-box-header").click(function () {
     $("#chat-circle").toggle('scale');
     $(".chat-box").toggle('scale');
+    isWidgetOpen = false;
+
+    if (missedCount > 0) {
+      $("#missed-counter").text(missedCount);
+      $("#missed-counter").show();
+    }
   }); // Add attachment and immediately sendjs
 
   $("#file-uploader").change(function () {
@@ -276,7 +301,7 @@ var generateComponent = function generateComponent(widget) {
 
         setTimeout(function () {
           generateComponent(result);
-        }, 2500);
+        }, 3000);
       } else {
         console.log(result.status);
       }

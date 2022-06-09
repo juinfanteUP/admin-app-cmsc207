@@ -3,6 +3,9 @@
 const localStorageName = 'reachapp_clientid';
 const sourceUrl = (new URL(document.currentScript.src)).origin;
 var themeColor = "#111";
+var isWidgetOpen = false;
+var missedCount = 0;
+
 
 // ***************** Endpoint Services ***************** //
 
@@ -54,6 +57,8 @@ var setLocalClientData = (cid = null) => {
 
 var generateComponent = (widget) => {
     console.log('Widget component generated.');
+    $("#missed-counter").hide();
+
     var client = widget.client;
     var messages = widget.messages;
     var settings = widget.settings;
@@ -86,6 +91,19 @@ var generateComponent = (widget) => {
 	socket.on('message', (msg) => {
         if(msg.isWhisper == 'false' && msg.clientId == room){
             generateMessage(msg, msg.isAgent == 'false', msg.created_at);
+
+            if (!isWidgetOpen){
+                missedCount++;
+                $("#missed-counter").show();
+                $("#missed-counter").text(missedCount);
+            }
+            
+            if (checkNotificationCompatibility() && Notification.permission === 'granted') {
+                notify = new Notification("REACH", {
+                    icon: `${sourceDomain}/assets/images/brand/reach-64.png`,
+                    body: msg.body
+                });
+            }
         }	
 	});
 
@@ -200,12 +218,23 @@ var generateComponent = (widget) => {
 	$("#chat-circle").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
+
+        isWidgetOpen = true;
+        missedCount = 0;
+        $("#missed-counter").hide();
 	});
 
     // User clicked header to close
 	$(".chat-box-header").click(() => {
 		$("#chat-circle").toggle('scale');
 		$(".chat-box").toggle('scale');
+
+        isWidgetOpen = false;
+        
+        if(missedCount > 0){
+            $("#missed-counter").text(missedCount);
+            $("#missed-counter").show();
+        }
 	});
 
     // Add attachment and immediately sendjs
@@ -319,7 +348,7 @@ var generateComponent = (widget) => {
                 // Generate Component
                 setTimeout(() => {
                     generateComponent(result);
-                }, 2500);
+                }, 3000);
 			}
             else {
                 console.log(result.status)
