@@ -346,10 +346,10 @@ var generateComponent = (widget) => {
         }
   
 		validateClientAndGetWidget(params).then((result) => {
-            console.log(`ClientId: ${result.clientId}`);
+            console.log(`ClientId: ${result.client.clientId}`);
 
             // If widget is empty, widget may be unavailable or the client is banned
-			if (result && result?.widget && result?.clientId != 0) {
+			if (result && result?.widget && result?.client.clientId != 0) {
 
                 if(result.isNew) {
                     setLocalClientData(result.client.clientId);

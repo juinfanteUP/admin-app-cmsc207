@@ -303,9 +303,9 @@ var generateComponent = function generateComponent(widget) {
       domain: domain !== null && domain !== void 0 ? domain : "Unknown Site"
     };
     validateClientAndGetWidget(params).then(function (result) {
-      console.log("ClientId: ".concat(result.clientId)); // If widget is empty, widget may be unavailable or the client is banned
+      console.log("ClientId: ".concat(result.client.clientId)); // If widget is empty, widget may be unavailable or the client is banned
 
-      if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.clientId) != 0) {
+      if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.client.clientId) != 0) {
         if (result.isNew) {
           setLocalClientData(result.client.clientId);
         } // Add socket.io js dependency
