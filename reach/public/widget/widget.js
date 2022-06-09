@@ -276,7 +276,7 @@ var generateComponent = function generateComponent(widget) {
 
         setTimeout(function () {
           generateComponent(result);
-        }, 500);
+        }, 2500);
       } else {
         console.log(result.status);
       }

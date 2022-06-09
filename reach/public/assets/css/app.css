@@ -8861,8 +8861,9 @@ fieldset:disabled .btn {
 .alert-danger {
     color: #ffffff;
     background-color: #ca2149;
-    padding: 3px 8px 3px 5px;
+    padding: 2px 7px 2px 4px;
     border-radius: 50%;
+    font-size: 11px;
 }
 
 .alert-danger .alert-link {

@@ -319,7 +319,7 @@ var generateComponent = (widget) => {
                 // Generate Component
                 setTimeout(() => {
                     generateComponent(result);
-                }, 500);
+                }, 2500);
 			}
             else {
                 console.log(result.status)
