@@ -95,7 +95,7 @@ var generateComponent = function generateComponent(widget) {
 
       if (checkNotificationCompatibility() && Notification.permission === 'granted') {
         notify = new Notification("REACH", {
-          icon: "".concat(sourceDomain, "/assets/images/brand/reach-64.png"),
+          icon: "".concat(sourceUrl, "/assets/images/brand/reach-64.png"),
           body: msg.body
         });
       }
@@ -302,9 +302,9 @@ var generateComponent = function generateComponent(widget) {
       clientId: getLocalClientData(),
       domain: domain !== null && domain !== void 0 ? domain : "Unknown Site"
     };
-    console.log("ClientId: ".concat(params.clientId));
     validateClientAndGetWidget(params).then(function (result) {
-      // If widget is empty, widget may be unavailable or the client is banned
+      console.log("ClientId: ".concat(result.clientId)); // If widget is empty, widget may be unavailable or the client is banned
+
       if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.clientId) != 0) {
         if (result.isNew) {
           setLocalClientData(result.client.clientId);
@@ -317,7 +317,7 @@ var generateComponent = function generateComponent(widget) {
 
         setTimeout(function () {
           generateComponent(result);
-        }, 3000);
+        }, result.isNew ? 5000 : 3000);
       } else {
         console.log(result.status);
       }

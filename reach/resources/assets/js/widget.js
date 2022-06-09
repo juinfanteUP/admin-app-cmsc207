@@ -106,7 +106,7 @@ var generateComponent = (widget) => {
             
             if (checkNotificationCompatibility() && Notification.permission === 'granted') {
                 notify = new Notification("REACH", {
-                    icon: `${sourceDomain}/assets/images/brand/reach-64.png`,
+                    icon: `${sourceUrl}/assets/images/brand/reach-64.png`,
                     body: msg.body
                 });
             }
@@ -345,8 +345,8 @@ var generateComponent = (widget) => {
             domain: domain ?? "Unknown Site"
         }
   
-        console.log(`ClientId: ${params.clientId}`);
 		validateClientAndGetWidget(params).then((result) => {
+            console.log(`ClientId: ${result.clientId}`);
 
             // If widget is empty, widget may be unavailable or the client is banned
 			if (result && result?.widget && result?.clientId != 0) {
@@ -363,7 +363,7 @@ var generateComponent = (widget) => {
                 // Generate Component
                 setTimeout(() => {
                     generateComponent(result);
-                }, 3000);
+                }, (result.isNew ? 5000 : 3000));
 			}
             else {
                 console.log(result.status)
