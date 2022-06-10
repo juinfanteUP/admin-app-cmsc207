@@ -15,13 +15,15 @@
 
     <body>     
         
+        <!-- Preloader -->
+        <div id="preloader">
+            <div data-loader="circle-side"></div>
+        </div>
+
         <div id="app" >
             @yield('content')
         </div>
 
-        <div id="loader">
-            <div class="loading">Loading&#8230;</div>
-        </div>
 
         <script src="{{ asset('assets/js/auth.js') }}"></script>
 

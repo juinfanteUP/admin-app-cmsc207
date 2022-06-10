@@ -1,27 +1,56 @@
 
 
-<div id="history-pane" class="w-100 overflow-hidden chat-bg pt-3 main-page">
-
+<div id="history-pane" class="w-100 chat-bg pt-3 main-page">
     <div class="container table-responsive pt-5"> 
         <div class="page-content">
-
             <div class="container-fluid">
 
-                <div class="card mt-3">
+                <div class="card my-3">
+                    <div class="card-body">                
+                        <div class="row mt-2">
+                            <div class="col-md-4">
+                                <h5 class="card-title pt-1 text-muted">
+                                    Search Client
+                                </h5>
+
+                                <input class="form-control mt-2" type="text" v-model="searchMessageClient" 
+                                placeholder="Enter text to search client" />                           
+                            </div>
+                            <div class="col-md-5">
+                                <h5 class="card-title pt-1 text-muted">
+                                    Filter Client <small class="mx-1">(<b class="text-success">@{{ resultClientMessageSearch.length }}</b>)</small>
+                                </h5>
+
+                                <select class="form-select mt-2" v-model="selectedSearchMessageClient">   
+                                    <option :value="''" selected>--- All Clients ---</option>
+                                    <option v-for="clientMessage in resultClientMessageSearch" :value="clientMessage.clientId" >
+                                        @{{ clientMessage.label == null ? clientMessage.clientId : clientMessage.label }} - (@{{ clientMessage.ipaddress }} @ @{{ clientMessage.domain }})
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 pt-4">
+                                <button class="btn btn-success w-100 mt-1" type="button" @click="messageClientId = selectedSearchMessageClient">Search Message</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="card my-3">
                     <div class="card-body">
 
                         <div class="row">
                             <div class="col-sm-6">
                                 <h4 class="card-title pt-1 text-muted">
-                                    Message History
+                                    Message History Result <small class="mx-1">(<b class="text-success">@{{ messageClientId == '' ? 'All Clients' : messageClientId }}</b>)</small>
                                 </h4>
                             </div>
                             <div class="col-sm-6">
                                 <input v-model="searchMessage" type="text" class="form-control" placeholder="Enter to search messages">
                             </div>
                         </div>
-                        
-
+                    
                         <!-- Data History Report -->
                         <div class="table-responsive mt-4">
                             <table class="table table-editable table-nowrap align-middle table-edits">

@@ -1,5 +1,8 @@
+
 // Utilities
 (function () {
+
+    
   
     // chat emojiPicker input
     new FgEmojiPicker({
@@ -70,13 +73,7 @@
         var pane_clientBan = document.getElementById("clientban-pane");
         var pane_multichat = document.getElementById("multichat-pane");
   
-        inner_navbar.style.display = 'none';
-        pane_home.style.display = 'block';
-        pane_chat.style.display = 'none';
-        pane_widget.style.display = 'none';
-        pane_multichat.style.display = 'none';
-        pane_history.style.display = 'none';
-        pane_clientBan.style.display = 'none';      
+        pane_home.style.display = 'block'; 
         pane_home.classList.add("active");
 
         nav_home.addEventListener("click", function() {

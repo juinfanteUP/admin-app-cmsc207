@@ -1,6 +1,6 @@
 
 
-<div id="clientban-pane" class="w-100 overflow-hidden chat-bg pt-3 main-page">
+<div id="clientban-pane" class="w-100 chat-bg pt-3 main-page">
 
     <div class="container table-responsive pt-5"> 
         <div class="page-content">

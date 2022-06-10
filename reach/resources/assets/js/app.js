@@ -5,13 +5,16 @@
  */
 
 require('./bootstrap');
+window.Utility = require('./utility');
 window.Vue = require('vue').default;
 
 
 // ***************** Update these Properties ***************** //
 
+
 var socketioUrl = "";
 var socket = "";
+
 
 // ***************** Update these Properties ***************** //
 
@@ -87,6 +90,9 @@ var socket = "";
         allMessages: [],
         unseenMessages: {},
         typingmsg: [],
+        selectedSearchMessageClient: '',
+        searchMessageClient: '',
+        messageClientId: '',
 
         // Multiwindow
         multiWindowList: [],
@@ -106,22 +112,29 @@ var socket = "";
         totalHistoryPage: 0, 
         totalHistoryRecord: 0,     
         skipCountHistory: 10,
+        loadQueue: []
 	},
+
+    beforeMount: function beforeMount(){
+        Utility.requestNotificationPermission();
+    },
 
 	mounted: function mounted() {
         const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
         });
+
         var api = `/api/widget/settings`;
         var _this = this;
 
-        axios.get(api).then(function(response) {   
+        _this.showLoader();
+        axios.get(api).then(function(response) {  
             socketioUrl = response.data.socket;
             socket = io(socketioUrl);
 
             _this.getProfile();	
             _this.getMessages();
-            _this.TimeTrigger();
+            _this.timeTrigger();
             _this.registerSocketServer();  
             
             if (params.id) {
@@ -134,7 +147,7 @@ var socket = "";
                 _this.getClientBanList();   
             }
         })["catch"](function(error) {
-            handleError(error);
+            Utility.handleError(error);
         });
 	},
 
@@ -145,16 +158,24 @@ var socket = "";
 
         resultMessageHistory: function resultMessageHistory() {
             var _this = this;
-            let messages = this.allMessages;     
+            let messages = _this.allMessages;    
+            
+            if (_this.messageClientId) {
+                messages = messages.filter((i)=>{
+                    return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
+                        return i.clientId == _this.messageClientId
+                    });
+                });
+            }
 
-			if (this.searchMessage) {
+            if (_this.searchMessage) {
                 _this.currentHistoryPage= 1;
-				messages = this.allMessages.filter((i)=>{
-					return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
-						return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
-					});
-				});
-			}
+                messages = messages.filter((i)=>{
+                    return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
+                        return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
+                    });
+                });
+            }
 
             _this.totalHistoryPage = Math.ceil(messages.length / _this.skipCountHistory);
             _this.totalHistoryPage = _this.totalHistoryPage <= 0 ? 1 : _this.totalHistoryPage;
@@ -185,13 +206,29 @@ var socket = "";
         },
 
 
+        resultClientMessageSearch: function resultClientSearch() {
+			var _this = this;
+            var clients = this.clients;
+
+			if (this.searchMessageClient) {
+				return clients.filter((i)=>{
+					return _this.searchMessageClient.toLowerCase().split(' ').every(function(v) {
+						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v) || i.country?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
+					});
+				});
+			}
+
+			return clients;
+		},
+
+
 		resultClientSearch: function resultClientSearch() {
 			var _this = this;
 
 			if (this.searchClient) {
 				return this.clients.filter((i)=>{
 					return _this.searchClient.toLowerCase().split(' ').every(function(v) {
-						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
+						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v) || i.country?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
 					});
 				});
 			}
@@ -260,14 +297,14 @@ var socket = "";
                 }
 
                 _this.$forceUpdate();
-                scrollToBottom();
+                Utility.scrollToBottom();
 
                 $("#typing-client").text("");
                 $("#istyping").text("");
             
                 if (!isMute) {
                     let body = msg.attachmentId == "0" ? msg.body : "Attachment has been uploaded";
-                    alertTitle(body);
+                    Utility.alertTitle(body);
                 }        
             });
 
@@ -305,10 +342,14 @@ var socket = "";
             var api = `/api/agent/profile`;
             var _this = this;
 
+            _this.showLoader();
 			axios.get(api).then(function(response) {
+                _this.showLoader(false);
+                _this.showLoader(false);
+
 				_this.agent = response.data;
 			})["catch"](function(error) {
-				handleError(error);
+				Utility.handleError(error);
                 window.location.href = "/login";
 			});
 		},
@@ -317,10 +358,13 @@ var socket = "";
             var api = `/api/agent/list`;
             var _this = this;
 
+            _this.showLoader();
 			axios.get(api).then(function(response) {			
+                _this.showLoader(false);
+
                 _this.agents = response.data;
 			})["catch"](function(error) {
-				handleError(error);
+				Utility.handleError(error);
 			});
 		},
 
@@ -328,15 +372,18 @@ var socket = "";
             var api = `/api/message/report`;
             var _this = this;
 
+            _this.showLoader();
 			axios.get(api).then(function(response) {
+                _this.showLoader(false);
+
 				_this.reports = response.data;
                 var canvas = document.getElementById("reportCanvas");
                 if(canvas != null){
                     var ctx = document.getElementById("reportCanvas").getContext("2d");
-                    window.myLine = new Chart(ctx, getChartConfig(_this.reports.historyList));
+                    window.myLine = new Chart(ctx, Utility.getChartConfig(_this.reports.historyList));
                 }
 			})["catch"](function(error) {
-				handleError(error);
+				Utility.handleError(error);
 			});
 		},
 
@@ -349,7 +396,10 @@ var socket = "";
             var _this = this;
             _this.clients = [];
 
-			axios.get(api).then(function(response) {        
+            _this.showLoader();
+			axios.get(api).then(function(response) {   
+                _this.showLoader(false);
+
                 $.getJSON( "/assets/js/flag.json", ( flags ) => { 
                     response.data.forEach(c => {
                         c.missedCount = 0;
@@ -378,7 +428,7 @@ var socket = "";
                     _this.$forceUpdate();
                 });             
 			})["catch"](function(error) {
-				handleError(error);
+				Utility.handleError(error);
 			});
 		},
 
@@ -408,11 +458,11 @@ var socket = "";
             var api = `/api/message/setSeen`;
             axios.post(api, { clientId: client.clientId }).then(function() {
             })["catch"](function(error) {
-                handleError(error);
+                Utility.handleError(error);
             });
 
             this.$forceUpdate();
-            scrollToBottom();
+            Utility.scrollToBottom();
 		},
 
 		viewClientInfo: function viewClientInfo(client) {
@@ -442,7 +492,10 @@ var socket = "";
             var _this = this;
 
             if(confirm('Are you sure you want to update this client?')) {
+
+                _this.showLoader();
                 axios.put(api, _this.viewClient).then(function() {
+                    _this.showLoader(false);
 
                     let ind = _.findIndex(_this.clients, (c) => { return c.clientId == _this.viewClient.clientId });   
                     if (ind>=0) {
@@ -451,8 +504,9 @@ var socket = "";
                     }
 
                     alert('Client has been updated successfully!');
+                    
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
             }
         },
@@ -462,7 +516,7 @@ var socket = "";
             client.isMute = !client.isMute;
 
             axios.put(api, client).then(function() { })["catch"](function(error) {
-                handleError(error);
+                Utility.handleError(error);
             });
         },
 
@@ -484,7 +538,7 @@ var socket = "";
                     _this.allMessages = _.filter(_this.allMessages, function (c) { return c.clientiD != client.clientId; });
                     _this.$forceUpdate();
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
             }
         },
@@ -498,13 +552,16 @@ var socket = "";
             var _this = this;
             _this.clientBanList = [];
 
+            _this.showLoader();
             axios.get(api).then(function(response) {
+                _this.showLoader(false);
+
                 response.data.forEach(c => {
                     c.created_at = new Date(c.created_at).toISOString().slice(0, 19).replace('T', ' ');
                     _this.clientBanList.push(c);
                 });
             })["catch"](function(error) {
-                handleError(error);
+                Utility.handleError(error);
             });
         },
 
@@ -530,7 +587,7 @@ var socket = "";
                     
                     alert('Client has been banned successfully!');        
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
             }
         },
@@ -545,7 +602,7 @@ var socket = "";
                     _this.getClientBanList();
                     alert('Client has been removed from the ban list.');        
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
             }
         },
@@ -585,13 +642,13 @@ var socket = "";
 
                 switch(_this.selectedBanKey){
                     case 'domain':
-                        if(!validateDomain(_this.banInput)){
+                        if(!Utility.validateDomain(_this.banInput)){
                             alert('Please provide a valid domain name');
                             return;
                         }
                         break;
                     case 'ipaddress':
-                        if(!validateIP(_this.banInput)){
+                        if(!Utility.validateIP(_this.banInput)){
                             alert('Please provide a valid IP Address');
                             return;
                         }
@@ -607,13 +664,13 @@ var socket = "";
 
                 switch(_this.selectedWhiteKey){
                     case 'domain':
-                        if(!validateDomain(_this.whiteInput)){
+                        if(!Utility.validateDomain(_this.whiteInput)){
                             alert('Please provide a valid domain name');
                             return;
                         }
                         break;
                     case 'ipaddress':
-                        if(!validateIP(_this.whiteInput)){
+                        if(!Utility.validateIP(_this.whiteInput)){
                             alert('Please provide a valid IP Address');
                             return;
                         }
@@ -622,7 +679,7 @@ var socket = "";
             }
 
 			if (confirm('Are you sure you want to update the widget settings?')) {
-                showLoader();
+               
                 switch(action){
                     case 'addBan':
                         _this.banList.push({ type: _this.selectedBanKey, value: _this.banInput });
@@ -678,11 +735,13 @@ var socket = "";
                     }
                 });
 				
-                _this.selectedBanKey = '';        
+                _this.selectedBanKey = '';  
+
+                _this.showLoader();      
 				axios.put(api, dataParams).then(function(response) {
-					showLoader(false);
+					_this.showLoader(false);
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
 
                 _this.whiteList.forEach(white => {
@@ -703,12 +762,12 @@ var socket = "";
                 });
 				
                 _this.selectedWhiteKey = '';     
-
+                _this.showLoader();
 				axios.put(api, dataParams).then(function(response) {
-					showLoader(false);
+					_this.showLoader(false);
 					
 				})["catch"](function(error) {
-					handleError(error);
+					Utility.handleError(error);
 				});
 
                 alert('Settings has been updated successfully.');
@@ -734,17 +793,17 @@ var socket = "";
             let api = '/api/message/list';
             _this.reports.messageVolumeCount++;
 
-			showLoader();
-			axios.get(api).then(function(response) {    
+			_this.showLoader();
+			axios.get(api).then(function(response) {   
+                _this.showLoader(false);
+
 				_this.allMessages = response.data;
 
                 _this.allMessages.forEach(m => {
                     m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
                 });
-
-                showLoader(false);
 			})["catch"](function(error) {
-				handleError(error);
+				Utility.handleError(error);
 			});
 		},
 
@@ -773,7 +832,7 @@ var socket = "";
             // Handle plain message
             if (_this.file && _this.file?.name != "") {   
                       
-               if (!validateExtension(_this.file?.name))
+               if (!Utility.validateExtension(_this.file?.name))
                {
                    alert("File extension is invalid.");
                    return;
@@ -787,8 +846,11 @@ var socket = "";
                 _this.isSubmitting = true;
                 _this.$forceUpdate();
 
+                _this.showLoader();
                 return axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
                 .then(function(response) {
+                    _this.showLoader(false);
+           
                     let newMsg = response.data;
                     msg.attachmentId = newMsg.attachmentId;
                     msg.fileName = newMsg.fileName;
@@ -802,20 +864,21 @@ var socket = "";
                     _this.allMessages.push(msg);
 
                     _this.cancelUpload();
-                    scrollToBottom();
+                    Utility.scrollToBottom();
 
                 }).catch(function(error) {
-                    handleError(error);
+                    Utility.handleError(error);
                 });
             }
                 
             _this.chatbox = "";
             _this.allMessages.push(msg);
             _this.messages.push(msg);
-            scrollToBottom();
+            Utility.scrollToBottom();
             
             socket.emit('send-message', msg);
             _this.isSubmitting = true;
+
             return axios.post(sendApi, {
 
                 clientId: msg.clientId,
@@ -826,12 +889,11 @@ var socket = "";
                 attachmentId: '0'
 
             }).then(function(response) {
-
                 _this.isSubmitting = false;
 
                 _this.$forceUpdate();
             })["catch"](function(error) {
-                handleError(error);
+                Utility.handleError(error);
             });
 		},
 
@@ -894,10 +956,9 @@ var socket = "";
             _this.allMessages.push(msg);
             w.messages.push(msg);
             socket.emit('send-message', msg);
-            w.body = "";
+            w.body = "";       
+            Utility.scrollToBottom();
             
-            scrollToBottom();
-
             return axios.post(sendApi, {
                 clientId: msg.clientId,
                 body: msg.body,          
@@ -908,7 +969,7 @@ var socket = "";
             }).then(function(response) {
                 _this.$forceUpdate();
             })["catch"](function(error) {
-                handleError(error);
+                Utility.handleError(error);
             });
         },
 
@@ -941,7 +1002,7 @@ var socket = "";
 		// ************************ Utility Functions ************************ //
 
 
-		TimeTrigger: function TimeTrigger() {
+		timeTrigger: function timeTrigger() {
 			var _this = this;
 
 			setInterval(() => { 
@@ -993,154 +1054,30 @@ var socket = "";
            }, 10000);
 		},
 
-        // 
+        showLoader: function showLoader(willShow=true) {
+            var divLoader = document.getElementById("preloader");
+            var nodes = divLoader.children;
+
+            if (willShow) this.loadQueue.push(1);else this.loadQueue.pop();
+      
+            if (this.loadQueue.length > 0) {
+              divLoader.style.display = 'block';
+            }
+      
+            if (this.loadQueue.length == 0) {
+                $('#preloader').delay(100).fadeOut('slow');
+      
+                for (var i = 0; i < nodes.length; i++) {
+                    nodes[i].style.display = 'none';
+                }
+            } 
+            else {
+              divLoader.style.display = 'block';
+      
+              for (var i = 0; i < nodes.length; i++) {
+                nodes[i].style.display = 'block';
+              }
+            }       
+        }      
 	}
 });
-
-
-// *********** Helper Methods *********** //
-
-
-function showLoader(willShow = true) {
-    let loader = document.getElementById("loader");
-    if (loader){
-        loader.style.display = willShow ? 'block' : 'none';
-    }
-}
-
-function alertTitle(msg){
-
-    if (checkNotificationCompatibility() && Notification.permission === 'granted') {
-        console.log('incoming message, creating notification')
-        notify = new Notification("REACH", {
-            icon: 'assets/images/brand/reach-64.png',
-            body: msg
-        });
-    }
-
-    var c = 1;
-    var i = setInterval(function(){
-        document.title =  c % 2 == 0 ? "New Message!" : "Reach App";
-        c ++;
-    } ,1000);
-    setTimeout(function( ) { 
-        clearInterval(i); 
-        document.title = "Reach App";
-    }, 10000);
-}
-
-function handleError(e) {
-    console.log(e);
-    showLoader(false);
-}
-
-function scrollToBottom() {
-    setTimeout(function() {
-        let parentContainer = document.getElementById("users-conversation")?.parentNode;
-        if(parentContainer){
-            parentContainer.style.overflowX = 'hidden';
-            parentContainer.style.overflowY = 'auto';
-            $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
-        }
-
-        var multiWindow = $(".chat-history");
-        if (multiWindow){
-            $(".chat-history").stop().animate({
-                scrollTop: $(".chat-history")[0]?.scrollHeight
-            }, 1000);
-        }
-    }, 200);
-}
-
-function validateIP(str) {
-    return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
-}  
-
-function validateDomain(str) {
-    return /\S+\.\S+/.test(str);
-  }
-
-function checkNotificationCompatibility() {
-    if (typeof Notification === 'undefined') {
-        console.log("Notification is not supported by this browser");
-        return false;
-    }
-    return true;
-}
-
-function requestNotificationPermission() {
-    if (checkNotificationCompatibility()) {
-        Notification.requestPermission(function(permission){
-            console.log('notification permission: '+permission);
-        })
-    }
-}
-
-function validateExtension(fileName) {
-    var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar",
-    ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx",];
-    return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
-}
-
-
-function getChartConfig(reportList) {
-    let dateList = [0];
-    let messageCountList = [0];
-    let clientCountList = [0];
-    
-    reportList.forEach(c => {
-        dateList.push(c.date);
-        messageCountList.push(c.messageVolumeCount);
-        clientCountList.push(c.clientCount);
-    });
-
-    return {
-        type: 'line',
-        data: {
-            labels: dateList,
-            datasets: [{
-                label: "Client Engagement Count",
-                backgroundColor: "#4eac6d99",
-                borderColor: "#4eac6d",
-                data: clientCountList,
-                fill: true,
-            }, {
-                label: "Message Volume",
-                fill: false,
-                backgroundColor: "#aaa",
-                borderColor: "#aaa",
-                data: messageCountList,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                    }
-                }]
-            }
-        }
-    };
-}
-
-
-// request permission for notification
-requestNotificationPermission();
