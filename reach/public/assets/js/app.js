@@ -31992,7 +31992,8 @@ var app = new Vue({
         $("#istyping").text("");
 
         if (!isMute) {
-          alertTitle(msg.body);
+          var body = msg.attachmentId == "0" ? msg.body : "Attachment has been uploaded";
+          alertTitle(body);
         }
       });
       socket.on('listen-client-type', function (msg) {
@@ -32589,7 +32590,14 @@ var app = new Vue({
       }; // Handle plain message
 
       if (_this.file && ((_this$file3 = _this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "") {
-        // Handle message with attachment
+        var _this$file4;
+
+        if (!validateExtension((_this$file4 = _this.file) === null || _this$file4 === void 0 ? void 0 : _this$file4.name)) {
+          alert("File extension is invalid.");
+          return;
+        } // Handle message with attachment
+
+
         var formData = new FormData();
         formData.append('file', _this.file);
         formData.append('document', JSON.stringify(msg));
@@ -32882,6 +32890,11 @@ function requestNotificationPermission() {
       console.log('notification permission: ' + permission);
     });
   }
+}
+
+function validateExtension(fileName) {
+  var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar", ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx"];
+  return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(fileName);
 }
 
 function getChartConfig(reportList) {
