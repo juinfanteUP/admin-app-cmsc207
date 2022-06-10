@@ -20,6 +20,7 @@ class ClientController extends Controller
     {  
         // Get IP and client's details
         $isNewClient = false;
+        $isNewConversation = false;
         $messages = [];
 
 
@@ -147,7 +148,7 @@ class ClientController extends Controller
 
         // Create new client record if client data is empty. Otherwise, retrieve messages
         if(is_null($client)) 
-        {          
+        {         
             $client = new Client;
             $client->clientId = substr(md5(uniqid(rand(), true)), 16);
             $client->ipaddress = $data->ip;
@@ -157,14 +158,30 @@ class ClientController extends Controller
             $client->city = $data->cityName ?? "";
             $client->isActive = true;
             $client->isMute = false;
+            $client->latestConversationId=substr(md5(uniqid(rand(), true)), 16);
             $client->save();
             $isNewClient = true;
+            $isNewConversation = true;
+        }
+        elseif(is_null($client->latestConversationId))
+        {
+            
+            $newConversationId = substr(md5(uniqid(rand(), true)), 16);
+            $item = Client::where("clientId", $req->clientId)
+                        ->update([ 
+                            'latestConversationId' => $newConversationId, 
+                            'isActive' => true
+                        ]);
+            $client->latestConversationId = $newConversationId;
+            $client->isActive = true;
+            $isNewConversation = true;
         }
         else 
         {
             $messages = Message::where('clientId', $req->clientId)
                         ->where('isWhisper', 'false')
-                        ->get(['clientId','senderId','body','isAgent','isWhisper','created_at']);
+                        ->where('conversationId', $client->latestConversationId)
+                        ->get(['clientId','senderId','body','isAgent','isWhisper','created_at','conversationId']);
         }
 
         // Update widget component based on settings
@@ -186,6 +203,7 @@ class ClientController extends Controller
             'isNew' => $isNewClient,
             'messages' => $messages,
             'links' => $links,
+            'isNewConversation' => $isNewConversation,
             'status' => 'successful'
         ], 200);
     }
@@ -229,7 +247,7 @@ class ClientController extends Controller
     public function endSession(Request $req)
     {
         $item = Client::where("clientId", $req->clientId)
-                        ->update([ 'isActive' => false ]);
+                        ->update([ 'isActive' => false, 'latestConversationId' => null ]);
 
         return response()->json("Updated successfully!", 200);
     }

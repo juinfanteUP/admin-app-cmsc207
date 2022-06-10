@@ -48,6 +48,11 @@ class MessageController extends Controller
             $message->attachmentId = $attachmentId;
             $message->fileName = $attachment->fileName;
             $message->fileSize = $attachment->fileSize;
+
+            // get client conversationId
+            $client = Client::where("clientId", $req->clientId)->first();
+
+            $message->conversationId = $client->latestConversationId;
             $res = $message->save();
 
             if($res)
@@ -70,6 +75,10 @@ class MessageController extends Controller
             $message->attachmentId = '0';
             $message->fileName = '';
             $message->fileSize = 0;
+            // get client conversationId
+            $client = Client::where("clientId", $req->clientId)->first();
+
+            $message->conversationId = $client->latestConversationId;
             $res = $message->save();
 
             if($res)
