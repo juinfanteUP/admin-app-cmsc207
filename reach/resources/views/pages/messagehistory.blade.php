@@ -13,7 +13,7 @@
                                     Search Client
                                 </h5>
 
-                                <input class="form-control mt-2" type="text" v-model="messageHistoryPagination.searchMessageClient" 
+                                <input class="form-control mt-2" type="text" v-model="searchMessageClient" 
                                 placeholder="Enter text to search client" />                           
                             </div>
                             <div class="col-md-5">
