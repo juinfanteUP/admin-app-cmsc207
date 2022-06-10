@@ -22,9 +22,10 @@
                 @include('pages.chat')
                 @include('pages.widget')
                 @include('pages.multichat')
-                @include('pages.history')
+                @include('pages.messagehistory')
                 @include('pages.clientBan')
                 @include('pages.clientconfig')
+                @include('pages.clienthistory')
             </div>
         </div>
     </div>

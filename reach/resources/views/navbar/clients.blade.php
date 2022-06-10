@@ -59,6 +59,7 @@
                                 </button>
                                 <div class="dropdown-content">
                                   <a href="javascript:" class="px-3" @click="viewClientInfo(client)" >Client Info</a>
+                                  <a href="javascript:" class="px-3" @click="viewClientMessages(client)" >View Message History</a>
                                   <a href="javascript:" class="px-3" @click="openChatWindow(client)" >Open in new window</a>
                                   <a href="javascript:" class="px-3" @click="controlClientMute(client)" >@{{ client.isMute ? 'Unmute Client' : 'Mute Client' }}</a>
                                   <a href="javascript:" class="px-3 text-danger" @click="banClient(client)" >Ban Client</a>

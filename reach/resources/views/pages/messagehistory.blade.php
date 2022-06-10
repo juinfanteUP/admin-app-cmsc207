@@ -13,17 +13,17 @@
                                     Search Client
                                 </h5>
 
-                                <input class="form-control mt-2" type="text" v-model="searchMessageClient" 
+                                <input class="form-control mt-2" type="text" v-model="messageHistoryPagination.searchMessageClient" 
                                 placeholder="Enter text to search client" />                           
                             </div>
                             <div class="col-md-5">
                                 <h5 class="card-title pt-1 text-muted">
-                                    Filter Client <small class="mx-1">(<b class="text-success">@{{ resultClientMessageSearch.length }}</b>)</small>
+                                    Filter Client <small class="mx-1">(<b class="text-success">@{{ resultClientFilterSearch.length }}</b>)</small>
                                 </h5>
 
                                 <select class="form-select mt-2" v-model="selectedSearchMessageClient">   
                                     <option :value="''" selected>--- All Clients ---</option>
-                                    <option v-for="clientMessage in resultClientMessageSearch" :value="clientMessage.clientId" >
+                                    <option v-for="clientMessage in resultClientFilterSearch" :value="clientMessage.clientId" >
                                         @{{ clientMessage.label == null ? clientMessage.clientId : clientMessage.label }} - (@{{ clientMessage.ipaddress }} @ @{{ clientMessage.domain }})
                                     </option>
                                 </select>
@@ -47,7 +47,7 @@
                                 </h4>
                             </div>
                             <div class="col-sm-6">
-                                <input v-model="searchMessage" type="text" class="form-control" placeholder="Enter to search messages">
+                                <input v-model="messageHistoryPagination.search" type="text" class="form-control" placeholder="Enter to search messages">
                             </div>
                         </div>
                     
@@ -88,13 +88,13 @@
 
                         <div class="row mt-2">
                             <div class="col-sm-6">
-                                Page @{{ currentHistoryPage }} of @{{ totalHistoryPage }} <small class="mx-2 text-muted">(@{{ totalHistoryRecord }}) total records</small>
+                                Page @{{ messageHistoryPagination.currentPage }} of @{{ messageHistoryPagination.totalPage }} <small class="mx-2 text-muted">(@{{ messageHistoryPagination.totalRecord }}) total records</small>
                             </div>
                             <div class="col-sm-6" style="text-align: right">
-                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="currentHistoryPage--" :disabled='currentHistoryPage==1'>
+                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="messageHistoryPagination.currentPage--" :disabled='messageHistoryPagination.currentPage==1'>
                                     <i class="ri-arrow-left-s-line"></i>
                                 </button>
-                                <button class="btn btn-sm btn-success px-2" type="button" @click="currentHistoryPage++" :disabled='currentHistoryPage==totalHistoryPage'>
+                                <button class="btn btn-sm btn-success px-2" type="button" @click="messageHistoryPagination.currentPage++" :disabled='messageHistoryPagination.currentPage==messageHistoryPagination.totalPage'>
                                     <i class="ri-arrow-right-s-line"></i>
                                 </button>
                             </div>

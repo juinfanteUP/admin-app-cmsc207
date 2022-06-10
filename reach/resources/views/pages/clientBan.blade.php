@@ -17,7 +17,7 @@
                                 </h4>
                             </div>
                             <div class="col-sm-6">
-                                <input v-model="searchClientBan" type="text" class="form-control" placeholder="Enter to search banned clients">
+                                <input v-model="clientBanPagination.search" type="text" class="form-control" placeholder="Enter to search banned clients">
                             </div>
                         </div>
                         
@@ -57,13 +57,13 @@
 
                         <div class="row mt-2">
                             <div class="col-sm-6">
-                                Page @{{ currentClientBanPage }} of @{{ totalClientBanPage }} <small class="mx-2 text-muted">(@{{ totalClientBanRecord }}) total records</small>
+                                Page @{{ clientBanPagination.currentPage }} of @{{ clientBanPagination.totalPage }} <small class="mx-2 text-muted">(@{{ clientBanPagination.totalRecord }}) total records</small>
                             </div>
                             <div class="col-sm-6" style="text-align: right">
-                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="currentClientBanPage--" :disabled='currentClientBanPage==1'>
+                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="clientBanPagination.currentPage--" :disabled='clientBanPagination.currentPage==1'>
                                     <i class="ri-arrow-left-s-line"></i>
                                 </button>
-                                <button class="btn btn-sm btn-success px-2" type="button" @click="currentClientBanPage++" :disabled='currentClientBanPage==totalClientBanPage'>
+                                <button class="btn btn-sm btn-success px-2" type="button" @click="clientBanPagination.currentPage++" :disabled='clientBanPagination.currentPage==clientBanPagination.totalPage'>
                                     <i class="ri-arrow-right-s-line"></i>
                                 </button>
                             </div>
