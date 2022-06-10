@@ -5,6 +5,7 @@ var __webpack_exports__ = {};
   \***************************************/
 // *********************************************************** //
 var localStorageName = 'reachapp_clientid';
+var localStorageConversationName = 'reachapp_conversationid';
 var sourceUrl = new URL(document.currentScript.src).origin;
 var themeColor = "#111";
 var isWidgetOpen = false;
@@ -49,6 +50,20 @@ var getLocalClientData = function getLocalClientData() {
 var setLocalClientData = function setLocalClientData() {
   var cid = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
   localStorage.setItem(localStorageName, cid);
+}; // reachapp_conversationid
+// Get conversation id from stored cookies. Geenerate a new one if non existent
+
+
+var getLocalClientConversationData = function getLocalClientConversationData() {
+  var _localStorage$getItem2;
+
+  return (_localStorage$getItem2 = localStorage.getItem(localStorageConversationName)) !== null && _localStorage$getItem2 !== void 0 ? _localStorage$getItem2 : 0;
+}; // Save conversation id generated from the server
+
+
+var setLocalClientConversationData = function setLocalClientConversationData() {
+  var conversationId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+  localStorage.setItem(localStorageConversationName, conversationId);
 }; // ***************** Chat Widget ***************** //
 
 
@@ -70,7 +85,8 @@ var generateComponent = function generateComponent(widget) {
   document.body.innerHTML += widget.widget;
   UpdateWidgetSettings(settings);
   var socket = io(links.socketurl);
-  var room = getLocalClientData(); // Generate message history
+  var room = getLocalClientData();
+  var conversationId = getLocalClientConversationData(); // Generate message history
 
   for (var i = 0; i < messages.length; i++) {
     generateMessage(messages[i], messages[i].isAgent == 'false', messages[i].created_at, i == messages.length - 1);
@@ -105,8 +121,9 @@ var generateComponent = function generateComponent(widget) {
   socket.on('end-session', function (clientId) {
     if (room == clientId) {
       alert('You session with the agent has ended.');
-      $("#chat-body").remove();
-      setLocalClientData();
+      $("#chat-body").remove(); //  setLocalClientData();
+
+      setLocalClientConversationData();
     }
   }); // Listen to end session
 
@@ -132,6 +149,7 @@ var generateComponent = function generateComponent(widget) {
       'attachmentId': '0',
       'fileSize': 0,
       'fileName': '',
+      'conversationId': conversationId,
       'createddtm': Date.now()
     };
     sendMessage(message);
@@ -232,6 +250,7 @@ var generateComponent = function generateComponent(widget) {
       'attachmentId': '0',
       'fileSize': 0,
       'fileName': '',
+      'conversationId': conversationId,
       'createddtm': Date.now()
     };
     var file = input.files[0];
@@ -309,9 +328,12 @@ var generateComponent = function generateComponent(widget) {
 
   setTimeout(function () {
     var domain = window.location.hostname;
+    var source = window.location.href;
     var params = {
       clientId: getLocalClientData(),
-      domain: domain !== null && domain !== void 0 ? domain : "Unknown Site"
+      source: source !== null && source !== void 0 ? source : "Unknown Site",
+      domain: domain !== null && domain !== void 0 ? domain : "Unknown Domain",
+      conversationId: getLocalClientConversationData()
     };
     validateClientAndGetWidget(params).then(function (result) {
       console.log("ClientId: ".concat(result.client.clientId)); // If widget is empty, widget may be unavailable or the client is banned
@@ -319,8 +341,9 @@ var generateComponent = function generateComponent(widget) {
       if (result && result !== null && result !== void 0 && result.widget && (result === null || result === void 0 ? void 0 : result.client.clientId) != 0) {
         if (result.isNew) {
           setLocalClientData(result.client.clientId);
-        } // Add socket.io js dependency
+        }
 
+        setLocalClientConversationData(result.client.latestConversationId); // Add socket.io js dependency
 
         var socketio = document.createElement("script");
         socketio.src = result.links.socketioLib;

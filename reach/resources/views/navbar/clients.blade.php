@@ -63,7 +63,7 @@
                                   <a href="javascript:" class="px-3" @click="openChatWindow(client)" >Open in new window</a>
                                   <a href="javascript:" class="px-3" @click="controlClientMute(client)" >@{{ client.isMute ? 'Unmute Client' : 'Mute Client' }}</a>
                                   <a href="javascript:" class="px-3 text-danger" @click="banClient(client)" >Ban Client</a>
-                                  <a href="javascript:" class="px-3 text-danger" @click="endClientSession(client)" >End Session</a>
+                                  <a href="javascript:" class="px-3 text-danger" @click="endClientSession(client)" >End Conversation Now</a>
                                 </div>
                             </div>
                         </div> 

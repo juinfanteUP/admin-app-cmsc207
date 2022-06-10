@@ -27,6 +27,7 @@
                     <table class="table table-editable table-nowrap align-middle table-edits">
                         <thead>
                             <tr>
+                                <th>Conversation Id</th>
                                 <th>Sender</th>
                                 <th>Is Whisper</th>
                                 <th style="width: 300px">Message Body</th>
@@ -35,7 +36,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="message in resultClientMessages">                                                     
+                            <tr v-for="message in resultClientMessages">             
+                                <td>@{{ message.conversationId }}</td>                                        
                                 <td>@{{ message.isAgent == 'true' ? 'Agent' : 'Client' }}</td>
                                 <td>@{{ message.isWhisper == 'true' ? 'Yes' : 'No' }}</td>
                                 <td>@{{ message.body ? message.body : '---' }}</td>
@@ -49,7 +51,7 @@
                                 <td>@{{ message.created_at }}</td>
                             </tr>
                             <tr v-show ="resultClientMessages.length == 0">
-                                <td class="text-center" colspan="5">--- Message history is empty ---</td>
+                                <td class="text-center" colspan="6">--- Message history is empty ---</td>
                             </tr>                    
                         </tbody>
                     </table>

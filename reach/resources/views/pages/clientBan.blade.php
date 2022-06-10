@@ -28,6 +28,7 @@
                                 <thead>
                                     <tr>
                                         <th>Client Id</th>
+                                        <th>Label</th>
                                         <th>IP Address</th>
                                         <th>Domain</th>
                                         <th>Country</th>
@@ -39,6 +40,7 @@
                                 <tbody>
                                     <tr v-for="client in resultClientBanList">                                                     
                                         <td>@{{ client.clientId }}</td>
+                                        <td>@{{ client.label ? client.label : '---' }}</td>
                                         <td>@{{ client.ipaddress }}</td>
                                         <td>@{{ client.domain }}</td>
                                         <td>@{{ client.country }}</td>
@@ -49,7 +51,7 @@
                                         </td>
                                     </tr>
                                     <tr v-show ="resultClientBanList.length == 0">
-                                        <td class="text-center" colspan="7">--- Ban list is empty ---</td>
+                                        <td class="text-center" colspan="8">--- Ban list is empty ---</td>
                                     </tr>                    
                                 </tbody>
                             </table>

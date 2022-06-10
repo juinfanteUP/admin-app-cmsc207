@@ -32167,6 +32167,8 @@ var app = new Vue({
 
         _this.allMessages.push(msg);
 
+        console.log(msg);
+
         if (msg.clientId === _this.selectedClientId) {
           _this.messages.push(msg);
         } else {
@@ -32367,7 +32369,7 @@ var app = new Vue({
 
       });
       this.allMessages.forEach(function (msg) {
-        if (msg.clientId == _this2.selectedClientId) {
+        if (msg.conversationId == client.latestConversationId && msg.clientId == _this2.selectedClientId) {
           msg.isSeen = true;
 
           _this2.messages.push(msg);
@@ -32825,7 +32827,7 @@ var app = new Vue({
       });
     },
     postMessage: function postMessage() {
-      var _document$getElementB, _document$getElementB2, _this$file2, _this$chatbox, _this$file3;
+      var _document$getElementB, _document$getElementB2, _this$file2, _$find2, _this$chatbox, _this$file3;
 
       var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
       var sendApi = "/api/message/send";
@@ -32837,6 +32839,10 @@ var app = new Vue({
         return;
       }
 
+      var convId = (_$find2 = _.find(_this.clients, function (c) {
+        return c.clientId == _this.selectedClientId;
+      })) === null || _$find2 === void 0 ? void 0 : _$find2.latestConversationId;
+      console.log(convId);
       var msg = {
         "clientId": this.selectedClientId,
         "body": (_this$chatbox = this.chatbox) !== null && _this$chatbox !== void 0 ? _this$chatbox : "",
@@ -32844,6 +32850,7 @@ var app = new Vue({
         "isWhisper": isWhisperChecked.toString(),
         "isAgent": 'true',
         "attachmentId": '0',
+        'conversationId': convId,
         'fileName': '',
         'fileSize': 0,
         "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
@@ -32929,7 +32936,7 @@ var app = new Vue({
       }
 
       var msgs = _.filter(this.allMessages, function (m) {
-        return m.clientId == client.clientId;
+        return m.conversationId == client.latestConversationId;
       });
 
       var entity = {

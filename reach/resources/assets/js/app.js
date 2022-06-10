@@ -268,7 +268,6 @@ var socket = "";
                 _this.getClients();
             });
 
-
             // Message from server
             socket.on('message', (msg) => {
                 _this.reports.messageVolumeCount++;
@@ -276,6 +275,8 @@ var socket = "";
                 msg.isSeen = false;
                 
                 _this.allMessages.push(msg);
+
+                console.log(msg);
 
                 if (msg.clientId === _this.selectedClientId) {
                     _this.messages.push(msg);
@@ -452,8 +453,8 @@ var socket = "";
             }); 
 
             this.allMessages.forEach(msg => {
-              if(msg.conversationId == client.latestConversationId 
-                    && client.clientId == this.selectedClientId){
+                if(msg.conversationId == client.latestConversationId 
+                    && msg.clientId == this.selectedClientId){
                     msg.isSeen = true;
                     this.messages.push(msg);
                 }
@@ -836,6 +837,9 @@ var socket = "";
                 console.log('Disabled')
                 return;
             }
+            
+            let convId = _.find(_this.clients, (c)=> { return c.clientId == _this.selectedClientId})?.latestConversationId;
+            console.log(convId);
 
 			var msg = {
                 "clientId": this.selectedClientId,
@@ -844,6 +848,7 @@ var socket = "";
 				"isWhisper": (isWhisperChecked).toString(),
 				"isAgent": 'true',
                 "attachmentId": '0',
+                'conversationId': convId,
                 'fileName': '',
                 'fileSize': 0,
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
