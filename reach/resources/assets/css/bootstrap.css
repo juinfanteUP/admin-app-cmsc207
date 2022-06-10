@@ -2047,6 +2047,8 @@ progress {
     --bs-table-active-bg: rgba(0, 0, 0, 0.075);
     --bs-table-hover-color: #495057;
     --bs-table-hover-bg: #f8f9fa;
+
+    font-size: 12px !important;
     width: 100%;
     margin-bottom: 1rem;
     color: #495057;

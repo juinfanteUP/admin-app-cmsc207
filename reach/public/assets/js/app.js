@@ -2174,6 +2174,149 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /***/ }),
 
+/***/ "./resources/assets/js/utility.js":
+/*!****************************************!*\
+  !*** ./resources/assets/js/utility.js ***!
+  \****************************************/
+/***/ ((module) => {
+
+module.exports = {
+  alertTitle: function alertTitle(msg) {
+    if (this.checkNotificationCompatibility() && Notification.permission === 'granted') {
+      console.log('incoming message, creating notification');
+      notify = new Notification("REACH", {
+        icon: 'assets/images/brand/reach-64.png',
+        body: msg
+      });
+    }
+
+    var c = 1;
+    var i = setInterval(function () {
+      document.title = c % 2 == 0 ? "New Message!" : "Reach App";
+      c++;
+    }, 1000);
+    setTimeout(function () {
+      clearInterval(i);
+      document.title = "Reach App";
+    }, 10000);
+  },
+  handleError: function handleError(e) {
+    console.log(e);
+    divLoader = document.getElementById("preloader");
+    var nodes = divLoader.children;
+    divLoader.style.display = 'none';
+
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].style.display = 'none';
+    }
+  },
+  scrollToBottom: function scrollToBottom() {
+    setTimeout(function () {
+      var _document$getElementB;
+
+      var parentContainer = (_document$getElementB = document.getElementById("users-conversation")) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.parentNode;
+
+      if (parentContainer) {
+        parentContainer.style.overflowX = 'hidden';
+        parentContainer.style.overflowY = 'auto';
+        $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
+      }
+
+      var multiWindow = $(".chat-history");
+
+      if (multiWindow) {
+        var _$$;
+
+        $(".chat-history").stop().animate({
+          scrollTop: (_$$ = $(".chat-history")[0]) === null || _$$ === void 0 ? void 0 : _$$.scrollHeight
+        }, 1000);
+      }
+    }, 200);
+  },
+  validateIP: function validateIP(str) {
+    return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
+  },
+  validateDomain: function validateDomain(str) {
+    return /\S+\.\S+/.test(str);
+  },
+  checkNotificationCompatibility: function checkNotificationCompatibility() {
+    if (typeof Notification === 'undefined') {
+      console.log("Notification is not supported by this browser");
+      return false;
+    }
+
+    return true;
+  },
+  requestNotificationPermission: function requestNotificationPermission() {
+    if (this.checkNotificationCompatibility()) {
+      Notification.requestPermission(function (permission) {
+        console.log('notification permission: ' + permission);
+      });
+    }
+  },
+  validateExtension: function validateExtension(fileName) {
+    var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar", ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx"];
+    return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(fileName);
+  },
+  getChartConfig: function getChartConfig(reportList) {
+    var dateList = [0];
+    var messageCountList = [0];
+    var clientCountList = [0];
+    reportList.forEach(function (c) {
+      dateList.push(c.date);
+      messageCountList.push(c.messageVolumeCount);
+      clientCountList.push(c.clientCount);
+    });
+    return {
+      type: 'line',
+      data: {
+        labels: dateList,
+        datasets: [{
+          label: "Client Engagement Count",
+          backgroundColor: "#4eac6d99",
+          borderColor: "#4eac6d",
+          data: clientCountList,
+          fill: true
+        }, {
+          label: "Message Volume",
+          fill: false,
+          backgroundColor: "#aaa",
+          borderColor: "#aaa",
+          data: messageCountList
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        tooltips: {
+          mode: 'index',
+          intersect: false
+        },
+        hover: {
+          mode: 'nearest',
+          intersect: true
+        },
+        scales: {
+          xAxes: [{
+            display: true,
+            scaleLabel: {
+              display: true
+            }
+          }],
+          yAxes: [{
+            display: true,
+            scaleLabel: {
+              display: true
+            }
+          }]
+        }
+      }
+    };
+  }
+};
+
+/***/ }),
+
 /***/ "./node_modules/lodash/lodash.js":
 /*!***************************************!*\
   !*** ./node_modules/lodash/lodash.js ***!
@@ -31719,6 +31862,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/assets/js/bootstrap.js");
 
+window.Utility = __webpack_require__(/*! ./utility */ "./resources/assets/js/utility.js");
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]); // ***************** Update these Properties ***************** //
 
 var socketioUrl = "";
@@ -31807,6 +31951,9 @@ var app = new Vue({
     allMessages: [],
     unseenMessages: {},
     typingmsg: [],
+    selectedSearchMessageClient: '',
+    searchMessageClient: '',
+    messageClientId: '',
     // Multiwindow
     multiWindowList: [],
     // Clients
@@ -31822,7 +31969,11 @@ var app = new Vue({
     currentHistoryPage: 1,
     totalHistoryPage: 0,
     totalHistoryRecord: 0,
-    skipCountHistory: 10
+    skipCountHistory: 10,
+    loadQueue: []
+  },
+  beforeMount: function beforeMount() {
+    Utility.requestNotificationPermission();
   },
   mounted: function mounted() {
     var params = new Proxy(new URLSearchParams(window.location.search), {
@@ -31834,6 +31985,8 @@ var app = new Vue({
 
     var _this = this;
 
+    _this.showLoader();
+
     axios.get(api).then(function (response) {
       socketioUrl = response.data.socket;
       socket = io(socketioUrl);
@@ -31842,7 +31995,7 @@ var app = new Vue({
 
       _this.getMessages();
 
-      _this.TimeTrigger();
+      _this.timeTrigger();
 
       _this.registerSocketServer();
 
@@ -31858,7 +32011,7 @@ var app = new Vue({
         _this.getClientBanList();
       }
     })["catch"](function (error) {
-      handleError(error);
+      Utility.handleError(error);
     });
   },
   computed: {
@@ -31868,11 +32021,19 @@ var app = new Vue({
     resultMessageHistory: function resultMessageHistory() {
       var _this = this;
 
-      var messages = this.allMessages;
+      var messages = _this.allMessages;
 
-      if (this.searchMessage) {
+      if (_this.messageClientId) {
+        messages = messages.filter(function (i) {
+          return _this.searchMessage.toLowerCase().split(' ').every(function (v) {
+            return i.clientId == _this.messageClientId;
+          });
+        });
+      }
+
+      if (_this.searchMessage) {
         _this.currentHistoryPage = 1;
-        messages = this.allMessages.filter(function (i) {
+        messages = messages.filter(function (i) {
           return _this.searchMessage.toLowerCase().split(' ').every(function (v) {
             return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
           });
@@ -31903,15 +32064,32 @@ var app = new Vue({
       _this.totalClientBanRecord = banList.length;
       return _.take(_.drop(banList, _this.skipCountClientBan * (_this.currentClientBanPage - 1)), _this.skipCountClientBan);
     },
+    resultClientMessageSearch: function resultClientSearch() {
+      var _this = this;
+
+      var clients = this.clients;
+
+      if (this.searchMessageClient) {
+        return clients.filter(function (i) {
+          return _this.searchMessageClient.toLowerCase().split(' ').every(function (v) {
+            var _i$clientId, _i$label, _i$source, _i$country, _i$source2;
+
+            return ((_i$clientId = i.clientId) === null || _i$clientId === void 0 ? void 0 : _i$clientId.toLowerCase().includes(v)) || ((_i$label = i.label) === null || _i$label === void 0 ? void 0 : _i$label.toLowerCase().includes(v)) || ((_i$source = i.source) === null || _i$source === void 0 ? void 0 : _i$source.toLowerCase().includes(v)) || ((_i$country = i.country) === null || _i$country === void 0 ? void 0 : _i$country.toLowerCase().includes(v)) || ((_i$source2 = i.source) === null || _i$source2 === void 0 ? void 0 : _i$source2.toLowerCase().includes(v));
+          });
+        });
+      }
+
+      return clients;
+    },
     resultClientSearch: function resultClientSearch() {
       var _this = this;
 
       if (this.searchClient) {
         return this.clients.filter(function (i) {
           return _this.searchClient.toLowerCase().split(' ').every(function (v) {
-            var _i$clientId, _i$label, _i$source;
+            var _i$clientId2, _i$label2, _i$source3, _i$country2, _i$source4;
 
-            return ((_i$clientId = i.clientId) === null || _i$clientId === void 0 ? void 0 : _i$clientId.toLowerCase().includes(v)) || ((_i$label = i.label) === null || _i$label === void 0 ? void 0 : _i$label.toLowerCase().includes(v)) || ((_i$source = i.source) === null || _i$source === void 0 ? void 0 : _i$source.toLowerCase().includes(v));
+            return ((_i$clientId2 = i.clientId) === null || _i$clientId2 === void 0 ? void 0 : _i$clientId2.toLowerCase().includes(v)) || ((_i$label2 = i.label) === null || _i$label2 === void 0 ? void 0 : _i$label2.toLowerCase().includes(v)) || ((_i$source3 = i.source) === null || _i$source3 === void 0 ? void 0 : _i$source3.toLowerCase().includes(v)) || ((_i$country2 = i.country) === null || _i$country2 === void 0 ? void 0 : _i$country2.toLowerCase().includes(v)) || ((_i$source4 = i.source) === null || _i$source4 === void 0 ? void 0 : _i$source4.toLowerCase().includes(v));
           });
         });
       }
@@ -31987,13 +32165,13 @@ var app = new Vue({
 
         _this.$forceUpdate();
 
-        scrollToBottom();
+        Utility.scrollToBottom();
         $("#typing-client").text("");
         $("#istyping").text("");
 
         if (!isMute) {
           var body = msg.attachmentId == "0" ? msg.body : "Attachment has been uploaded";
-          alertTitle(body);
+          Utility.alertTitle(body);
         }
       });
       socket.on('listen-client-type', function (msg) {
@@ -32033,10 +32211,16 @@ var app = new Vue({
 
       var _this = this;
 
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
+        _this.showLoader(false);
+
         _this.agent = response.data;
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
         window.location.href = "/login";
       });
     },
@@ -32045,10 +32229,14 @@ var app = new Vue({
 
       var _this = this;
 
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
         _this.agents = response.data;
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     getReports: function getReports() {
@@ -32056,16 +32244,20 @@ var app = new Vue({
 
       var _this = this;
 
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
         _this.reports = response.data;
         var canvas = document.getElementById("reportCanvas");
 
         if (canvas != null) {
           var ctx = document.getElementById("reportCanvas").getContext("2d");
-          window.myLine = new Chart(ctx, getChartConfig(_this.reports.historyList));
+          window.myLine = new Chart(ctx, Utility.getChartConfig(_this.reports.historyList));
         }
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     // ************************ Client Helper ************************ //
@@ -32076,7 +32268,12 @@ var app = new Vue({
       var _this = this;
 
       _this.clients = [];
+
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
         $.getJSON("/assets/js/flag.json", function (flags) {
           response.data.forEach(function (c) {
             var _$find$emoji, _$find;
@@ -32113,7 +32310,7 @@ var app = new Vue({
           _this.$forceUpdate();
         });
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     selectClient: function selectClient(client) {
@@ -32150,10 +32347,10 @@ var app = new Vue({
       axios.post(api, {
         clientId: client.clientId
       }).then(function () {})["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
       this.$forceUpdate();
-      scrollToBottom();
+      Utility.scrollToBottom();
     },
     viewClientInfo: function viewClientInfo(client) {
       this.viewClient = {
@@ -32180,7 +32377,11 @@ var app = new Vue({
       var _this = this;
 
       if (confirm('Are you sure you want to update this client?')) {
+        _this.showLoader();
+
         axios.put(api, _this.viewClient).then(function () {
+          _this.showLoader(false);
+
           var ind = _.findIndex(_this.clients, function (c) {
             return c.clientId == _this.viewClient.clientId;
           });
@@ -32192,7 +32393,7 @@ var app = new Vue({
 
           alert('Client has been updated successfully!');
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
       }
     },
@@ -32200,7 +32401,7 @@ var app = new Vue({
       var api = "/api/client/update";
       client.isMute = !client.isMute;
       axios.put(api, client).then(function () {})["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     endClientSession: function endClientSession(client) {
@@ -32232,7 +32433,7 @@ var app = new Vue({
 
           _this.$forceUpdate();
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
       }
     },
@@ -32243,14 +32444,19 @@ var app = new Vue({
       var _this = this;
 
       _this.clientBanList = [];
+
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
         response.data.forEach(function (c) {
           c.created_at = new Date(c.created_at).toISOString().slice(0, 19).replace('T', ' ');
 
           _this.clientBanList.push(c);
         });
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     banClient: function banClient(client) {
@@ -32284,7 +32490,7 @@ var app = new Vue({
 
           alert('Client has been banned successfully!');
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
       }
     },
@@ -32301,7 +32507,7 @@ var app = new Vue({
 
           alert('Client has been removed from the ban list.');
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
       }
     },
@@ -32384,7 +32590,7 @@ var app = new Vue({
 
         switch (_this.selectedBanKey) {
           case 'domain':
-            if (!validateDomain(_this.banInput)) {
+            if (!Utility.validateDomain(_this.banInput)) {
               alert('Please provide a valid domain name');
               return;
             }
@@ -32392,7 +32598,7 @@ var app = new Vue({
             break;
 
           case 'ipaddress':
-            if (!validateIP(_this.banInput)) {
+            if (!Utility.validateIP(_this.banInput)) {
               alert('Please provide a valid IP Address');
               return;
             }
@@ -32409,7 +32615,7 @@ var app = new Vue({
 
         switch (_this.selectedWhiteKey) {
           case 'domain':
-            if (!validateDomain(_this.whiteInput)) {
+            if (!Utility.validateDomain(_this.whiteInput)) {
               alert('Please provide a valid domain name');
               return;
             }
@@ -32417,7 +32623,7 @@ var app = new Vue({
             break;
 
           case 'ipaddress':
-            if (!validateIP(_this.whiteInput)) {
+            if (!Utility.validateIP(_this.whiteInput)) {
               alert('Please provide a valid IP Address');
               return;
             }
@@ -32427,8 +32633,6 @@ var app = new Vue({
       }
 
       if (confirm('Are you sure you want to update the widget settings?')) {
-        showLoader();
-
         switch (action) {
           case 'addBan':
             _this.banList.push({
@@ -32501,10 +32705,13 @@ var app = new Vue({
         });
 
         _this.selectedBanKey = '';
+
+        _this.showLoader();
+
         axios.put(api, dataParams).then(function (response) {
-          showLoader(false);
+          _this.showLoader(false);
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
 
         _this.whiteList.forEach(function (white) {
@@ -32528,10 +32735,13 @@ var app = new Vue({
         });
 
         _this.selectedWhiteKey = '';
+
+        _this.showLoader();
+
         axios.put(api, dataParams).then(function (response) {
-          showLoader(false);
+          _this.showLoader(false);
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
         alert('Settings has been updated successfully.');
       }
@@ -32551,17 +32761,19 @@ var app = new Vue({
 
       var api = '/api/message/list';
       _this.reports.messageVolumeCount++;
-      showLoader();
+
+      _this.showLoader();
+
       axios.get(api).then(function (response) {
+        _this.showLoader(false);
+
         _this.allMessages = response.data;
 
         _this.allMessages.forEach(function (m) {
           m.created_at = new Date(m.created_at).toISOString().slice(0, 19).replace('T', ' ');
         });
-
-        showLoader(false);
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     postMessage: function postMessage() {
@@ -32592,7 +32804,7 @@ var app = new Vue({
       if (_this.file && ((_this$file3 = _this.file) === null || _this$file3 === void 0 ? void 0 : _this$file3.name) != "") {
         var _this$file4;
 
-        if (!validateExtension((_this$file4 = _this.file) === null || _this$file4 === void 0 ? void 0 : _this$file4.name)) {
+        if (!Utility.validateExtension((_this$file4 = _this.file) === null || _this$file4 === void 0 ? void 0 : _this$file4.name)) {
           alert("File extension is invalid.");
           return;
         } // Handle message with attachment
@@ -32605,11 +32817,15 @@ var app = new Vue({
 
         _this.$forceUpdate();
 
+        _this.showLoader();
+
         return axios.post(sendApi, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         }).then(function (response) {
+          _this.showLoader(false);
+
           var newMsg = response.data;
           msg.attachmentId = newMsg.attachmentId;
           msg.fileName = newMsg.fileName;
@@ -32624,9 +32840,9 @@ var app = new Vue({
 
           _this.cancelUpload();
 
-          scrollToBottom();
+          Utility.scrollToBottom();
         })["catch"](function (error) {
-          handleError(error);
+          Utility.handleError(error);
         });
       }
 
@@ -32636,7 +32852,7 @@ var app = new Vue({
 
       _this.messages.push(msg);
 
-      scrollToBottom();
+      Utility.scrollToBottom();
       socket.emit('send-message', msg);
       _this.isSubmitting = true;
       return axios.post(sendApi, {
@@ -32651,7 +32867,7 @@ var app = new Vue({
 
         _this.$forceUpdate();
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     // ***************************** UI Component Controls ***************************** //
@@ -32715,7 +32931,7 @@ var app = new Vue({
       w.messages.push(msg);
       socket.emit('send-message', msg);
       w.body = "";
-      scrollToBottom();
+      Utility.scrollToBottom();
       return axios.post(sendApi, {
         clientId: msg.clientId,
         body: msg.body,
@@ -32726,7 +32942,7 @@ var app = new Vue({
       }).then(function (response) {
         _this.$forceUpdate();
       })["catch"](function (error) {
-        handleError(error);
+        Utility.handleError(error);
       });
     },
     // ************************ File Helper ************************ //
@@ -32749,7 +32965,7 @@ var app = new Vue({
       return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'][i];
     },
     // ************************ Utility Functions ************************ //
-    TimeTrigger: function TimeTrigger() {
+    timeTrigger: function timeTrigger() {
       var _this = this;
 
       setInterval(function () {
@@ -32804,157 +33020,33 @@ var app = new Vue({
           }
         });
       }, 10000);
-    } // 
-
-  }
-}); // *********** Helper Methods *********** //
-
-function showLoader() {
-  var willShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-  var loader = document.getElementById("loader");
-
-  if (loader) {
-    loader.style.display = willShow ? 'block' : 'none';
-  }
-}
-
-function alertTitle(msg) {
-  if (checkNotificationCompatibility() && Notification.permission === 'granted') {
-    console.log('incoming message, creating notification');
-    notify = new Notification("REACH", {
-      icon: 'assets/images/brand/reach-64.png',
-      body: msg
-    });
-  }
-
-  var c = 1;
-  var i = setInterval(function () {
-    document.title = c % 2 == 0 ? "New Message!" : "Reach App";
-    c++;
-  }, 1000);
-  setTimeout(function () {
-    clearInterval(i);
-    document.title = "Reach App";
-  }, 10000);
-}
-
-function handleError(e) {
-  console.log(e);
-  showLoader(false);
-}
-
-function scrollToBottom() {
-  setTimeout(function () {
-    var _document$getElementB5;
-
-    var parentContainer = (_document$getElementB5 = document.getElementById("users-conversation")) === null || _document$getElementB5 === void 0 ? void 0 : _document$getElementB5.parentNode;
-
-    if (parentContainer) {
-      parentContainer.style.overflowX = 'hidden';
-      parentContainer.style.overflowY = 'auto';
-      $("#" + parentContainer.id).scrollTop(parentContainer.scrollHeight);
-    }
-
-    var multiWindow = $(".chat-history");
-
-    if (multiWindow) {
-      var _$$;
-
-      $(".chat-history").stop().animate({
-        scrollTop: (_$$ = $(".chat-history")[0]) === null || _$$ === void 0 ? void 0 : _$$.scrollHeight
-      }, 1000);
-    }
-  }, 200);
-}
-
-function validateIP(str) {
-  return /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str);
-}
-
-function validateDomain(str) {
-  return /\S+\.\S+/.test(str);
-}
-
-function checkNotificationCompatibility() {
-  if (typeof Notification === 'undefined') {
-    console.log("Notification is not supported by this browser");
-    return false;
-  }
-
-  return true;
-}
-
-function requestNotificationPermission() {
-  if (checkNotificationCompatibility()) {
-    Notification.requestPermission(function (permission) {
-      console.log('notification permission: ' + permission);
-    });
-  }
-}
-
-function validateExtension(fileName) {
-  var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar", ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx"];
-  return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(fileName);
-}
-
-function getChartConfig(reportList) {
-  var dateList = [0];
-  var messageCountList = [0];
-  var clientCountList = [0];
-  reportList.forEach(function (c) {
-    dateList.push(c.date);
-    messageCountList.push(c.messageVolumeCount);
-    clientCountList.push(c.clientCount);
-  });
-  return {
-    type: 'line',
-    data: {
-      labels: dateList,
-      datasets: [{
-        label: "Client Engagement Count",
-        backgroundColor: "#4eac6d99",
-        borderColor: "#4eac6d",
-        data: clientCountList,
-        fill: true
-      }, {
-        label: "Message Volume",
-        fill: false,
-        backgroundColor: "#aaa",
-        borderColor: "#aaa",
-        data: messageCountList
-      }]
     },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      tooltips: {
-        mode: 'index',
-        intersect: false
-      },
-      hover: {
-        mode: 'nearest',
-        intersect: true
-      },
-      scales: {
-        xAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true
-          }
-        }],
-        yAxes: [{
-          display: true,
-          scaleLabel: {
-            display: true
-          }
-        }]
+    showLoader: function showLoader() {
+      var willShow = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      var divLoader = document.getElementById("preloader");
+      var nodes = divLoader.children;
+      if (willShow) this.loadQueue.push(1);else this.loadQueue.pop();
+
+      if (this.loadQueue.length > 0) {
+        divLoader.style.display = 'block';
+      }
+
+      if (this.loadQueue.length == 0) {
+        $('#preloader').delay(100).fadeOut('slow');
+
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].style.display = 'none';
+        }
+      } else {
+        divLoader.style.display = 'block';
+
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].style.display = 'block';
+        }
       }
     }
-  };
-} // request permission for notification
-
-
-requestNotificationPermission();
+  }
+});
 })();
 
 /******/ })()

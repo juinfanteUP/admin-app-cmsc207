@@ -205,16 +205,10 @@
                         </div> 
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
 
-    <div id="loader">
-        <div class="loading">Loading&#8230;</div>
-    </div>
-    
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
 @endsection

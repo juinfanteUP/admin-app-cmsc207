@@ -31744,6 +31744,13 @@ new Vue({
   },
   mounted: function mounted() {
     this.clearValues();
+    $(window).on("load", function () {
+      'use strict';
+
+      $('[data-loader="circle-side"]').fadeOut();
+      $('#preloader').delay(100).fadeOut('slow');
+      $(window).scroll();
+    });
   },
   methods: {
     // ******************** API Service ******************** //
