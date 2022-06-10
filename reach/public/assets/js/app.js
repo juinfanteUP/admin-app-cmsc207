@@ -31871,14 +31871,19 @@ var socket = ""; // ***************** Update these Properties ***************** 
 var app = new Vue({
   el: '#app',
   data: {
-    // Agent
+    // Admin dashboard
     agent: {
       firstname: '',
       lastname: '',
       nickname: '',
       email: ''
     },
-    // Message/ widgets	
+    reports: {
+      clientCount: 0,
+      messageVolumeCount: 0,
+      historyList: []
+    },
+    // Widget Settings
     widget: {
       name: 'Reach App',
       color: '#4eac6d',
@@ -31891,11 +31896,6 @@ var app = new Vue({
       banListEnabled: 'false',
       whiteListEnabled: 'false',
       scheduleEnabled: 'false'
-    },
-    reports: {
-      clientCount: 0,
-      messageVolumeCount: 0,
-      historyList: []
     },
     // Ban components
     banList: [],
@@ -31915,13 +31915,6 @@ var app = new Vue({
     banInput: '',
     selectedBanKey: 'domain',
     socketServerUrl: "",
-    // Client Ban
-    clientBanList: [],
-    searchClientBan: '',
-    currentClientBanPage: 1,
-    totalClientBanPage: 0,
-    totalClientBanRecord: 0,
-    skipCountClientBan: 10,
     // Allow components
     whiteList: [],
     whiteSelectionList: [{
@@ -31943,10 +31936,6 @@ var app = new Vue({
     schedule: [],
     // Message Inputs
     chatbox: '',
-    file: {
-      name: ''
-    },
-    isSubmitting: false,
     messages: [],
     allMessages: [],
     unseenMessages: {},
@@ -31956,20 +31945,43 @@ var app = new Vue({
     messageClientId: '',
     // Multiwindow
     multiWindowList: [],
+    clientBanList: [],
     // Clients
     clients: [],
-    onlineClientIds: [],
-    searchClient: '',
     selectedClientId: 0,
     viewClient: {},
+    searchClient: '',
+    // Client Utility
+    onlineClientIds: [],
     allowedClientUpload: [],
+    // Pagination
+    clientMessagePagination: {
+      search: '',
+      currentPage: 1,
+      totalPage: 1,
+      skip: 10,
+      totalRecord: 0
+    },
+    messageHistoryPagination: {
+      search: '',
+      currentPage: 1,
+      totalPage: 1,
+      skip: 10,
+      totalRecord: 0
+    },
+    clientBanPagination: {
+      search: '',
+      currentPage: 1,
+      totalPage: 1,
+      skip: 10,
+      totalRecord: 0
+    },
     // Utilities
+    isSubmitting: false,
+    file: {
+      name: ''
+    },
     currentTime: '',
-    searchMessage: '',
-    currentHistoryPage: 1,
-    totalHistoryPage: 0,
-    totalHistoryRecord: 0,
-    skipCountHistory: 10,
     loadQueue: []
   },
   beforeMount: function beforeMount() {
@@ -32015,62 +32027,41 @@ var app = new Vue({
     });
   },
   computed: {
-    unseenMessagesCount: function unseenMessagesCount() {
-      return this.unseenMessages;
-    },
+    // Table and dropdown results
     resultMessageHistory: function resultMessageHistory() {
       var _this = this;
 
-      var messages = _this.allMessages;
+      var list = _this.allMessages;
 
       if (_this.messageClientId) {
-        messages = messages.filter(function (i) {
-          return _this.searchMessage.toLowerCase().split(' ').every(function (v) {
+        list = list.filter(function (i) {
+          return _this.messageClientId.toLowerCase().split(' ').every(function (v) {
             return i.clientId == _this.messageClientId;
           });
         });
       }
 
-      if (_this.searchMessage) {
-        _this.currentHistoryPage = 1;
-        messages = messages.filter(function (i) {
-          return _this.searchMessage.toLowerCase().split(' ').every(function (v) {
+      if (_this.messageHistoryPagination.search) {
+        _this.messageHistoryPagination.currentPage = 1;
+        list = list.filter(function (i) {
+          return _this.messageHistoryPagination.search.toLowerCase().split(' ').every(function (v) {
             return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
           });
         });
       }
 
-      _this.totalHistoryPage = Math.ceil(messages.length / _this.skipCountHistory);
-      _this.totalHistoryPage = _this.totalHistoryPage <= 0 ? 1 : _this.totalHistoryPage;
-      _this.totalHistoryRecord = messages.length;
-      return _.take(_.drop(messages, _this.skipCountHistory * (_this.currentHistoryPage - 1)), _this.skipCountHistory);
+      _this.messageHistoryPagination.totalPage = Math.ceil(list.length / _this.messageHistoryPagination.skip);
+      _this.messageHistoryPagination.totalPage = _this.messageHistoryPagination.totalPage <= 0 ? 1 : _this.messageHistoryPagination.totalPage;
+      _this.messageHistoryPagination.totalRecord = list.length;
+      return _.take(_.drop(list, _this.messageHistoryPagination.skip * (_this.messageHistoryPagination.currentPage - 1)), _this.messageHistoryPagination.skip);
     },
-    resultClientBanList: function resultClientBanList() {
+    resultClientFilterSearch: function resultClientFilterSearch() {
       var _this = this;
 
-      var banList = this.clientBanList;
-
-      if (this.searchClientBan) {
-        _this.currentClientBanPage = 1;
-        banList = this.clientBanList.filter(function (i) {
-          return _this.searchClientBan.toLowerCase().split(' ').every(function (v) {
-            return i.clientId.toLowerCase().includes(v) || i.domain.toLowerCase().includes(v);
-          });
-        });
-      }
-
-      _this.totalClientBanPage = Math.ceil(banList.length / _this.skipCountClientBan);
-      _this.totalClientBanPage = _this.totalClientBanPage <= 0 ? 1 : _this.totalClientBanPage;
-      _this.totalClientBanRecord = banList.length;
-      return _.take(_.drop(banList, _this.skipCountClientBan * (_this.currentClientBanPage - 1)), _this.skipCountClientBan);
-    },
-    resultClientMessageSearch: function resultClientSearch() {
-      var _this = this;
-
-      var clients = this.clients;
+      var list = this.clients;
 
       if (this.searchMessageClient) {
-        return clients.filter(function (i) {
+        return list.filter(function (i) {
           return _this.searchMessageClient.toLowerCase().split(' ').every(function (v) {
             var _i$clientId, _i$label, _i$source, _i$country, _i$source2;
 
@@ -32079,22 +32070,70 @@ var app = new Vue({
         });
       }
 
-      return clients;
+      return list;
     },
-    resultClientSearch: function resultClientSearch() {
+    resultClientMessages: function resultClientMessages() {
       var _this = this;
 
-      if (this.searchClient) {
-        return this.clients.filter(function (i) {
-          return _this.searchClient.toLowerCase().split(' ').every(function (v) {
-            var _i$clientId2, _i$label2, _i$source3, _i$country2, _i$source4;
+      var list = _this.allMessages.filter(function (i) {
+        return i.clientId == _this.viewClient.clientId;
+      });
 
-            return ((_i$clientId2 = i.clientId) === null || _i$clientId2 === void 0 ? void 0 : _i$clientId2.toLowerCase().includes(v)) || ((_i$label2 = i.label) === null || _i$label2 === void 0 ? void 0 : _i$label2.toLowerCase().includes(v)) || ((_i$source3 = i.source) === null || _i$source3 === void 0 ? void 0 : _i$source3.toLowerCase().includes(v)) || ((_i$country2 = i.country) === null || _i$country2 === void 0 ? void 0 : _i$country2.toLowerCase().includes(v)) || ((_i$source4 = i.source) === null || _i$source4 === void 0 ? void 0 : _i$source4.toLowerCase().includes(v));
+      if (_this.clientMessagePagination.search) {
+        _this.clientMessagePagination.currentPage = 1;
+        list = list.filter(function (i) {
+          return _this.clientMessagePagination.search.toLowerCase().split(' ').every(function (v) {
+            return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
           });
         });
       }
 
-      return this.clients;
+      _this.clientMessagePagination.totalPage = Math.ceil(list.length / _this.clientMessagePagination.skip);
+      _this.clientMessagePagination.totalPage = _this.clientMessagePagination.totalPage <= 0 ? 1 : _this.clientMessagePagination.totalPage;
+      _this.clientMessagePagination.totalRecord = list.length;
+      return _.take(_.drop(list, _this.clientMessagePagination.skip * (_this.clientMessagePagination.currentPage - 1)), _this.clientMessagePagination.skip);
+    },
+    resultClientBanList: function resultClientBanList() {
+      var _this = this;
+
+      var list = this.clientBanList;
+
+      if (this.clientBanPagination.search) {
+        _this.clientBanPagination.currentPage = 1;
+        list = list.filter(function (i) {
+          return _this.clientBanPagination.search.toLowerCase().split(' ').every(function (v) {
+            var _i$label2;
+
+            return i.clientId.toLowerCase().includes(v) || i.domain.toLowerCase().includes(v) || ((_i$label2 = i.label) === null || _i$label2 === void 0 ? void 0 : _i$label2.toLowerCase().includes(v));
+          });
+        });
+      }
+
+      _this.clientBanPagination.totalPage = Math.ceil(list.length / _this.clientBanPagination.skip);
+      _this.clientBanPagination.totalPage = _this.clientBanPagination.totalPage <= 0 ? 1 : _this.clientBanPagination.totalPage;
+      _this.clientBanPagination.totalRecord = list.length;
+      return _.take(_.drop(list, _this.clientBanPagination.skip * (_this.clientBanPagination.currentPage - 1)), _this.clientBanPagination.skip);
+    },
+    resultClientSearch: function resultClientSearch() {
+      var _this = this;
+
+      var list = this.clients;
+
+      if (this.searchClient) {
+        return list.filter(function (i) {
+          return _this.searchClient.toLowerCase().split(' ').every(function (v) {
+            var _i$clientId2, _i$label3, _i$source3, _i$country2, _i$source4;
+
+            return ((_i$clientId2 = i.clientId) === null || _i$clientId2 === void 0 ? void 0 : _i$clientId2.toLowerCase().includes(v)) || ((_i$label3 = i.label) === null || _i$label3 === void 0 ? void 0 : _i$label3.toLowerCase().includes(v)) || ((_i$source3 = i.source) === null || _i$source3 === void 0 ? void 0 : _i$source3.toLowerCase().includes(v)) || ((_i$country2 = i.country) === null || _i$country2 === void 0 ? void 0 : _i$country2.toLowerCase().includes(v)) || ((_i$source4 = i.source) === null || _i$source4 === void 0 ? void 0 : _i$source4.toLowerCase().includes(v));
+          });
+        });
+      }
+
+      return list;
+    },
+    // Utilities
+    unseenMessagesCount: function unseenMessagesCount() {
+      return this.unseenMessages;
     },
     selectedBan: function selectedBan() {
       return this.selectedBanKey;
@@ -32127,6 +32166,8 @@ var app = new Vue({
         msg.isSeen = false;
 
         _this.allMessages.push(msg);
+
+        console.log(msg);
 
         if (msg.clientId === _this.selectedClientId) {
           _this.messages.push(msg);
@@ -32328,7 +32369,7 @@ var app = new Vue({
 
       });
       this.allMessages.forEach(function (msg) {
-        if (msg.clientId == _this2.selectedClientId) {
+        if (msg.conversationId == client.latestConversationId && msg.clientId == _this2.selectedClientId) {
           msg.isSeen = true;
 
           _this2.messages.push(msg);
@@ -32366,6 +32407,15 @@ var app = new Vue({
         notes: client === null || client === void 0 ? void 0 : client.notes
       };
       $('#view-client-modal').modal('show');
+    },
+    viewClientMessages: function viewClientMessages(client) {
+      this.viewClient = {
+        clientId: client === null || client === void 0 ? void 0 : client.clientId,
+        ipaddress: client === null || client === void 0 ? void 0 : client.ipaddress,
+        label: client === null || client === void 0 ? void 0 : client.label,
+        notes: client === null || client === void 0 ? void 0 : client.notes
+      };
+      $('#client-history-modal').modal('show');
     },
     openChatWindow: function openChatWindow(client) {
       var url = "/chat?id=".concat(client.clientId);
@@ -32777,7 +32827,7 @@ var app = new Vue({
       });
     },
     postMessage: function postMessage() {
-      var _document$getElementB, _document$getElementB2, _this$file2, _this$chatbox, _this$file3;
+      var _document$getElementB, _document$getElementB2, _this$file2, _$find2, _this$chatbox, _this$file3;
 
       var isWhisperChecked = (_document$getElementB = (_document$getElementB2 = document.getElementById("isWhisperChecked")) === null || _document$getElementB2 === void 0 ? void 0 : _document$getElementB2.checked) !== null && _document$getElementB !== void 0 ? _document$getElementB : false;
       var sendApi = "/api/message/send";
@@ -32789,6 +32839,10 @@ var app = new Vue({
         return;
       }
 
+      var convId = (_$find2 = _.find(_this.clients, function (c) {
+        return c.clientId == _this.selectedClientId;
+      })) === null || _$find2 === void 0 ? void 0 : _$find2.latestConversationId;
+      console.log(convId);
       var msg = {
         "clientId": this.selectedClientId,
         "body": (_this$chatbox = this.chatbox) !== null && _this$chatbox !== void 0 ? _this$chatbox : "",
@@ -32796,6 +32850,7 @@ var app = new Vue({
         "isWhisper": isWhisperChecked.toString(),
         "isAgent": 'true',
         "attachmentId": '0',
+        'conversationId': convId,
         'fileName': '',
         'fileSize': 0,
         "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')
@@ -32881,7 +32936,7 @@ var app = new Vue({
       }
 
       var msgs = _.filter(this.allMessages, function (m) {
-        return m.clientId == client.clientId;
+        return m.conversationId == client.latestConversationId;
       });
 
       var entity = {

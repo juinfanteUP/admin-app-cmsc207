@@ -266,10 +266,11 @@ class ClientController extends Controller
     {
         $email = Session::get('user');
         $item = Client::where("clientId", $req->clientId)
-                        ->update([ 'isActive' => false ]);
+                        ->update([ 'isActive' => false, 'latestConversationId' => null ]);
               
         $clientBan = new ClientBan();
         $clientBan->clientId = $req->clientId;
+        $clientBan->label = $req->label;
         $clientBan->ipaddress = $req->ipaddress;
         $clientBan->domain = $req->domain;
         $clientBan->country = $req->country;

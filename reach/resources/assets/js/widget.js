@@ -89,6 +89,7 @@ var generateComponent = (widget) => {
     UpdateWidgetSettings(settings);
 	const socket = io(links.socketurl);
 	const room = getLocalClientData();
+    const conversationId = getLocalClientConversationData();
 
     // Generate message history
     for(var i=0; i<messages.length; i++){
@@ -162,6 +163,7 @@ var generateComponent = (widget) => {
             'attachmentId': '0',
             'fileSize': 0,
             'fileName': '',
+            'conversationId': conversationId,
             'createddtm': Date.now()
         }
 
@@ -272,6 +274,7 @@ var generateComponent = (widget) => {
             'attachmentId': '0',
             'fileSize': 0,
             'fileName': '',
+            'conversationId': conversationId,
             'createddtm': Date.now()
         }
 
@@ -365,9 +368,12 @@ var generateComponent = (widget) => {
 	setTimeout(() => {	 
 
         let domain = window.location.hostname;
+        let source = window.location.href;
+
         let params = {
             clientId: getLocalClientData(),
-            domain: domain ?? "Unknown Site" ,
+            source: source ?? "Unknown Site",
+            domain: domain ?? "Unknown Domain" ,
             conversationId: getLocalClientConversationData()
         }
   

@@ -23,15 +23,12 @@ var socket = "";
 	el: '#app',
 	data: {
 
-        // Agent
-		agent: {
-			firstname: '',
-			lastname: '',
-			nickname: '',
-			email: ''
-		},
+        // Admin dashboard
+		agent: { firstname: '', lastname: '', nickname: '', email: '' },
+        reports: { clientCount: 0, messageVolumeCount: 0, historyList : [] },
 
-        // Message/ widgets	
+
+        // Widget Settings
         widget: {
             name: 'Reach App',
             color: '#4eac6d',
@@ -45,37 +42,19 @@ var socket = "";
             whiteListEnabled: 'false',
             scheduleEnabled: 'false'
         },
-        reports: {
-            clientCount: 0,
-            messageVolumeCount: 0,
-            historyList : []
-        },
+        
 
         // Ban components
         banList: [],
-        banSelectionList: [
-            {id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, 
-            {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}, 
-        ],
+        banSelectionList: [{id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}],
         banInput: '',
         selectedBanKey: 'domain',
         socketServerUrl: "", 
 
 
-        // Client Ban
-        clientBanList: [],
-        searchClientBan: '',
-        currentClientBanPage: 1,
-        totalClientBanPage: 0, 
-        totalClientBanRecord: 0,     
-        skipCountClientBan: 10,
-
         // Allow components
         whiteList: [],
-        whiteSelectionList: [
-            {id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, 
-            {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}, 
-        ],
+        whiteSelectionList: [{id: 'domain', labels:'Domain'}, {id: 'ipaddress', labels:'IP Address'}, {id: 'country', labels:'Country'}, {id: 'city', labels:'City'}],
         whiteInput: '',
         selectedWhiteKey: 'domain',
 
@@ -83,9 +62,7 @@ var socket = "";
         schedule: [],
 
         // Message Inputs
-		chatbox: '',
-		file: { name: '' },
-		isSubmitting: false,
+		chatbox: '',	
         messages: [],
         allMessages: [],
         unseenMessages: {},
@@ -96,22 +73,30 @@ var socket = "";
 
         // Multiwindow
         multiWindowList: [],
+        clientBanList: [],
 
         // Clients
-        clients: [],
-        onlineClientIds: [],
-		searchClient: '',
+        clients: [],   
         selectedClientId: 0,
         viewClient: {},
+        searchClient: '',
+
+
+        // Client Utility
+        onlineClientIds: [],
         allowedClientUpload: [],
 
+
+        // Pagination
+        clientMessagePagination: { search: '', currentPage: 1, totalPage: 1, skip: 10, totalRecord: 0 },
+        messageHistoryPagination: { search: '', currentPage: 1, totalPage: 1, skip: 10, totalRecord: 0 },
+        clientBanPagination: { search: '', currentPage: 1, totalPage: 1, skip: 10, totalRecord: 0 },
+ 
+
         // Utilities
+        isSubmitting: false,
+        file: { name: '' },
         currentTime: '',
-        searchMessage: '',
-        currentHistoryPage: 1,
-        totalHistoryPage: 0, 
-        totalHistoryRecord: 0,     
-        skipCountHistory: 10,
         loadQueue: []
 	},
 
@@ -152,89 +137,112 @@ var socket = "";
 	},
 
 	computed: {
-        unseenMessagesCount: function unseenMessagesCount() {
-            return this.unseenMessages;
-        },
+        
+        // Table and dropdown results
 
         resultMessageHistory: function resultMessageHistory() {
             var _this = this;
-            let messages = _this.allMessages;    
+            let list = _this.allMessages;    
             
             if (_this.messageClientId) {
-                messages = messages.filter((i)=>{
-                    return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
+                list = list.filter((i)=>{
+                    return _this.messageClientId.toLowerCase().split(' ').every(function(v) {
                         return i.clientId == _this.messageClientId
                     });
                 });
             }
 
-            if (_this.searchMessage) {
-                _this.currentHistoryPage= 1;
-                messages = messages.filter((i)=>{
-                    return _this.searchMessage.toLowerCase().split(' ').every(function(v) {
+            if (_this.messageHistoryPagination.search) {
+                _this.messageHistoryPagination.currentPage= 1;
+                list = list.filter((i)=>{
+                    return _this.messageHistoryPagination.search.toLowerCase().split(' ').every(function(v) {
                         return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
                     });
                 });
             }
 
-            _this.totalHistoryPage = Math.ceil(messages.length / _this.skipCountHistory);
-            _this.totalHistoryPage = _this.totalHistoryPage <= 0 ? 1 : _this.totalHistoryPage;
-            _this.totalHistoryRecord = messages.length;
+            _this.messageHistoryPagination.totalPage = Math.ceil(list.length / _this.messageHistoryPagination.skip);
+            _this.messageHistoryPagination.totalPage = _this.messageHistoryPagination.totalPage <= 0 ? 1 : _this.messageHistoryPagination.totalPage;
+            _this.messageHistoryPagination.totalRecord = list.length;
 
-            return  _.take(_.drop(messages, _this.skipCountHistory * ( _this.currentHistoryPage -1 )), _this.skipCountHistory);
+            return  _.take(_.drop(list, _this.messageHistoryPagination.skip * ( _this.messageHistoryPagination.currentPage -1 )), _this.messageHistoryPagination.skip);
         },
 
-
-        resultClientBanList: function resultClientBanList() {
-            var _this = this;
-            let banList = this.clientBanList;     
-
-			if (this.searchClientBan) {
-                _this.currentClientBanPage= 1;
-				banList = this.clientBanList.filter((i)=>{
-					return _this.searchClientBan.toLowerCase().split(' ').every(function(v) {
-						return i.clientId.toLowerCase().includes(v) || i.domain.toLowerCase().includes(v);
-					});
-				});
-			}
-
-            _this.totalClientBanPage = Math.ceil(banList.length / _this.skipCountClientBan);
-            _this.totalClientBanPage = _this.totalClientBanPage <= 0 ? 1 : _this.totalClientBanPage;
-            _this.totalClientBanRecord = banList.length;
-
-            return  _.take(_.drop(banList, _this.skipCountClientBan * ( _this.currentClientBanPage -1 )), _this.skipCountClientBan);
-        },
-
-
-        resultClientMessageSearch: function resultClientSearch() {
+        resultClientFilterSearch: function resultClientFilterSearch() {
 			var _this = this;
-            var clients = this.clients;
+            var list = this.clients;
 
 			if (this.searchMessageClient) {
-				return clients.filter((i)=>{
+				return list.filter((i)=>{
 					return _this.searchMessageClient.toLowerCase().split(' ').every(function(v) {
 						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v) || i.country?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
 					});
 				});
 			}
 
-			return clients;
+			return list;
 		},
+     
+        resultClientMessages: function resultClientMessages() {
+            var _this = this;
+            let list = _this.allMessages.filter((i)=>{ return i.clientId == _this.viewClient.clientId }); 
 
+            if (_this.clientMessagePagination.search) {
+                _this.clientMessagePagination.currentPage= 1;
+                list = list.filter((i)=>{
+                    return _this.clientMessagePagination.search.toLowerCase().split(' ').every(function(v) {
+                        return i.body.toLowerCase().includes(v) || i.clientId.toLowerCase().includes(v);
+                    });
+                });
+            }
+
+            _this.clientMessagePagination.totalPage = Math.ceil(list.length / _this.clientMessagePagination.skip);
+            _this.clientMessagePagination.totalPage = _this.clientMessagePagination.totalPage <= 0 ? 1 : _this.clientMessagePagination.totalPage;
+            _this.clientMessagePagination.totalRecord = list.length;
+
+            return  _.take(_.drop(list, _this.clientMessagePagination.skip * ( _this.clientMessagePagination.currentPage -1 )), _this.clientMessagePagination.skip);
+        },
+
+        resultClientBanList: function resultClientBanList() {
+            var _this = this;
+            let list = this.clientBanList;     
+
+			if (this.clientBanPagination.search) {
+                _this.clientBanPagination.currentPage= 1;
+				list = list.filter((i)=>{
+					return _this.clientBanPagination.search.toLowerCase().split(' ').every(function(v) {
+						return i.clientId.toLowerCase().includes(v) || i.domain.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v);
+					});
+				});
+			}
+
+            _this.clientBanPagination.totalPage = Math.ceil(list.length / _this.clientBanPagination.skip);
+            _this.clientBanPagination.totalPage = _this.clientBanPagination.totalPage <= 0 ? 1 : _this.clientBanPagination.totalPage;
+            _this.clientBanPagination.totalRecord = list.length;
+
+            return  _.take(_.drop(list, _this.clientBanPagination.skip * ( _this.clientBanPagination.currentPage -1 )), _this.clientBanPagination.skip);
+        },
 
 		resultClientSearch: function resultClientSearch() {
 			var _this = this;
+            var list = this.clients;
 
 			if (this.searchClient) {
-				return this.clients.filter((i)=>{
+				return list.filter((i)=>{
 					return _this.searchClient.toLowerCase().split(' ').every(function(v) {
 						return i.clientId?.toLowerCase().includes(v) || i.label?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v) || i.country?.toLowerCase().includes(v) || i.source?.toLowerCase().includes(v);
 					});
 				});
 			}
 
-			return this.clients;
+			return list;
 		},
+
+        // Utilities
+
+        unseenMessagesCount: function unseenMessagesCount() {
+            return this.unseenMessages;
+        },
 
         selectedBan: function () {
             return this.selectedBanKey;
@@ -260,7 +268,6 @@ var socket = "";
                 _this.getClients();
             });
 
-
             // Message from server
             socket.on('message', (msg) => {
                 _this.reports.messageVolumeCount++;
@@ -268,6 +275,8 @@ var socket = "";
                 msg.isSeen = false;
                 
                 _this.allMessages.push(msg);
+
+                console.log(msg);
 
                 if (msg.clientId === _this.selectedClientId) {
                     _this.messages.push(msg);
@@ -444,8 +453,8 @@ var socket = "";
             }); 
 
             this.allMessages.forEach(msg => {
-              if(msg.conversationId == client.latestConversationId 
-                    && client.clientId == this.selectedClientId){
+                if(msg.conversationId == client.latestConversationId 
+                    && msg.clientId == this.selectedClientId){
                     msg.isSeen = true;
                     this.messages.push(msg);
                 }
@@ -482,6 +491,17 @@ var socket = "";
             
 			$('#view-client-modal').modal('show');
 		},
+
+        viewClientMessages: function viewClientMessages(client) {
+            this.viewClient = {
+                clientId: client?.clientId,
+				ipaddress: client?.ipaddress,
+                label: client?.label,
+                notes: client?.notes
+			};
+
+			$('#client-history-modal').modal('show');
+        },
 
         openChatWindow: function openChatWindow(client) {
             var url = `/chat?id=${client.clientId}`;
@@ -817,6 +837,9 @@ var socket = "";
                 console.log('Disabled')
                 return;
             }
+            
+            let convId = _.find(_this.clients, (c)=> { return c.clientId == _this.selectedClientId})?.latestConversationId;
+            console.log(convId);
 
 			var msg = {
                 "clientId": this.selectedClientId,
@@ -825,6 +848,7 @@ var socket = "";
 				"isWhisper": (isWhisperChecked).toString(),
 				"isAgent": 'true',
                 "attachmentId": '0',
+                'conversationId': convId,
                 'fileName': '',
                 'fileSize': 0,
                 "created_at": new Date().toISOString().slice(0, 19).replace('T', ' ')

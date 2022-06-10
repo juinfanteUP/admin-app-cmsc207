@@ -17,7 +17,7 @@
                                 </h4>
                             </div>
                             <div class="col-sm-6">
-                                <input v-model="searchClientBan" type="text" class="form-control" placeholder="Enter to search banned clients">
+                                <input v-model="clientBanPagination.search" type="text" class="form-control" placeholder="Enter to search banned clients">
                             </div>
                         </div>
                         
@@ -28,6 +28,7 @@
                                 <thead>
                                     <tr>
                                         <th>Client Id</th>
+                                        <th>Label</th>
                                         <th>IP Address</th>
                                         <th>Domain</th>
                                         <th>Country</th>
@@ -39,6 +40,7 @@
                                 <tbody>
                                     <tr v-for="client in resultClientBanList">                                                     
                                         <td>@{{ client.clientId }}</td>
+                                        <td>@{{ client.label ? client.label : '---' }}</td>
                                         <td>@{{ client.ipaddress }}</td>
                                         <td>@{{ client.domain }}</td>
                                         <td>@{{ client.country }}</td>
@@ -49,7 +51,7 @@
                                         </td>
                                     </tr>
                                     <tr v-show ="resultClientBanList.length == 0">
-                                        <td class="text-center" colspan="7">--- Ban list is empty ---</td>
+                                        <td class="text-center" colspan="8">--- Ban list is empty ---</td>
                                     </tr>                    
                                 </tbody>
                             </table>
@@ -57,13 +59,13 @@
 
                         <div class="row mt-2">
                             <div class="col-sm-6">
-                                Page @{{ currentClientBanPage }} of @{{ totalClientBanPage }} <small class="mx-2 text-muted">(@{{ totalClientBanRecord }}) total records</small>
+                                Page @{{ clientBanPagination.currentPage }} of @{{ clientBanPagination.totalPage }} <small class="mx-2 text-muted">(@{{ clientBanPagination.totalRecord }}) total records</small>
                             </div>
                             <div class="col-sm-6" style="text-align: right">
-                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="currentClientBanPage--" :disabled='currentClientBanPage==1'>
+                                <button class="btn btn-sm btn-success px-2 mx-2" type="button" @click="clientBanPagination.currentPage--" :disabled='clientBanPagination.currentPage==1'>
                                     <i class="ri-arrow-left-s-line"></i>
                                 </button>
-                                <button class="btn btn-sm btn-success px-2" type="button" @click="currentClientBanPage++" :disabled='currentClientBanPage==totalClientBanPage'>
+                                <button class="btn btn-sm btn-success px-2" type="button" @click="clientBanPagination.currentPage++" :disabled='clientBanPagination.currentPage==clientBanPagination.totalPage'>
                                     <i class="ri-arrow-right-s-line"></i>
                                 </button>
                             </div>
