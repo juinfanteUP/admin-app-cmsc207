@@ -444,7 +444,8 @@ var socket = "";
             }); 
 
             this.allMessages.forEach(msg => {
-                if(msg.clientId == this.selectedClientId){
+              if(msg.conversationId == client.latestConversationId 
+                    && client.clientId == this.selectedClientId){
                     msg.isSeen = true;
                     this.messages.push(msg);
                 }
@@ -525,7 +526,7 @@ var socket = "";
             var _this = this;
             
             if(confirm('Are you sure you want to end the session for this client?')) {
-                socket.emit('end-session', client.clientId);
+                socket.emit('end-session', client.clientId);   
 
                 let ind = _.findIndex(_this.clients, (c) => { return c.clientId == client.clientId });    
                 let windowInd = _.findIndex(_this.multiWindowList, (c) => { return c.clientId == client.clientId });
@@ -908,7 +909,7 @@ var socket = "";
                 return;
             }
 
-            let msgs = _.filter(this.allMessages, (m) => { return m.clientId == client.clientId });
+            let msgs = _.filter(this.allMessages, (m) => { return m.conversationId == client.latestConversationId });
 
             let entity = {
                 windowId: `mw-${client.clientId}`,

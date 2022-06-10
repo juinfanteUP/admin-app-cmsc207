@@ -1,6 +1,7 @@
 // *********************************************************** //
 
 const localStorageName = 'reachapp_clientid';
+const localStorageConversationName = 'reachapp_conversationid';
 const sourceUrl = (new URL(document.currentScript.src)).origin;
 var themeColor = "#111";
 var isWidgetOpen = false;
@@ -51,6 +52,16 @@ var setLocalClientData = (cid = null) => {
 	localStorage.setItem(localStorageName, cid);
 }
 
+// reachapp_conversationid
+// Get conversation id from stored cookies. Geenerate a new one if non existent
+var getLocalClientConversationData = () => {
+	return localStorage.getItem(localStorageConversationName) ?? 0;
+}
+
+// Save conversation id generated from the server
+var setLocalClientConversationData = (conversationId = null) => {
+	localStorage.setItem(localStorageConversationName, conversationId);
+}
 
 // ***************** Chat Widget ***************** //
 
@@ -118,7 +129,8 @@ var generateComponent = (widget) => {
         if (room == clientId) {  
             alert('You session with the agent has ended.');
             $("#chat-body").remove();
-            setLocalClientData();
+          //  setLocalClientData();
+            setLocalClientConversationData();
         }
     });
 
@@ -355,18 +367,21 @@ var generateComponent = (widget) => {
         let domain = window.location.hostname;
         let params = {
             clientId: getLocalClientData(),
-            domain: domain ?? "Unknown Site"
+            domain: domain ?? "Unknown Site" ,
+            conversationId: getLocalClientConversationData()
         }
   
 		validateClientAndGetWidget(params).then((result) => {
             console.log(`ClientId: ${result.client.clientId}`);
-
+            
             // If widget is empty, widget may be unavailable or the client is banned
 			if (result && result?.widget && result?.client.clientId != 0) {
 
                 if(result.isNew) {
                     setLocalClientData(result.client.clientId);
                 }
+                   
+                setLocalClientConversationData(result.client.latestConversationId);
 
                 // Add socket.io js dependency
                 var socketio = document.createElement("script");

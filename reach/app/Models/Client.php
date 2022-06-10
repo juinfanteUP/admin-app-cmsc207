@@ -19,7 +19,8 @@ class Client extends Model
         'domain',
         'source',
         'notes',
-        'label'
+        'label',
+        'latestConversationId'
     ]; 
 
     protected $dates = ['created_at', 'updated_at', 'datetime'];
