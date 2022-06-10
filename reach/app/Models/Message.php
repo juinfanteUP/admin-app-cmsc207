@@ -11,7 +11,7 @@ class Message extends Model
     protected $collection = 'messages';
     protected $fillable = [
         'clientId',
-        'convId',
+        'conversationId',
         'senderId', 
         'body',
         'isAgent',
