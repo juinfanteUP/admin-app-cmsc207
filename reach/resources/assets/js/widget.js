@@ -264,6 +264,13 @@ var generateComponent = (widget) => {
         }
 
         var file = input.files[0];
+
+        if (!validateExtension(file?.name))
+        {
+            alert("File extension is invalid.");
+            return;
+        }
+
         let formData = new FormData();
 
         formData.append('file', file);
@@ -312,6 +319,12 @@ var generateComponent = (widget) => {
         return true;
     }
 
+    function validateExtension(fileName) {
+        var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar",
+        ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx",];
+        return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
+    }
+    
 };
 
 

@@ -215,14 +215,7 @@ var socket = "";
 	
         
         registerSocketServer: function registerSocketServer() {
-			var _this = this;
-
-
-
-
-
-
-            
+			var _this = this;      
            
             socket.on('client-join-room', (clientId) => {
                 _this.onlineClientIds.push({ clientId: clientId, willRemove: false });
@@ -273,7 +266,8 @@ var socket = "";
                 $("#istyping").text("");
             
                 if (!isMute) {
-                    alertTitle(msg.body);
+                    let body = msg.attachmentId == "0" ? msg.body : "Attachment has been uploaded";
+                    alertTitle(body);
                 }        
             });
 
@@ -777,7 +771,14 @@ var socket = "";
 			}; 
 
             // Handle plain message
-            if (_this.file && _this.file?.name != "") {      
+            if (_this.file && _this.file?.name != "") {   
+                      
+               if (!validateExtension(_this.file?.name))
+               {
+                   alert("File extension is invalid.");
+                   return;
+               }
+
                  // Handle message with attachment
                 let formData = new FormData();
                 formData.append('file', _this.file);
@@ -1073,6 +1074,12 @@ function requestNotificationPermission() {
             console.log('notification permission: '+permission);
         })
     }
+}
+
+function validateExtension(fileName) {
+    var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar",
+    ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx",];
+    return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
 }
 
 

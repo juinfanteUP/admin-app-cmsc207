@@ -235,6 +235,12 @@ var generateComponent = function generateComponent(widget) {
       'createddtm': Date.now()
     };
     var file = input.files[0];
+
+    if (!validateExtension(file === null || file === void 0 ? void 0 : file.name)) {
+      alert("File extension is invalid.");
+      return;
+    }
+
     var formData = new FormData();
     formData.append('file', file);
     formData.append('document', JSON.stringify(msg));
@@ -275,6 +281,11 @@ var generateComponent = function generateComponent(widget) {
     }
 
     return true;
+  }
+
+  function validateExtension(fileName) {
+    var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar", ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx"];
+    return new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$').test(fileName);
   }
 }; // ***************** App Setup ***************** //
 // Run app upon page load
