@@ -77,7 +77,7 @@ module.exports = {
     validateExtension: function validateExtension(fileName) {
         var exts = [".jpg", ".jpeg", ".bmp", "txt", "rar", "mp4", "mp3", "rar",
         ".gif", ".png", "doc", "docx", "xls", "xlsx", "js", "zip", "pdf", "ppt", "pptx",];
-        return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName);
+        return (new RegExp('(' + exts.join('|').replace(/\./g, '\\.') + ')$')).test(fileName.toLowerCase());
     },
     
     
