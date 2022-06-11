@@ -405,9 +405,7 @@ var socket = "";
             var _this = this;
             _this.clients = [];
 
-            _this.showLoader();
 			axios.get(api).then(function(response) {   
-                _this.showLoader(false);
 
                 $.getJSON( "/assets/js/flag.json", ( flags ) => { 
                     response.data.forEach(c => {
@@ -463,6 +461,13 @@ var socket = "";
             let clientIndex = _.findIndex(_this.clients, (c) => { return c.clientId == client.clientId });
             if(clientIndex>=0){
                 _this.clients[clientIndex].missedCount = 0;
+                var indUpload = _this.allowedClientUpload.indexOf(_this.selectedClientId);        
+                var isChecked = document.getElementById("allow-client-upload")?.checked ?? false;
+                var prnt = document.getElementById("allow-client-upload")?.parentElement
+
+                if ((indUpload >=0 && !isChecked) || (indUpload == -1 && isChecked)){
+                    prnt.click();
+                }             
             }
 
             var api = `/api/message/setSeen`;
@@ -513,10 +518,7 @@ var socket = "";
             var _this = this;
 
             if(confirm('Are you sure you want to update this client?')) {
-
-                _this.showLoader();
                 axios.put(api, _this.viewClient).then(function() {
-                    _this.showLoader(false);
 
                     let ind = _.findIndex(_this.clients, (c) => { return c.clientId == _this.viewClient.clientId });   
                     if (ind>=0) {
@@ -572,10 +574,7 @@ var socket = "";
             var api = `/api/client/ban`;
             var _this = this;
             _this.clientBanList = [];
-
-            _this.showLoader();
             axios.get(api).then(function(response) {
-                _this.showLoader(false);
 
                 response.data.forEach(c => {
                     c.created_at = new Date(c.created_at).toISOString().slice(0, 19).replace('T', ' ');
@@ -813,10 +812,7 @@ var socket = "";
 			var _this = this;
             let api = '/api/message/list';
             _this.reports.messageVolumeCount++;
-
-			_this.showLoader();
 			axios.get(api).then(function(response) {   
-                _this.showLoader(false);
 
 				_this.allMessages = response.data;
 
@@ -871,10 +867,8 @@ var socket = "";
                 _this.isSubmitting = true;
                 _this.$forceUpdate();
 
-                _this.showLoader();
                 return axios.post(sendApi, formData, {headers: { 'Content-Type': 'multipart/form-data'} })
                 .then(function(response) {
-                    _this.showLoader(false);
            
                     let newMsg = response.data;
                     msg.attachmentId = newMsg.attachmentId;
@@ -1056,11 +1050,10 @@ var socket = "";
                         socket.emit('allow-upload', { willAllow: allowUpload, clientId: _this.selectedClientId});
                     }
                }
-           }, 2000);
+           }, 1000);
 
            setInterval(() => {
                let cidToDelete = [];
-
                 _this.onlineClientIds.forEach(c => {
                     if (!c.willRemove) {
                         c.willRemove = true;

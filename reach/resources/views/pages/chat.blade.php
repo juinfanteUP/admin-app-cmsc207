@@ -24,7 +24,7 @@
 
                                             <div class="text-small mx-4" v-show="selectedClientId != 0">
                                                 <small class="mx-2">Allow Client File Upload </small>
-                                                <input id="allow-client-upload" @click="allowClientUpload()" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" 
+                                                <input id="allow-client-upload" type="checkbox" data-toggle="toggle" data-on="on" data-off="off" checked="false"
                                                     title="Click to allow/disable file upload" data-onstyle="success" data-offstyle="secondary" data-size="xs">  
                                             </div>
 
