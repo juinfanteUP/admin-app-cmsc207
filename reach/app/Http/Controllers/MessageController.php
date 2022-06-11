@@ -50,7 +50,7 @@ class MessageController extends Controller
             $message->fileSize = $attachment->fileSize;
 
             // get client conversationId
-            $client = Client::where("clientId", $req->clientId)->first();
+            $client = Client::where("clientId", $jsonReq->clientId)->first();
 
             $message->conversationId = $client->latestConversationId;
             $res = $message->save();
